@@ -52,71 +52,71 @@ class _PerformanceLogScreenState extends State<PerformanceLogScreen> {
   void _showAddLogDialog(BuildContext context) {
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
-        title: const Text("Add Performance Log"),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: _activityController,
-                decoration: const InputDecoration(labelText: "Activity"),
-              ),
-              const SizedBox(height: 8),
-              GestureDetector(
-                onTap: () async {
-                  final picked = await showDatePicker(
-                    context: context,
-                    initialDate: DateTime.now(),
-                    firstDate: DateTime(1950),
-                    lastDate: DateTime.now(),
-                  );
-                  if (picked != null) {
-                    setState(() {
-                      _logDate = picked;
-                    });
-                  }
-                },
-                child: AbsorbPointer(
-                  child: TextField(
-                    decoration: InputDecoration(
-                      labelText: "Date",
-                      hintText: _logDate == null
-                          ? "Pick Date"
-                          : "${_logDate!.toLocal()}".split(' ')[0],
-                      suffixIcon: const Icon(Icons.calendar_today),
+      builder:
+          (_) => AlertDialog(
+            title: const Text("Add Performance Log"),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: _activityController,
+                    decoration: const InputDecoration(labelText: "Activity"),
+                  ),
+                  const SizedBox(height: 8),
+                  GestureDetector(
+                    onTap: () async {
+                      final picked = await showDatePicker(
+                        context: context,
+                        initialDate: DateTime.now(),
+                        firstDate: DateTime(1950),
+                        lastDate: DateTime.now(),
+                      );
+                      if (picked != null) {
+                        setState(() {
+                          _logDate = picked;
+                        });
+                      }
+                    },
+                    child: AbsorbPointer(
+                      child: TextField(
+                        decoration: InputDecoration(
+                          labelText: "Date",
+                          hintText:
+                              _logDate == null
+                                  ? "Pick Date"
+                                  : "${_logDate!.toLocal()}".split(' ')[0],
+                          suffixIcon: const Icon(Icons.calendar_today),
+                        ),
+                      ),
                     ),
                   ),
-                ),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: _notesController,
+                    decoration: const InputDecoration(
+                      labelText: "Notes (optional)",
+                    ),
+                    maxLines: 2,
+                  ),
+                ],
               ),
-              const SizedBox(height: 8),
-              TextField(
-                controller: _notesController,
-                decoration:
-                const InputDecoration(labelText: "Notes (optional)"),
-                maxLines: 2,
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  _activityController.clear();
+                  _notesController.clear();
+                  setState(() {
+                    _logDate = null;
+                  });
+                },
+                child: const Text("Cancel"),
               ),
+              ElevatedButton(onPressed: _addLog, child: const Text("Add")),
             ],
           ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              _activityController.clear();
-              _notesController.clear();
-              setState(() {
-                _logDate = null;
-              });
-            },
-            child: const Text("Cancel"),
-          ),
-          ElevatedButton(
-            onPressed: _addLog,
-            child: const Text("Add"),
-          )
-        ],
-      ),
     );
   }
 
@@ -124,9 +124,7 @@ class _PerformanceLogScreenState extends State<PerformanceLogScreen> {
   Widget build(BuildContext context) {
     final uid = _auth.currentUser?.uid;
     if (uid == null) {
-      return const Scaffold(
-        body: Center(child: Text("Not logged in")),
-      );
+      return const Scaffold(body: Center(child: Text("Not logged in")));
     }
 
     return Scaffold(
@@ -136,15 +134,16 @@ class _PerformanceLogScreenState extends State<PerformanceLogScreen> {
           IconButton(
             icon: const Icon(Icons.add),
             onPressed: () => _showAddLogDialog(context),
-          )
+          ),
         ],
       ),
       body: StreamBuilder<QuerySnapshot>(
-        stream: _firestore
-            .collection('performance_logs')
-            .where('uid', isEqualTo: uid)
-            .orderBy('createdAt', descending: true)
-            .snapshots(),
+        stream:
+            _firestore
+                .collection('performance_logs')
+                .where('uid', isEqualTo: uid)
+                .orderBy('createdAt', descending: true)
+                .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -167,16 +166,17 @@ class _PerformanceLogScreenState extends State<PerformanceLogScreen> {
               if (dateRaw is Timestamp) {
                 dateStr = dateRaw.toDate().toLocal().toString().split(' ')[0];
               } else if (dateRaw is String) {
-                dateStr = dateRaw.split('T').first; // fallback if it was stored as ISO string
+                dateStr =
+                    dateRaw
+                        .split('T')
+                        .first; // fallback if it was stored as ISO string
               }
 
               return Card(
                 margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 child: ListTile(
                   title: Text(activity),
-                  subtitle: Text(
-                    "Date: $dateStr\nNotes: $notes",
-                  ),
+                  subtitle: Text("Date: $dateStr\nNotes: $notes"),
                   trailing: IconButton(
                     icon: const Icon(Icons.delete, color: Colors.red),
                     onPressed: () => _deleteLog(docs[index].id),

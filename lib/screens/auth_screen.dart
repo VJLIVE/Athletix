@@ -1,11 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+
 import 'athlete/athlete_dashboard.dart';
 import 'coach/coach_dashboard.dart';
 import 'doctor/doctor_dashboard.dart';
 import 'organization/organization_dashboard.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
@@ -34,10 +35,12 @@ class _AuthScreenState extends State<AuthScreen> {
 
   Future<void> handleAuth() async {
     if (!isLogin &&
-        (dob == null || _nameController.text.isEmpty || _sportController.text.isEmpty)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please fill all fields")),
-      );
+        (dob == null ||
+            _nameController.text.isEmpty ||
+            _sportController.text.isEmpty)) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Please fill all fields")));
       return;
     }
 
@@ -66,7 +69,10 @@ class _AuthScreenState extends State<AuthScreen> {
 
       // fetch role
       final doc =
-      await _firestore.collection('users').doc(userCredential.user!.uid).get();
+          await _firestore
+              .collection('users')
+              .doc(userCredential.user!.uid)
+              .get();
       final data = doc.data();
       if (data == null || data['role'] == null) {
         throw Exception("User role not found");
@@ -97,9 +103,9 @@ class _AuthScreenState extends State<AuthScreen> {
         MaterialPageRoute(builder: (_) => targetScreen),
       );
     } on FirebaseAuthException catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.message ?? "Error")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e.message ?? "Error")));
     }
   }
 
@@ -139,10 +145,7 @@ class _AuthScreenState extends State<AuthScreen> {
           child: Column(
             children: [
               const SizedBox(height: 30),
-              Image.asset(
-                'assets/applogo.png',
-                height: 80,
-              ),
+              Image.asset('assets/applogo.png', height: 80),
               const SizedBox(height: 16),
               Text(
                 isLogin ? 'Welcome Back' : 'Create an Account',
@@ -165,7 +168,7 @@ class _AuthScreenState extends State<AuthScreen> {
                       color: Colors.grey.shade300,
                       blurRadius: 10,
                       offset: const Offset(0, 4),
-                    )
+                    ),
                   ],
                 ),
                 padding: const EdgeInsets.all(16),
@@ -179,14 +182,16 @@ class _AuthScreenState extends State<AuthScreen> {
                             child: Container(
                               padding: const EdgeInsets.all(12),
                               decoration: BoxDecoration(
-                                color: isLogin ? Colors.blue : Colors.transparent,
+                                color:
+                                    isLogin ? Colors.blue : Colors.transparent,
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Text(
                                 "Login",
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
-                                  color: isLogin ? Colors.white : Colors.black87,
+                                  color:
+                                      isLogin ? Colors.white : Colors.black87,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -199,14 +204,16 @@ class _AuthScreenState extends State<AuthScreen> {
                             child: Container(
                               padding: const EdgeInsets.all(12),
                               decoration: BoxDecoration(
-                                color: !isLogin ? Colors.blue : Colors.transparent,
+                                color:
+                                    !isLogin ? Colors.blue : Colors.transparent,
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Text(
                                 "Signup",
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
-                                  color: !isLogin ? Colors.white : Colors.black87,
+                                  color:
+                                      !isLogin ? Colors.white : Colors.black87,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -239,7 +246,8 @@ class _AuthScreenState extends State<AuthScreen> {
                           if (picked != null) {
                             setState(() {
                               dob = picked;
-                              _dobController.text = "${dob!.toLocal().toString().split(' ')[0]}";
+                              _dobController.text =
+                                  "${dob!.toLocal().toString().split(' ')[0]}";
                             });
                           }
                         },
@@ -259,12 +267,15 @@ class _AuthScreenState extends State<AuthScreen> {
                       // ROLE
                       DropdownButtonFormField<String>(
                         value: selectedRole,
-                        items: roles
-                            .map((role) => DropdownMenuItem(
-                          value: role,
-                          child: Text(role),
-                        ))
-                            .toList(),
+                        items:
+                            roles
+                                .map(
+                                  (role) => DropdownMenuItem(
+                                    value: role,
+                                    child: Text(role),
+                                  ),
+                                )
+                                .toList(),
                         onChanged: (value) {
                           setState(() {
                             selectedRole = value!;
@@ -280,35 +291,43 @@ class _AuthScreenState extends State<AuthScreen> {
                       // SPORT/SPECIALIZATION
                       (selectedRole == 'Doctor')
                           ? TextField(
-                        controller: _sportController,
-                        decoration: const InputDecoration(
-                          labelText: "Specialization",
-                          border: OutlineInputBorder(),
-                        ),
-                      )
+                            controller: _sportController,
+                            decoration: const InputDecoration(
+                              labelText: "Specialization",
+                              border: OutlineInputBorder(),
+                            ),
+                          )
                           : DropdownButtonFormField<String>(
-                        value: _sportController.text.isNotEmpty ? _sportController.text : null,
-                        items: [
-                          'Football',
-                          'Basketball',
-                          'Cricket',
-                          'Tennis',
-                          'Athletics',
-                          'Swimming',
-                        ].map((sport) => DropdownMenuItem(
-                          value: sport,
-                          child: Text(sport),
-                        )).toList(),
-                        onChanged: (value) {
-                          setState(() {
-                            _sportController.text = value ?? '';
-                          });
-                        },
-                        decoration: const InputDecoration(
-                          labelText: "Sport",
-                          border: OutlineInputBorder(),
-                        ),
-                      ),
+                            value:
+                                _sportController.text.isNotEmpty
+                                    ? _sportController.text
+                                    : null,
+                            items:
+                                [
+                                      'Football',
+                                      'Basketball',
+                                      'Cricket',
+                                      'Tennis',
+                                      'Athletics',
+                                      'Swimming',
+                                    ]
+                                    .map(
+                                      (sport) => DropdownMenuItem(
+                                        value: sport,
+                                        child: Text(sport),
+                                      ),
+                                    )
+                                    .toList(),
+                            onChanged: (value) {
+                              setState(() {
+                                _sportController.text = value ?? '';
+                              });
+                            },
+                            decoration: const InputDecoration(
+                              labelText: "Sport",
+                              border: OutlineInputBorder(),
+                            ),
+                          ),
                       const SizedBox(height: 12),
                     ],
 

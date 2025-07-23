@@ -18,30 +18,15 @@ class BottomNavBar extends StatelessWidget {
 
     if (role == 'Organization') {
       items = const [
-        BottomNavigationBarItem(
-          icon: Icon(Icons.home),
-          label: 'Home',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.people),
-          label: 'Players',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.event),
-          label: 'Tournaments',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.person),
-          label: 'Profile',
-        ),
+        BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+        BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Players'),
+        BottomNavigationBarItem(icon: Icon(Icons.event), label: 'Tournaments'),
+        BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
       ];
     } else {
       // fallback
       items = const [
-        BottomNavigationBarItem(
-          icon: Icon(Icons.home),
-          label: 'Home',
-        ),
+        BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
         BottomNavigationBarItem(
           icon: Icon(Icons.calendar_today),
           label: 'Time Table',
@@ -50,10 +35,7 @@ class BottomNavBar extends StatelessWidget {
           icon: Icon(Icons.location_on),
           label: 'Tournaments',
         ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.person),
-          label: 'Profile',
-        ),
+        BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
       ];
     }
 

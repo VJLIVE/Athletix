@@ -1,3 +1,4 @@
+import 'package:athletix/components/Alertdialog_signout.dart';
 import 'package:flutter/material.dart';
 import '../auth_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -14,13 +15,9 @@ class CoachDashboardScreen extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.logout, color: Colors.red),
             onPressed: () async {
-              await FirebaseAuth.instance.signOut();
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (_) => const AuthScreen()),
-              );
+              await AlertDialog_signout(context);
             },
-          )
+          ),
         ],
       ),
       body: const Center(

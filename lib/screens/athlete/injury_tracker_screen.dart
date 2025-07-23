@@ -52,70 +52,75 @@ class _InjuryTrackerScreenState extends State<InjuryTrackerScreen> {
   void _showAddInjuryDialog(BuildContext context) {
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
-        title: const Text("Add Injury"),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: _injuryController,
-                decoration: const InputDecoration(labelText: "Injury Description"),
-              ),
-              const SizedBox(height: 8),
-              GestureDetector(
-                onTap: () async {
-                  final picked = await showDatePicker(
-                    context: context,
-                    initialDate: DateTime.now(),
-                    firstDate: DateTime(1950),
-                    lastDate: DateTime.now(),
-                  );
-                  if (picked != null) {
-                    setState(() {
-                      _injuryDate = picked;
-                    });
-                  }
-                },
-                child: AbsorbPointer(
-                  child: TextField(
-                    decoration: InputDecoration(
-                      labelText: "Injury Date",
-                      hintText: _injuryDate == null
-                          ? "Pick Date"
-                          : _injuryDate!.toLocal().toString().split(' ')[0],
-                      suffixIcon: const Icon(Icons.calendar_today),
+      builder:
+          (_) => AlertDialog(
+            title: const Text("Add Injury"),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: _injuryController,
+                    decoration: const InputDecoration(
+                      labelText: "Injury Description",
                     ),
                   ),
-                ),
+                  const SizedBox(height: 8),
+                  GestureDetector(
+                    onTap: () async {
+                      final picked = await showDatePicker(
+                        context: context,
+                        initialDate: DateTime.now(),
+                        firstDate: DateTime(1950),
+                        lastDate: DateTime.now(),
+                      );
+                      if (picked != null) {
+                        setState(() {
+                          _injuryDate = picked;
+                        });
+                      }
+                    },
+                    child: AbsorbPointer(
+                      child: TextField(
+                        decoration: InputDecoration(
+                          labelText: "Injury Date",
+                          hintText:
+                              _injuryDate == null
+                                  ? "Pick Date"
+                                  : _injuryDate!.toLocal().toString().split(
+                                    ' ',
+                                  )[0],
+                          suffixIcon: const Icon(Icons.calendar_today),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: _notesController,
+                    decoration: const InputDecoration(
+                      labelText: "Notes (optional)",
+                    ),
+                    maxLines: 2,
+                  ),
+                ],
               ),
-              const SizedBox(height: 8),
-              TextField(
-                controller: _notesController,
-                decoration: const InputDecoration(labelText: "Notes (optional)"),
-                maxLines: 2,
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  _injuryController.clear();
+                  _notesController.clear();
+                  setState(() {
+                    _injuryDate = null;
+                  });
+                },
+                child: const Text("Cancel"),
               ),
+              ElevatedButton(onPressed: _addInjury, child: const Text("Add")),
             ],
           ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              _injuryController.clear();
-              _notesController.clear();
-              setState(() {
-                _injuryDate = null;
-              });
-            },
-            child: const Text("Cancel"),
-          ),
-          ElevatedButton(
-            onPressed: _addInjury,
-            child: const Text("Add"),
-          )
-        ],
-      ),
     );
   }
 
@@ -123,9 +128,7 @@ class _InjuryTrackerScreenState extends State<InjuryTrackerScreen> {
   Widget build(BuildContext context) {
     final uid = _auth.currentUser?.uid;
     if (uid == null) {
-      return const Scaffold(
-        body: Center(child: Text("Not logged in")),
-      );
+      return const Scaffold(body: Center(child: Text("Not logged in")));
     }
 
     return Scaffold(
@@ -135,15 +138,16 @@ class _InjuryTrackerScreenState extends State<InjuryTrackerScreen> {
           IconButton(
             icon: const Icon(Icons.add),
             onPressed: () => _showAddInjuryDialog(context),
-          )
+          ),
         ],
       ),
       body: StreamBuilder<QuerySnapshot>(
-        stream: _firestore
-            .collection('injuries')
-            .where('uid', isEqualTo: uid)
-            .orderBy('createdAt', descending: true)
-            .snapshots(),
+        stream:
+            _firestore
+                .collection('injuries')
+                .where('uid', isEqualTo: uid)
+                .orderBy('createdAt', descending: true)
+                .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());

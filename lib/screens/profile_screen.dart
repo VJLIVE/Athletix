@@ -1,8 +1,9 @@
+import 'package:athletix/components/Alertdialog_signout.dart';
+import 'package:athletix/screens/auth_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import './auth_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -16,20 +17,13 @@ class ProfileScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        title: const Text(
-          "Profile",
-          style: TextStyle(color: Colors.black),
-        ),
+        title: const Text("Profile", style: TextStyle(color: Colors.black)),
         actions: [
           IconButton(
             icon: const Icon(Icons.logout, color: Colors.red), // 🔴 Red icon
             tooltip: 'Logout',
             onPressed: () async {
-              await FirebaseAuth.instance.signOut();
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (_) => const AuthScreen()),
-              );
+              await AlertDialog_signout(context);
             },
           ),
         ],
@@ -62,13 +56,15 @@ class ProfileScreen extends StatelessWidget {
           final dobRaw = data['dob'];
           final createdAtRaw = data['createdAt'];
 
-          final dobFormatted = dobRaw != null
-              ? _formatDate(DateTime.tryParse(dobRaw) ?? DateTime.now())
-              : 'N/A';
+          final dobFormatted =
+              dobRaw != null
+                  ? _formatDate(DateTime.tryParse(dobRaw) ?? DateTime.now())
+                  : 'N/A';
 
-          final createdAtFormatted = createdAtRaw != null
-              ? _formatDate((createdAtRaw as Timestamp).toDate())
-              : 'N/A';
+          final createdAtFormatted =
+              createdAtRaw != null
+                  ? _formatDate((createdAtRaw as Timestamp).toDate())
+                  : 'N/A';
 
           return SingleChildScrollView(
             padding: const EdgeInsets.all(16),
@@ -86,15 +82,16 @@ class ProfileScreen extends StatelessWidget {
                       CircleAvatar(
                         radius: 50,
                         backgroundColor: Colors.blue.shade100,
-                        child: Icon(Icons.person,
-                            size: 60, color: Colors.blue.shade700),
+                        child: Icon(
+                          Icons.person,
+                          size: 60,
+                          color: Colors.blue.shade700,
+                        ),
                       ),
                       const SizedBox(height: 16),
                       Text(
                         data['name'] ?? 'N/A',
-                        style: Theme.of(context)
-                            .textTheme
-                            .headlineSmall!
+                        style: Theme.of(context).textTheme.headlineSmall!
                             .copyWith(fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 8),
@@ -102,7 +99,9 @@ class ProfileScreen extends StatelessWidget {
                         label: Text(role.toUpperCase()),
                         backgroundColor: Colors.blue.shade50,
                         labelStyle: const TextStyle(
-                            color: Colors.black87, fontWeight: FontWeight.w500),
+                          color: Colors.black87,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                       const SizedBox(height: 24),
                       _buildInfoRow("Email", data['email'] ?? 'N/A'),

@@ -1,9 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class AddTournamentScreen extends StatefulWidget {
   const AddTournamentScreen({super.key});
@@ -22,7 +22,12 @@ class _AddTournamentScreenState extends State<AddTournamentScreen> {
   String? _address;
   String? _sport;
 
-  final List<String> _levels = ['District', 'State', 'National', 'International'];
+  final List<String> _levels = [
+    'District',
+    'State',
+    'National',
+    'International',
+  ];
 
   @override
   void initState() {
@@ -32,7 +37,8 @@ class _AddTournamentScreenState extends State<AddTournamentScreen> {
 
   Future<void> _loadSport() async {
     final uid = FirebaseAuth.instance.currentUser!.uid;
-    final doc = await FirebaseFirestore.instance.collection('users').doc(uid).get();
+    final doc =
+        await FirebaseFirestore.instance.collection('users').doc(uid).get();
     setState(() {
       _sport = doc['sport'];
     });
@@ -65,7 +71,7 @@ class _AddTournamentScreenState extends State<AddTournamentScreen> {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
         ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Location permission denied.'))
+          const SnackBar(content: Text('Location permission denied.')),
         );
         return;
       }
@@ -73,7 +79,11 @@ class _AddTournamentScreenState extends State<AddTournamentScreen> {
 
     if (permission == LocationPermission.deniedForever) {
       ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Location permissions are permanently denied, please enable them in settings.'))
+        const SnackBar(
+          content: Text(
+            'Location permissions are permanently denied, please enable them in settings.',
+          ),
+        ),
       );
       return;
     }
@@ -91,7 +101,10 @@ class _AddTournamentScreenState extends State<AddTournamentScreen> {
     );
 
     if (result != null) {
-      List<Placemark> placemarks = await placemarkFromCoordinates(result.latitude, result.longitude);
+      List<Placemark> placemarks = await placemarkFromCoordinates(
+        result.latitude,
+        result.longitude,
+      );
       String readableAddress =
           "${placemarks.first.street ?? ''}, ${placemarks.first.locality ?? ''}";
       setState(() {
@@ -102,7 +115,10 @@ class _AddTournamentScreenState extends State<AddTournamentScreen> {
   }
 
   Future<void> _submit() async {
-    if (!_formKey.currentState!.validate() || _date == null || _time == null || _pickedLocation == null) {
+    if (!_formKey.currentState!.validate() ||
+        _date == null ||
+        _time == null ||
+        _pickedLocation == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please fill all the fields!')),
       );
@@ -130,18 +146,19 @@ class _AddTournamentScreenState extends State<AddTournamentScreen> {
     // ✅ Show confirmation
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('Success'),
-        content: const Text('Tournament added successfully!'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(); // Close dialog
-            },
-            child: const Text('OK'),
-          )
-        ],
-      ),
+      builder:
+          (_) => AlertDialog(
+            title: const Text('Success'),
+            content: const Text('Tournament added successfully!'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Close dialog
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          ),
     );
 
     // ✅ Reset the form
@@ -168,14 +185,21 @@ class _AddTournamentScreenState extends State<AddTournamentScreen> {
             children: [
               TextFormField(
                 decoration: const InputDecoration(labelText: 'Tournament Name'),
-                validator: (val) => val == null || val.isEmpty ? 'Required' : null,
+                validator:
+                    (val) => val == null || val.isEmpty ? 'Required' : null,
                 onSaved: (val) => _name = val,
               ),
               const SizedBox(height: 12),
               DropdownButtonFormField(
                 value: _level,
                 decoration: const InputDecoration(labelText: 'Level'),
-                items: _levels.map((lvl) => DropdownMenuItem(value: lvl, child: Text(lvl))).toList(),
+                items:
+                    _levels
+                        .map(
+                          (lvl) =>
+                              DropdownMenuItem(value: lvl, child: Text(lvl)),
+                        )
+                        .toList(),
                 onChanged: (val) => setState(() => _level = val!),
               ),
               const SizedBox(height: 12),
@@ -184,14 +208,20 @@ class _AddTournamentScreenState extends State<AddTournamentScreen> {
                   Expanded(
                     child: ElevatedButton(
                       onPressed: _pickDate,
-                      child: Text(_date == null ? 'Pick Date' : _date!.toLocal().toString().split(' ')[0]),
+                      child: Text(
+                        _date == null
+                            ? 'Pick Date'
+                            : _date!.toLocal().toString().split(' ')[0],
+                      ),
                     ),
                   ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: ElevatedButton(
                       onPressed: _pickTime,
-                      child: Text(_time == null ? 'Pick Time' : _time!.format(context)),
+                      child: Text(
+                        _time == null ? 'Pick Time' : _time!.format(context),
+                      ),
                     ),
                   ),
                 ],
@@ -199,7 +229,11 @@ class _AddTournamentScreenState extends State<AddTournamentScreen> {
               const SizedBox(height: 12),
               ElevatedButton.icon(
                 icon: const Icon(Icons.map),
-                label: Text(_pickedLocation == null ? 'Pick Location' : _address ?? 'Location picked'),
+                label: Text(
+                  _pickedLocation == null
+                      ? 'Pick Location'
+                      : _address ?? 'Location picked',
+                ),
                 onPressed: _pickLocation,
               ),
               const SizedBox(height: 20),
@@ -238,7 +272,7 @@ class _MapScreenState extends State<MapScreen> {
             onPressed: () {
               if (_picked != null) Navigator.pop(context, _picked);
             },
-          )
+          ),
         ],
       ),
       body: GoogleMap(
@@ -246,21 +280,23 @@ class _MapScreenState extends State<MapScreen> {
           target: widget.initialLocation,
           zoom: 17, // 👈 zoom in a bit more
         ),
-        myLocationEnabled: true,            // 👈 blue dot shows real-time location
-        myLocationButtonEnabled: true,     // 👈 button to center back to your location
+        myLocationEnabled: true, // 👈 blue dot shows real-time location
+        myLocationButtonEnabled:
+            true, // 👈 button to center back to your location
         onTap: (latLng) {
           setState(() {
-            _picked = latLng;             // 👈 only set marker when tapped
+            _picked = latLng; // 👈 only set marker when tapped
           });
         },
-        markers: _picked == null
-            ? {}
-            : {
-          Marker(
-            markerId: const MarkerId('picked'),
-            position: _picked!,
-          )
-        },
+        markers:
+            _picked == null
+                ? {}
+                : {
+                  Marker(
+                    markerId: const MarkerId('picked'),
+                    position: _picked!,
+                  ),
+                },
       ),
     );
   }

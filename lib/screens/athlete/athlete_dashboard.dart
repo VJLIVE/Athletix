@@ -1,3 +1,4 @@
+import 'package:athletix/components/Alertdialog_signout.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -52,21 +53,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        title: const Text(
-          'Dashboard',
-          style: TextStyle(color: Colors.black),
-        ),
+        title: const Text('Dashboard', style: TextStyle(color: Colors.black)),
         actions: [
           IconButton(
             onPressed: () async {
-              await FirebaseAuth.instance.signOut();
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (_) => const AuthScreen()),
-              );
+              await AlertDialog_signout(context);
             },
             icon: const Icon(Icons.logout, color: Colors.red),
-          )
+          ),
         ],
       ),
       body: FutureBuilder<DocumentSnapshot<Map<String, dynamic>>>(
@@ -90,17 +84,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Card(
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                   child: ListTile(
-                    leading: const Icon(Icons.person, color: Colors.blue, size: 40),
-                    title: Text(name, style: Theme.of(context).textTheme.titleMedium),
+                    leading: const Icon(
+                      Icons.person,
+                      color: Colors.blue,
+                      size: 40,
+                    ),
+                    title: Text(
+                      name,
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
                     subtitle: Text("Sport: $sport\nDOB: $dob"),
                   ),
                 ),
                 const SizedBox(height: 20),
                 Text(
                   'Quick Actions',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 10),
                 GridView(
@@ -121,7 +126,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       onTap: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (_) => const InjuryTrackerScreen()),
+                          MaterialPageRoute(
+                            builder: (_) => const InjuryTrackerScreen(),
+                          ),
                         );
                       },
                     ),
@@ -133,7 +140,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       onTap: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (_) => const PerformanceLogScreen()),
+                          MaterialPageRoute(
+                            builder: (_) => const PerformanceLogScreen(),
+                          ),
                         );
                       },
                     ),
@@ -152,11 +161,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return await FirebaseFirestore.instance.collection('users').doc(uid).get();
   }
 
-  Widget _buildActionCard(BuildContext context,
-      {required IconData icon,
-        required String label,
-        required Color color,
-        required VoidCallback onTap}) {
+  Widget _buildActionCard(
+    BuildContext context, {
+    required IconData icon,
+    required String label,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
     return GestureDetector(
       onTap: onTap,
       child: Card(
@@ -172,9 +183,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
             children: [
               Icon(icon, size: 40, color: color),
               const SizedBox(height: 10),
-              Text(label,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(fontWeight: FontWeight.w600)),
+              Text(
+                label,
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontWeight: FontWeight.w600),
+              ),
             ],
           ),
         ),
