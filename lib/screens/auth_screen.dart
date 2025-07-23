@@ -97,8 +97,42 @@ class _AuthScreenState extends State<AuthScreen> {
         MaterialPageRoute(builder: (_) => targetScreen),
       );
     } on FirebaseAuthException catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.message ?? "Error")),
+      String errorMessage;
+      switch (e.code) {
+        case 'user-not-found':
+        case 'wrong-password':
+          errorMessage = "Email or password is incorrect. Please try again.";
+          break;
+        case 'invalid-email':
+          errorMessage = "The email address is not valid.";
+          break;
+        case 'user-disabled':
+          errorMessage = "This user account has been disabled.";
+          break;
+        case 'email-already-in-use':
+          errorMessage = "This email is already registered. Try logging in.";
+          break;
+        case 'weak-password':
+          errorMessage = "Your password must be at least 8 characters and contain a number.";
+          break;
+        case 'operation-not-allowed':
+          errorMessage = "This operation is not allowed. Please contact support.";
+          break;
+        default:
+          errorMessage = e.message ?? "An unknown error occurred. Please try again.";
+      }
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Authentication Error'),
+          content: Text(errorMessage),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('OK'),
+            ),
+          ],
+        ),
       );
     }
   }
