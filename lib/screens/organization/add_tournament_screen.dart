@@ -128,21 +128,51 @@ class _AddTournamentScreenState extends State<AddTournamentScreen> {
     await FirebaseFirestore.instance.collection('tournaments').add(tournament);
 
     // ✅ Show confirmation
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('Success'),
-        content: const Text('Tournament added successfully!'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(); // Close dialog
-            },
-            child: const Text('OK'),
-          )
-        ],
+ showDialog(
+  context: context,
+  builder: (_) => AlertDialog(
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(20),
+    ),
+    title: Row(
+      children: const [
+        Icon(Icons.check_circle, color: Colors.green),
+        SizedBox(width: 8),
+        Text('Success'),
+      ],
+    ),
+    content: Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: const [
+        Text(
+          'Your tournament has been added successfully!',
+          style: TextStyle(fontSize: 16),
+        ),
+        SizedBox(height: 10),
+        Divider(),
+        SizedBox(height: 10),
+        Text(
+          'Details:',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        SizedBox(height: 5),
+        Text('• Level: District'),
+        Text('• Sport: Football'),
+        Text('• Date: 2024-07-22'),
+        Text('• Time: 5:00 PM'),
+        Text('• Address: CQQ4+7X4, Hyderabad'),
+      ],
+    ),
+    actions: [
+      TextButton(
+        onPressed: () => Navigator.of(context).pop(),
+        child: const Text('Close'),
       ),
-    );
+    ],
+  ),
+);
+
 
     // ✅ Reset the form
     setState(() {
