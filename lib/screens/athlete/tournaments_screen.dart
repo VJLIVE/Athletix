@@ -134,33 +134,96 @@ class _TournamentsScreenState extends State<TournamentsScreen> {
     );
   }
 
-  void _showTournamentDialog(BuildContext context, Tournament t) {
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: Text(t.name),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Level: ${t.level}'),
-            Text('Sport: ${t.sport}'),
-            Text('Date: ${t.dateString}'),
-            Text('Time: ${t.time}'),
-            const SizedBox(height: 8),
-            Text('Address: ${t.address}'),
-          ],
+void _showTournamentDialog(BuildContext context, Tournament t) {
+  showDialog(
+    context: context,
+    builder: (_) => AlertDialog(
+      backgroundColor: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      title: Text(
+        t.name,
+        style: const TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+          color: Colors.black87,
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Close'),
-          )
+      ),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 8),
+          _buildInfoRow("Level", t.level),
+          const SizedBox(height: 6),
+          _buildInfoRow("Sport", t.sport),
+          const SizedBox(height: 6),
+          _buildInfoRow("Date", t.dateString),
+          const SizedBox(height: 6),
+          _buildInfoRow("Time", t.time),
+          const SizedBox(height: 12),
+          const Text(
+            "Address:",
+            style: TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: 14,
+              color: Colors.black87,
+            ),
+          ),
+          Text(
+            t.address,
+            style: const TextStyle(
+              fontSize: 14,
+              color: Colors.black54,
+            ),
+          ),
         ],
       ),
-    );
-  }
+      actions: [
+        Center(
+          child: TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text(
+              'Close',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                color: Colors.blue,
+              ),
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
 }
+
+Widget _buildInfoRow(String title, String value) {
+  return Row(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(
+        "$title: ",
+        style: const TextStyle(
+          fontWeight: FontWeight.w600,
+          fontSize: 14,
+          color: Colors.black87,
+        ),
+      ),
+      Expanded(
+        child: Text(
+          value,
+          style: const TextStyle(
+            fontSize: 14,
+            color: Colors.black54,
+          ),
+        ),
+      ),
+    ],
+  );
+}
+
 
 class Tournament {
   final String id;
