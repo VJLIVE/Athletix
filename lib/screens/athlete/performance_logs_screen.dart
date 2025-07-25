@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:Athletix/features/performance_tracking/performance_chart.dart';
 
 class PerformanceLogScreen extends StatefulWidget {
   const PerformanceLogScreen({super.key});
@@ -155,38 +156,69 @@ class _PerformanceLogScreenState extends State<PerformanceLogScreen> {
 
           final docs = snapshot.data!.docs;
 
-          return ListView.builder(
-            itemCount: docs.length,
-            itemBuilder: (context, index) {
-              final data = docs[index].data() as Map<String, dynamic>;
-              final activity = data['activity'] ?? '';
-              final notes = data['notes'] ?? '-';
+          // 🔁 Build chart data list
+          final List<Map<String, dynamic>> logsForChart = docs.map((doc) {
+            final data = doc.data() as Map<String, dynamic>;
+            return {
+              'activity': data['activity'],
+              'notes': data['notes'],
+              'date': (data['date'] as Timestamp).toDate(),
+              'calories': 100, // Optional: make dynamic later
+              'duration': 30,  // Optional: make dynamic later
+            };
+          }).toList();
 
-              String dateStr = '';
-              final dateRaw = data['date'];
-              if (dateRaw is Timestamp) {
-                dateStr = dateRaw.toDate().toLocal().toString().split(' ')[0];
-              } else if (dateRaw is String) {
-                dateStr = dateRaw.split('T').first; // fallback if it was stored as ISO string
-              }
-
-              return Card(
-                margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                child: ListTile(
-                  title: Text(activity),
-                  subtitle: Text(
-                    "Date: $dateStr\nNotes: $notes",
-                  ),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.delete, color: Colors.red),
-                    onPressed: () => _deleteLog(docs[index].id),
-                  ),
+          return Column(
+            children: [
+              SizedBox(
+                height: 300,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: PerformanceChart(logs: logsForChart),
                 ),
-              );
-            },
+              ),
+              const Divider(),
+              const Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Text(
+                  "Recent Logs",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+              ),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: docs.length,
+                  itemBuilder: (context, index) {
+                    final data = docs[index].data() as Map<String, dynamic>;
+                    final activity = data['activity'] ?? '';
+                    final notes = data['notes'] ?? '-';
+
+                    String dateStr = '';
+                    final dateRaw = data['date'];
+                    if (dateRaw is Timestamp) {
+                      dateStr = dateRaw.toDate().toLocal().toString().split(' ')[0];
+                    } else if (dateRaw is String) {
+                      dateStr = dateRaw.split('T').first;
+                    }
+
+                    return Card(
+                      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      child: ListTile(
+                        title: Text(activity),
+                        subtitle: Text("Date: $dateStr\nNotes: $notes"),
+                        trailing: IconButton(
+                          icon: const Icon(Icons.delete, color: Colors.red),
+                          onPressed: () => _deleteLog(docs[index].id),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
           );
         },
       ),
     );
-  }
+  },
 }
