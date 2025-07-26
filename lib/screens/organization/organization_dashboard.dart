@@ -5,6 +5,7 @@ import '../auth_screen.dart';
 import '../../components/bottom_nav_bar.dart';
 import 'manage_players_screen.dart';
 import 'add_tournament_screen.dart';
+import 'view_tournaments_screen.dart';
 import '../profile_screen.dart';
 
 class OrganizationDashboardScreen extends StatefulWidget {
@@ -116,7 +117,7 @@ class _OrganizationDashboardScreenState extends State<OrganizationDashboardScree
                       color: Colors.deepPurple,
                       onTap: () {
                         setState(() {
-                          _currentIndex = 1; // Switch to Manage Players tab
+                          _currentIndex = 1;
                         });
                       },
                     ),
@@ -126,13 +127,23 @@ class _OrganizationDashboardScreenState extends State<OrganizationDashboardScree
                       color: Colors.teal,
                       onTap: () {
                         setState(() {
-                          _currentIndex = 2; // Switch to Add Tournament tab
+                          _currentIndex = 2;
                         });
+                      },
+                    ),
+                    _buildActionCard(
+                      icon: Icons.visibility,
+                      label: "View Tournaments",
+                      color: Colors.orange,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const ViewTournamentsScreen()),
+                        );
                       },
                     ),
                   ],
                 ),
-               
               ],
             ),
           );
