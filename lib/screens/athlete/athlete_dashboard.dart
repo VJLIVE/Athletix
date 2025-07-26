@@ -41,7 +41,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               _currentIndex = index;
             });
           },
-          role: 'Athlete', // 👈 Pass role here
+          role: 'Athlete',
         ),
       ),
     );
@@ -78,36 +78,38 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
           final name = data['name'] ?? '';
           final sport = data['sport'] ?? '';
-          final dob = data['dob']?.toString().split('T').first ?? '';
+          final dob = data['dob']
+              ?.toString()
+              .split('T')
+              .first ?? '';
 
           return SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+            // bottom padding added
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Card(
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+                      borderRadius: BorderRadius.circular(12)),
                   child: ListTile(
                     leading: const Icon(
-                      Icons.person,
-                      color: Colors.blue,
-                      size: 40,
-                    ),
-                    title: Text(
-                      name,
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
+                        Icons.person, color: Colors.blue, size: 40),
+                    title: Text(name, style: Theme
+                        .of(context)
+                        .textTheme
+                        .titleMedium),
                     subtitle: Text("Sport: $sport\nDOB: $dob"),
                   ),
                 ),
                 const SizedBox(height: 20),
                 Text(
                   'Quick Actions',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: Theme
+                      .of(context)
+                      .textTheme
+                      .titleMedium
+                      ?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 10),
                 GridView(
@@ -117,7 +119,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     crossAxisCount: 2,
                     crossAxisSpacing: 12,
                     mainAxisSpacing: 12,
-                    childAspectRatio: 1.2,
+                    childAspectRatio: 1.1, // adjusted from 1.2 to reduce overflow
                   ),
                   children: [
                     _buildActionCard(
@@ -128,9 +130,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       onTap: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(
-                            builder: (_) => const InjuryTrackerScreen(),
-                          ),
+                          MaterialPageRoute(builder: (
+                              _) => const InjuryTrackerScreen()),
                         );
                       },
                     ),
@@ -142,9 +143,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       onTap: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(
-                            builder: (_) => const PerformanceLogScreen(),
-                          ),
+                          MaterialPageRoute(builder: (
+                              _) => const PerformanceLogScreen()),
                         );
                       },
                     ),
@@ -178,8 +178,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return await FirebaseFirestore.instance.collection('users').doc(uid).get();
   }
 
-  Widget _buildActionCard(
-    BuildContext context, {
+  Widget _buildActionCard(BuildContext context, {
     required IconData icon,
     required String label,
     required Color color,
@@ -194,16 +193,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
             borderRadius: BorderRadius.circular(12),
             color: Colors.white,
           ),
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(12),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, size: 40, color: color),
-              const SizedBox(height: 10),
+              Icon(icon, size: 36, color: color),
+              const SizedBox(height: 8),
               Text(
                 label,
                 textAlign: TextAlign.center,
-                style: const TextStyle(fontWeight: FontWeight.w600),
+                softWrap: true,
+                maxLines: 2,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                ),
               ),
             ],
           ),
