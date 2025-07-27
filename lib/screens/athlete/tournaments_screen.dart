@@ -115,7 +115,7 @@ class _TournamentsScreenState extends State<TournamentsScreen> {
                   alignment: Alignment.bottomCenter,
                   child: Container(
                     width: double.infinity,
-                    color: Colors.red.withOpacity(0.8),
+                    color: Colors.red.withValues(alpha: 0.8),
                     padding: const EdgeInsets.all(12),
                     child: const Text(
                       'No tournaments found.',

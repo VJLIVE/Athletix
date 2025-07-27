@@ -130,7 +130,7 @@ class _FinancialTrackerPageState extends State<FinancialTrackerPage>
               borderRadius: BorderRadius.circular(18),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.06),
+                  color: Colors.black.withValues(alpha: 0.06),
                   blurRadius: 14,
                   offset: const Offset(0, 4),
                 ),
@@ -398,7 +398,7 @@ class _FinancialTrackerPageState extends State<FinancialTrackerPage>
                           borderRadius: BorderRadius.circular(20),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.07),
+                              color: Colors.black.withValues(alpha: 0.07),
                               blurRadius: 18,
                               offset: const Offset(0, 8),
                             ),
@@ -599,7 +599,7 @@ class _FinancialTrackerPageState extends State<FinancialTrackerPage>
                               borderRadius: BorderRadius.circular(20),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(0.07),
+                                  color: Colors.black.withValues(alpha: 0.07),
                                   blurRadius: 18,
                                   offset: const Offset(0, 8),
                                 ),
@@ -711,7 +711,7 @@ class _FinancialTrackerPageState extends State<FinancialTrackerPage>
                                   borderRadius: BorderRadius.circular(18),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withOpacity(0.06),
+                                      color: Colors.black.withValues(alpha: 0.06),
                                       blurRadius: 12,
                                       offset: const Offset(0, 4),
                                     ),

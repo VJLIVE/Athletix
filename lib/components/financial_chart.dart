@@ -165,7 +165,7 @@ class _FinancialChartState extends State<FinancialChart> {
                         drawHorizontalLine: true,
                         horizontalInterval: 2000,
                         getDrawingHorizontalLine: (value) => FlLine(
-                          color: Colors.grey.withOpacity(0.2),
+                          color: Colors.grey.withValues(alpha: 0.2),
                           strokeWidth: 1,
                         ),
                       ),
@@ -213,7 +213,7 @@ class _FinancialChartState extends State<FinancialChart> {
     return Container(
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: bgColor.withOpacity(0.15),
+        color: bgColor.withValues(alpha: 0.15),
         shape: BoxShape.circle,
       ),
       child: Icon(icon, color: bgColor, size: 18),
