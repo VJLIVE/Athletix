@@ -5,6 +5,7 @@ import '../auth_screen.dart';
 import '../../components/bottom_nav_bar.dart';
 import 'manage_players_screen.dart';
 import 'add_tournament_screen.dart';
+import 'add_players_screen.dart';
 import '../profile_screen.dart';
 
 class OrganizationDashboardScreen extends StatefulWidget {
