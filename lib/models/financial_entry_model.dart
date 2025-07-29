@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-// Expense categories
+/// Categories for different types of expenses.
 enum ExpenseCategory {
   food,
   transport,
@@ -14,7 +14,7 @@ enum ExpenseCategory {
   others,
 }
 
-// Income categories
+/// Categories for different types of income.
 enum IncomeCategory {
   salary,
   sponsorships,
@@ -23,20 +23,34 @@ enum IncomeCategory {
   others,
 }
 
+/// Converts an [ExpenseCategory] to its string representation.
 String expenseCategoryToString(ExpenseCategory category) => category.toString().split('.').last;
+
+/// Converts a string to its corresponding [ExpenseCategory].
 ExpenseCategory expenseCategoryFromString(String value) => ExpenseCategory.values.firstWhere((e) => expenseCategoryToString(e) == value);
 
+/// Converts an [IncomeCategory] to its string representation.
 String incomeCategoryToString(IncomeCategory category) => category.toString().split('.').last;
+
+/// Converts a string to its corresponding [IncomeCategory].
 IncomeCategory incomeCategoryFromString(String value) => IncomeCategory.values.firstWhere((e) => incomeCategoryToString(e) == value);
 
+/// Represents a financial entry, either income or expense, for a user.
 class FinancialEntry {
+  /// Unique identifier for the entry.
   final String id;
-  final String type; // 'income' or 'expense'
-  final String category; // Will be handled as enum in UI, but stored as string
+  /// Type of entry: 'income' or 'expense'.
+  final String type;
+  /// Category of the entry (stored as string).
+  final String category;
+  /// Amount of the entry.
   final double amount;
+  /// Date of the entry.
   final DateTime date;
+  /// Optional notes for the entry.
   final String? notes;
 
+  /// Creates a [FinancialEntry] instance.
   FinancialEntry({
     required this.id,
     required this.type,
@@ -46,6 +60,7 @@ class FinancialEntry {
     this.notes,
   });
 
+  /// Converts the [FinancialEntry] to a map for Firestore storage.
   Map<String, dynamic> toMap() {
     return {
       'type': type,
@@ -56,6 +71,7 @@ class FinancialEntry {
     };
   }
 
+  /// Creates a [FinancialEntry] from a Firestore map.
   factory FinancialEntry.fromMap(String id, Map<String, dynamic> map) {
     return FinancialEntry(
       id: id,

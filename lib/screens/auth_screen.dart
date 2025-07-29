@@ -17,6 +17,11 @@ class AuthScreen extends StatefulWidget {
 
 class _AuthScreenState extends State<AuthScreen> {
   bool isLogin = true;
+  bool isLoading = false;
+  bool isEmailVerificationPending = false;
+  bool isResendingEmail = false;
+  Timer? _emailVerificationTimer;
+  String? pendingVerificationEmail;
 
   // Controllers
   final _emailController = TextEditingController();
@@ -60,14 +65,66 @@ class _AuthScreenState extends State<AuthScreen> {
   Timer? _debounce;
 
   @override
+  void initState() {
+    super.initState();
+    _checkInitialAuthState();
+  }
+
+  @override
   void dispose() {
     _debounce?.cancel();
+    _emailVerificationTimer?.cancel();
     _emailController.dispose();
     _passwordController.dispose();
     _nameController.dispose();
     _sportController.dispose();
     _dobController.dispose();
     super.dispose();
+  }
+
+  // FIXED: Check initial auth state when app starts
+  Future<void> _checkInitialAuthState() async {
+    final user = _auth.currentUser;
+    if (user != null) {
+      // User is signed in, check if user data exists in Firestore first
+      final userDoc = await _firestore.collection('users').doc(user.uid).get();
+
+      if (!userDoc.exists) {
+        // User data doesn't exist in Firestore, sign out
+        await _auth.signOut();
+        debugPrint('User signed out due to missing Firestore data');
+        return;
+      }
+
+      final userData = userDoc.data()!;
+
+      // Check Firestore emailVerified status first (this allows manual override)
+      bool isEmailVerifiedInFirestore = userData['emailVerified'] == true;
+
+      // For organization role, prioritize Firestore verification status
+      if (userData['role'] == 'Organization' && isEmailVerifiedInFirestore) {
+        // Organization with manual verification - proceed directly
+        await _navigateBasedOnRole(user.uid);
+        return;
+      }
+
+      // For other roles, check both Firebase Auth and Firestore
+      await user.reload();
+      final refreshedUser = _auth.currentUser;
+
+      if (refreshedUser != null && (refreshedUser.emailVerified || isEmailVerifiedInFirestore)) {
+        // Either Firebase Auth or Firestore shows verified status
+        if (!isEmailVerifiedInFirestore) {
+          // Update Firestore to match Firebase Auth status
+          await _updateEmailVerificationStatus(refreshedUser.uid, true);
+        }
+        await _navigateBasedOnRole(refreshedUser.uid);
+      } else {
+        // Email is not verified, sign out the user
+        await _auth.signOut();
+        debugPrint('User was signed out due to unverified email');
+      }
+    }
   }
 
   void _debounceInput(VoidCallback callback) {
@@ -82,6 +139,9 @@ class _AuthScreenState extends State<AuthScreen> {
   void toggle(bool login) {
     setState(() {
       isLogin = login;
+      isEmailVerificationPending = false;
+      pendingVerificationEmail = null;
+      _emailVerificationTimer?.cancel();
       // Reset all states when toggling
       _tappedFields.updateAll((key, value) => false);
       _fieldErrors.updateAll((key, value) => null);
@@ -96,6 +156,388 @@ class _AuthScreenState extends State<AuthScreen> {
       hasNumber = false;
       hasMinLength = false;
     });
+  }
+
+  // FIXED: Store user data in Firestore during signup (don't sign out)
+  Future<void> _storeUserDataInFirestore(User user) async {
+    await _firestore.collection('users').doc(user.uid).set({
+      'name': _nameController.text.trim(),
+      'sport': _sportController.text.trim(),
+      'dob': dob!.toIso8601String(),
+      'email': _emailController.text.trim(),
+      'role': selectedRole,
+      'createdAt': Timestamp.now(),
+      'emailVerified': false, // Initially false
+      'signupCompleted': true,
+    });
+  }
+
+  // Update email verification status in Firestore
+  Future<void> _updateEmailVerificationStatus(String uid, bool isVerified) async {
+    await _firestore.collection('users').doc(uid).update({
+      'emailVerified': isVerified,
+    });
+  }
+
+  // Check if user exists and get verification status from Firestore
+  Future<Map<String, dynamic>?> _getUserData(String email) async {
+    try {
+      final querySnapshot = await _firestore
+          .collection('users')
+          .where('email', isEqualTo: email)
+          .limit(1)
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        return querySnapshot.docs.first.data();
+      }
+      return null;
+    } catch (e) {
+      debugPrint('Error getting user data: $e');
+      return null;
+    }
+  }
+
+  // FIXED: Start checking for email verification with user signed in
+  void _startEmailVerificationCheck() {
+    _emailVerificationTimer = Timer.periodic(const Duration(seconds: 3), (timer) async {
+      try {
+        final user = _auth.currentUser;
+        if (user == null) {
+          timer.cancel();
+          return;
+        }
+
+        await user.reload();
+        final refreshedUser = _auth.currentUser;
+
+        if (refreshedUser != null && refreshedUser.emailVerified) {
+          timer.cancel();
+
+          // Update verification status in Firestore
+          await _updateEmailVerificationStatus(refreshedUser.uid, true);
+
+          if (mounted) {
+            setState(() {
+              isEmailVerificationPending = false;
+              isLoading = false;
+            });
+            await _proceedAfterVerification(refreshedUser);
+          }
+        }
+      } catch (e) {
+        debugPrint('Error checking email verification: $e');
+      }
+    });
+  }
+
+  // Proceed after email verification
+  Future<void> _proceedAfterVerification(User user) async {
+    try {
+      setState(() => isLoading = true);
+
+      // Navigate to appropriate dashboard
+      await _navigateBasedOnRole(user.uid);
+    } catch (e) {
+      setState(() => isLoading = false);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error proceeding after verification: $e')),
+        );
+      }
+    }
+  }
+
+  // Navigate based on user role
+  Future<void> _navigateBasedOnRole(String uid) async {
+    try {
+      final doc = await _firestore.collection('users').doc(uid).get();
+      final data = doc.data();
+      if (data == null || data['role'] == null) {
+        throw Exception("User role not found");
+      }
+
+      final role = data['role'] as String;
+      Widget targetScreen;
+
+      switch (role) {
+        case 'Athlete':
+          targetScreen = const DashboardScreen();
+          break;
+        case 'Coach':
+          targetScreen = const CoachDashboardScreen();
+          break;
+        case 'Doctor':
+          targetScreen = const DoctorDashboardScreen();
+          break;
+        case 'Organization':
+          targetScreen = const OrganizationDashboardScreen();
+          break;
+        default:
+          targetScreen = const DashboardScreen();
+      }
+
+      await saveFcmToken();
+
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => targetScreen),
+        );
+      }
+    } catch (e) {
+      setState(() => isLoading = false);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Navigation error: $e')),
+        );
+      }
+    }
+  }
+
+  void _showSignupSuccessDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: const Text('Verify Your Email'),
+        content: Text(
+            'Account created successfully! A verification email has been sent to ${pendingVerificationEmail}. Please check your inbox and spam folder, then click the verification link to complete your registration.'
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // FIXED: Resend verification email (keep user signed in)
+  Future<void> _resendVerificationEmail() async {
+    if (isResendingEmail) return;
+
+    setState(() => isResendingEmail = true);
+
+    try {
+      final user = _auth.currentUser;
+      if (user != null) {
+        await user.reload();
+        final refreshedUser = _auth.currentUser;
+
+        if (refreshedUser != null && !refreshedUser.emailVerified) {
+          await refreshedUser.sendEmailVerification();
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Verification email sent! Please check your inbox and spam folder.'),
+                backgroundColor: Colors.green,
+              ),
+            );
+          }
+        } else if (refreshedUser != null && refreshedUser.emailVerified) {
+          // User is already verified
+          await _updateEmailVerificationStatus(refreshedUser.uid, true);
+          setState(() {
+            isEmailVerificationPending = false;
+            isLoading = false;
+          });
+          await _proceedAfterVerification(refreshedUser);
+        }
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Please try signing up again or contact support.'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        String errorMessage = 'Error sending verification email';
+        if (e.toString().contains('too-many-requests')) {
+          errorMessage = 'Too many requests. Please wait a moment before trying again.';
+        } else if (e.toString().contains('network')) {
+          errorMessage = 'Network error. Please check your connection and try again.';
+        }
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(errorMessage),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      setState(() => isResendingEmail = false);
+    }
+  }
+
+  // Show verification required dialog for login attempts
+  void _showVerificationRequiredDialog(String email) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: const Text('Email Verification Required'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(
+              Icons.mark_email_unread,
+              color: Colors.orange,
+              size: 48,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'A verification email was sent to $email. Please check your inbox and spam folder, then verify your email to continue.',
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: isResendingEmail ? null : () async {
+              Navigator.of(context).pop();
+              await _resendVerificationEmailForLogin(email);
+            },
+            child: isResendingEmail
+                ? const SizedBox(
+              width: 16,
+              height: 16,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            )
+                : const Text('Resend Email'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // FIXED: Resend verification email for login attempts
+  Future<void> _resendVerificationEmailForLogin(String email) async {
+    setState(() => isResendingEmail = true);
+
+    try {
+      // Get user data from Firestore to verify they exist
+      final userData = await _getUserData(email);
+      if (userData != null) {
+        _showPasswordForResendDialog(email);
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('User not found. Please sign up first.'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error resending verification email: $e')),
+        );
+      }
+    } finally {
+      setState(() => isResendingEmail = false);
+    }
+  }
+
+  // Show password dialog for resending verification email
+  void _showPasswordForResendDialog(String email) {
+    final passwordController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Resend Verification Email'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text('Please enter your password to resend the verification email:'),
+            const SizedBox(height: 16),
+            TextField(
+              controller: passwordController,
+              obscureText: true,
+              decoration: const InputDecoration(
+                labelText: 'Password',
+                border: OutlineInputBorder(),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              passwordController.dispose();
+            },
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () async {
+              try {
+                Navigator.of(context).pop();
+                setState(() => isResendingEmail = true);
+
+                // Sign in to send verification email
+                UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+                  email: email,
+                  password: passwordController.text,
+                );
+
+                if (!userCredential.user!.emailVerified) {
+                  await userCredential.user!.sendEmailVerification();
+                  // Keep user signed in for verification checking
+
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Verification email sent! Please check your inbox and spam folder.'),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                  }
+                } else {
+                  // User is already verified, proceed to dashboard
+                  await _updateEmailVerificationStatus(userCredential.user!.uid, true);
+                  await _navigateBasedOnRole(userCredential.user!.uid);
+                }
+              } catch (e) {
+                await _auth.signOut(); // Sign out on error
+                if (mounted) {
+                  String errorMessage = 'Invalid password or network error';
+                  if (e.toString().contains('wrong-password')) {
+                    errorMessage = 'Incorrect password. Please try again.';
+                  } else if (e.toString().contains('too-many-requests')) {
+                    errorMessage = 'Too many attempts. Please try again later.';
+                  }
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(errorMessage),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              } finally {
+                setState(() => isResendingEmail = false);
+                passwordController.dispose();
+              }
+            },
+            child: const Text('Send'),
+          ),
+        ],
+      ),
+    );
   }
 
   // Validation functions
@@ -205,15 +647,17 @@ class _AuthScreenState extends State<AuthScreen> {
     return Colors.grey;
   }
 
-
+  // Main authentication handler
   Future<void> handleAuth() async {
+    if (isLoading) return;
+
     // Mark all relevant fields as tapped and validate
     setState(() {
       _tappedFields['email'] = true;
       _tappedFields['password'] = true;
       _fieldErrors['email'] = _validateEmail(_emailController.text.trim(), forceValidate: true);
       _fieldErrors['password'] = _validatePassword(_passwordController.text, forceValidate: true);
-      
+
       if (!isLogin) {
         _tappedFields['name'] = true;
         _tappedFields['sport'] = true;
@@ -239,63 +683,79 @@ class _AuthScreenState extends State<AuthScreen> {
       return;
     }
 
+    setState(() => isLoading = true);
+
     try {
-      UserCredential userCredential;
       if (isLogin) {
-        userCredential = await _auth.signInWithEmailAndPassword(
-          email: _emailController.text.trim(),
-          password: _passwordController.text,
-        );
+        await _handleLogin();
       } else {
-        userCredential = await _auth.createUserWithEmailAndPassword(
-          email: _emailController.text.trim(),
-          password: _passwordController.text,
-        );
-
-        await _firestore.collection('users').doc(userCredential.user!.uid).set({
-          'name': _nameController.text.trim(),
-          'sport': _sportController.text.trim(),
-          'dob': dob!.toIso8601String(),
-          'email': _emailController.text.trim(),
-          'role': selectedRole,
-          'createdAt': Timestamp.now(),
-        });
+        await _handleSignup();
       }
-
-      // Fetch role and navigate
-      final doc = await _firestore.collection('users').doc(userCredential.user!.uid).get();
-      final data = doc.data();
-      if (data == null || data['role'] == null) {
-        throw Exception("User role not found");
-      }
-
-      final role = data['role'] as String;
-      Widget targetScreen;
-
-      switch (role) {
-        case 'Athlete':
-          targetScreen = const DashboardScreen();
-          break;
-        case 'Coach':
-          targetScreen = const CoachDashboardScreen();
-          break;
-        case 'Doctor':
-          targetScreen = const DoctorDashboardScreen();
-          break;
-        case 'Organization':
-          targetScreen = const OrganizationDashboardScreen();
-          break;
-        default:
-          targetScreen = const DashboardScreen();
-      }
-      await saveFcmToken();
+    } catch (e) {
+      setState(() => isLoading = false);
       if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => targetScreen),
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('An error occurred: $e')),
         );
       }
+    }
+  }
+
+  // FIXED: Handle login process with improved verification checking
+  Future<void> _handleLogin() async {
+    try {
+      final email = _emailController.text.trim();
+
+      // First, try to sign in to get the most up-to-date user information
+      UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+        email: email,
+        password: _passwordController.text,
+      );
+
+      // Get user data from Firestore
+      final userDoc = await _firestore.collection('users').doc(userCredential.user!.uid).get();
+
+      if (!userDoc.exists) {
+        await _auth.signOut();
+        throw Exception('User data not found');
+      }
+
+      final userData = userDoc.data()!;
+      bool isEmailVerifiedInFirestore = userData['emailVerified'] == true;
+
+      // For organization role, prioritize Firestore verification status
+      if (userData['role'] == 'Organization' && isEmailVerifiedInFirestore) {
+        // Organization with manual verification - proceed directly
+        await _navigateBasedOnRole(userCredential.user!.uid);
+        return;
+      }
+
+      // For other roles, check Firebase Auth verification
+      await userCredential.user!.reload();
+      final refreshedUser = _auth.currentUser;
+
+      if (refreshedUser == null) {
+        throw Exception('User not found after login');
+      }
+
+      // Check email verification status - use Firestore first, then Firebase Auth
+      if (!isEmailVerifiedInFirestore && !refreshedUser.emailVerified) {
+        setState(() => isLoading = false);
+        // Don't sign out - keep user signed in for verification
+        _showVerificationRequiredDialog(email);
+        return;
+      }
+
+      // If either source shows verified, update both to be consistent
+      if (refreshedUser.emailVerified && !isEmailVerifiedInFirestore) {
+        await _updateEmailVerificationStatus(refreshedUser.uid, true);
+      }
+
+      // Proceed to dashboard
+      await _navigateBasedOnRole(refreshedUser.uid);
+
     } on FirebaseAuthException catch (e) {
+      setState(() => isLoading = false);
       String errorMessage;
       switch (e.code) {
         case 'user-not-found':
@@ -308,8 +768,94 @@ class _AuthScreenState extends State<AuthScreen> {
         case 'user-disabled':
           errorMessage = "This user account has been disabled.";
           break;
+        case 'invalid-credential':
+          errorMessage = "Invalid email or password. Please check your credentials.";
+          break;
+        case 'too-many-requests':
+          errorMessage = "Too many failed attempts. Please try again later.";
+          break;
+        default:
+          errorMessage = e.message ?? "An unknown error occurred. Please try again.";
+      }
+
+      if (mounted) {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Login Error'),
+            content: Text(errorMessage),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+        );
+      }
+    }
+  }
+
+  // FIXED: Handle signup process - keep user signed in after creation
+  Future<void> _handleSignup() async {
+    try {
+      final email = _emailController.text.trim();
+
+      // Check if user already exists
+      List<String> signInMethods = await _auth.fetchSignInMethodsForEmail(email);
+
+      if (signInMethods.isNotEmpty) {
+        setState(() => isLoading = false);
+
+        // Check if this user exists in our Firestore and is unverified
+        final userData = await _getUserData(email);
+        if (userData != null && userData['emailVerified'] == false) {
+          _showExistingUnverifiedUserDialog(email);
+          return;
+        }
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Email already registered. Please try logging in or verify your email if not done already.')),
+          );
+        }
+        return;
+      }
+
+      // Create user account
+      UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
+        email: email,
+        password: _passwordController.text,
+      );
+
+      // Store user data in Firestore immediately after account creation
+      await _storeUserDataInFirestore(userCredential.user!);
+
+      // Send verification email
+      await userCredential.user!.sendEmailVerification();
+
+      // Keep user signed in and start verification checking
+      setState(() {
+        isLoading = false;
+        isEmailVerificationPending = true;
+        pendingVerificationEmail = email;
+      });
+
+      _showSignupSuccessDialog();
+      _startEmailVerificationCheck(); // Start checking for verification
+
+    } on FirebaseAuthException catch (e) {
+      setState(() => isLoading = false);
+      String errorMessage;
+      switch (e.code) {
         case 'email-already-in-use':
-          errorMessage = "This email is already registered. Try logging in.";
+        // Check if this is an unverified user
+          final userData = await _getUserData(_emailController.text.trim());
+          if (userData != null && userData['emailVerified'] == false) {
+            _showExistingUnverifiedUserDialog(_emailController.text.trim());
+            return;
+          }
+          errorMessage = "This email is already registered. Please try logging in or verify your email if not done already.";
           break;
         case 'weak-password':
           errorMessage = "Your password must be at least 8 characters and contain a number.";
@@ -320,25 +866,179 @@ class _AuthScreenState extends State<AuthScreen> {
         default:
           errorMessage = e.message ?? "An unknown error occurred. Please try again.";
       }
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Authentication Error'),
-          content: Text(errorMessage),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('OK'),
-            ),
-          ],
-        ),
-      );
+
+      if (mounted) {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Signup Error'),
+            content: Text(errorMessage),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+        );
+      }
     }
   }
 
+  // Show dialog for existing unverified users during signup
+  void _showExistingUnverifiedUserDialog(String email) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: const Text('Email Already Registered'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(
+              Icons.mark_email_unread,
+              color: Colors.orange,
+              size: 48,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'This email is already registered but not verified. A verification email was previously sent to $email.',
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Please check your inbox and spam folder, or resend the verification email.',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 12, color: Colors.grey),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: isResendingEmail ? null : () async {
+              Navigator.of(context).pop();
+              await _resendVerificationForSignup(email);
+            },
+            child: isResendingEmail
+                ? const SizedBox(
+              width: 16,
+              height: 16,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            )
+                : const Text('Resend Email'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // FIXED: Resend verification email for signup attempts with existing unverified users
+  Future<void> _resendVerificationForSignup(String email) async {
+    setState(() => isResendingEmail = true);
+
+    try {
+      // We need to sign in the user temporarily to send verification email
+      _showPasswordForResendSignupDialog(email);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
+      }
+    } finally {
+      setState(() => isResendingEmail = false);
+    }
+  }
+
+  // Show password dialog for resending verification email during signup
+  void _showPasswordForResendSignupDialog(String email) {
+    final passwordController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Resend Verification Email'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text('Please enter your password to resend the verification email:'),
+            const SizedBox(height: 16),
+            TextField(
+              controller: passwordController,
+              obscureText: true,
+              decoration: const InputDecoration(
+                labelText: 'Password',
+                border: OutlineInputBorder(),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              passwordController.dispose();
+            },
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () async {
+              try {
+                Navigator.of(context).pop();
+                setState(() => isResendingEmail = true);
+
+                // Sign in to send verification email
+                UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+                  email: email,
+                  password: passwordController.text,
+                );
+
+                if (!userCredential.user!.emailVerified) {
+                  await userCredential.user!.sendEmailVerification();
+
+                  // Go to verification pending screen and start checking
+                  setState(() {
+                    isEmailVerificationPending = true;
+                    pendingVerificationEmail = email;
+                  });
+
+                  _startEmailVerificationCheck();
+
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Verification email sent! Please check your inbox and spam folder.')),
+                    );
+                  }
+                } else {
+                  // User is already verified, navigate to dashboard
+                  await _updateEmailVerificationStatus(userCredential.user!.uid, true);
+                  await _navigateBasedOnRole(userCredential.user!.uid);
+                }
+              } catch (e) {
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Error: ${e.toString()}')),
+                  );
+                }
+              } finally {
+                setState(() => isResendingEmail = false);
+                passwordController.dispose();
+              }
+            },
+            child: const Text('Send'),
+          ),
+        ],
+      ),
+    );
+  }
+
   Future<void> saveFcmToken() async {
-    await FirebaseMessaging.instance.requestPermission(); // 🪄 Ask permission
-    
+    await FirebaseMessaging.instance.requestPermission();
+
     final token = await FirebaseMessaging.instance.getToken();
     debugPrint('FCM Token: $token');
 
@@ -393,6 +1093,299 @@ class _AuthScreenState extends State<AuthScreen> {
     );
   }
 
+  // FIXED: Email verification pending widget - fixed overflow issue
+  Widget _buildEmailVerificationPending() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.symmetric(vertical: 16),
+      decoration: BoxDecoration(
+        color: Colors.orange.shade50,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.orange.shade200),
+      ),
+      child: Column(
+        children: [
+          const Icon(
+            Icons.mark_email_unread,
+            color: Colors.orange,
+            size: 48,
+          ),
+          const SizedBox(height: 12),
+          const Text(
+            'Email Verification Required',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.orange,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'We\'ve sent a verification email to\n${pendingVerificationEmail ?? _emailController.text.trim()}',
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 14),
+          ),
+          const SizedBox(height: 12),
+          const Text(
+            'Please check your inbox and spam folder, then click the verification link. Once verified, click "I\'ve Verified" to continue.',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 12, color: Colors.grey),
+          ),
+          const SizedBox(height: 16),
+          // FIXED: Use Column instead of Row to prevent overflow
+          Column(
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: TextButton.icon(
+                      onPressed: isResendingEmail ? null : () async {
+                        await _resendVerificationEmailForPending();
+                      },
+                      icon: isResendingEmail
+                          ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                          : const Icon(Icons.refresh),
+                      label: Text(isResendingEmail ? 'Sending...' : 'Resend Email'),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: isLoading ? null : () async {
+                        await _checkVerificationManually();
+                      },
+                      icon: isLoading
+                          ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                          : const Icon(Icons.check),
+                      label: Text(isLoading ? 'Checking...' : 'I\'ve Verified'),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              TextButton.icon(
+                onPressed: () => setState(() {
+                  isEmailVerificationPending = false;
+                  _emailVerificationTimer?.cancel();
+                }),
+                icon: const Icon(Icons.arrow_back),
+                label: const Text('Go Back'),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // FIXED: Resend verification email when user is on pending screen
+  Future<void> _resendVerificationEmailForPending() async {
+    if (isResendingEmail) return;
+
+    setState(() => isResendingEmail = true);
+
+    try {
+      final user = _auth.currentUser;
+      if (user != null) {
+        await user.reload();
+        final refreshedUser = _auth.currentUser;
+
+        if (refreshedUser != null && !refreshedUser.emailVerified) {
+          await refreshedUser.sendEmailVerification();
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Verification email sent! Please check your inbox and spam folder.'),
+                backgroundColor: Colors.green,
+              ),
+            );
+          }
+        } else if (refreshedUser != null && refreshedUser.emailVerified) {
+          // User is already verified
+          await _updateEmailVerificationStatus(refreshedUser.uid, true);
+          setState(() {
+            isEmailVerificationPending = false;
+            isLoading = false;
+          });
+          await _proceedAfterVerification(refreshedUser);
+        }
+      } else {
+        // User not signed in, ask for password
+        final email = pendingVerificationEmail ?? _emailController.text.trim();
+        _showPasswordForResendSignupDialog(email);
+      }
+    } catch (e) {
+      if (mounted) {
+        String errorMessage = 'Error sending verification email';
+        if (e.toString().contains('too-many-requests')) {
+          errorMessage = 'Too many requests. Please wait a moment before trying again.';
+        }
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(errorMessage)),
+        );
+      }
+    } finally {
+      setState(() => isResendingEmail = false);
+    }
+  }
+
+  // FIXED: Manual verification check when user clicks "I've Verified"
+  Future<void> _checkVerificationManually() async {
+    if (isLoading) return;
+
+    setState(() => isLoading = true);
+
+    try {
+      final user = _auth.currentUser;
+      if (user != null) {
+        // User is signed in, check verification directly
+        await user.reload();
+        final refreshedUser = _auth.currentUser;
+
+        if (refreshedUser != null && refreshedUser.emailVerified) {
+          // Email is verified, update Firestore and navigate
+          await _updateEmailVerificationStatus(refreshedUser.uid, true);
+
+          setState(() {
+            isEmailVerificationPending = false;
+            isLoading = false;
+          });
+
+          await _navigateBasedOnRole(refreshedUser.uid);
+        } else {
+          // Still not verified
+          setState(() => isLoading = false);
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Email is still not verified. Please check your inbox and click the verification link first.'),
+                backgroundColor: Colors.orange,
+              ),
+            );
+          }
+        }
+      } else {
+        // User not signed in, ask for password
+        setState(() => isLoading = false);
+        final email = pendingVerificationEmail ?? _emailController.text.trim();
+        _showPasswordForVerificationCheckDialog(email);
+      }
+    } catch (e) {
+      setState(() => isLoading = false);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
+      }
+    }
+  }
+
+  // Show password dialog for manual verification check
+  void _showPasswordForVerificationCheckDialog(String email) {
+    final passwordController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Verify Login'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text('Please enter your password to check verification status:'),
+            const SizedBox(height: 16),
+            TextField(
+              controller: passwordController,
+              obscureText: true,
+              decoration: const InputDecoration(
+                labelText: 'Password',
+                border: OutlineInputBorder(),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              passwordController.dispose();
+              setState(() => isLoading = false);
+            },
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () async {
+              try {
+                Navigator.of(context).pop();
+
+                // Sign in to check verification status
+                UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+                  email: email,
+                  password: passwordController.text,
+                );
+
+                // Reload user to get latest verification status
+                await userCredential.user!.reload();
+                final refreshedUser = _auth.currentUser;
+
+                if (refreshedUser != null && refreshedUser.emailVerified) {
+                  // Email is verified, update Firestore and navigate
+                  await _updateEmailVerificationStatus(refreshedUser.uid, true);
+
+                  setState(() {
+                    isEmailVerificationPending = false;
+                    isLoading = false;
+                  });
+
+                  await _navigateBasedOnRole(refreshedUser.uid);
+                } else {
+                  // Still not verified
+                  setState(() => isLoading = false);
+
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Email is still not verified. Please check your inbox and click the verification link first.'),
+                        backgroundColor: Colors.orange,
+                      ),
+                    );
+                  }
+                }
+              } catch (e) {
+                setState(() => isLoading = false);
+                if (mounted) {
+                  String errorMessage = 'Invalid password or network error';
+                  if (e.toString().contains('wrong-password')) {
+                    errorMessage = 'Incorrect password. Please try again.';
+                  } else if (e.toString().contains('too-many-requests')) {
+                    errorMessage = 'Too many attempts. Please try again later.';
+                  }
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(errorMessage),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              } finally {
+                passwordController.dispose();
+              }
+            },
+            child: const Text('Check'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -411,303 +1404,320 @@ class _AuthScreenState extends State<AuthScreen> {
               ),
               const SizedBox(height: 16),
               Text(
-                isLogin ? 'Welcome Back' : 'Create an Account',
+                isEmailVerificationPending
+                    ? 'Verify Your Email'
+                    : isLogin ? 'Welcome Back' : 'Create an Account',
                 style: theme.textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
               ),
               const SizedBox(height: 6),
               Text(
-                isLogin ? 'Log in to continue' : 'Sign up to get started',
+                isEmailVerificationPending
+                    ? 'Check your email to continue'
+                    : isLogin ? 'Log in to continue' : 'Sign up to get started',
                 style: theme.textTheme.bodyMedium,
               ),
               const SizedBox(height: 20),
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.shade300,
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () => toggle(true),
-                            child: Container(
-                              padding: const EdgeInsets.all(12),
-                              decoration: BoxDecoration(
-                                color: isLogin ? Colors.blue : Colors.transparent,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Text(
-                                "Login",
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  color: isLogin ? Colors.white : Colors.black87,
-                                  fontWeight: FontWeight.bold,
+
+              if (isEmailVerificationPending)
+                _buildEmailVerificationPending()
+              else
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.shade300,
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () => toggle(true),
+                              child: Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: isLogin ? Colors.blue : Colors.transparent,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Text(
+                                  "Login",
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: isLogin ? Colors.white : Colors.black87,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () => toggle(false),
-                            child: Container(
-                              padding: const EdgeInsets.all(12),
-                              decoration: BoxDecoration(
-                                color: !isLogin ? Colors.blue : Colors.transparent,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Text(
-                                "Signup",
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  color: !isLogin ? Colors.white : Colors.black87,
-                                  fontWeight: FontWeight.bold,
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () => toggle(false),
+                              child: Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: !isLogin ? Colors.blue : Colors.transparent,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Text(
+                                  "Signup",
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: !isLogin ? Colors.white : Colors.black87,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                               ),
                             ),
                           ),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+                      if (!isLogin) ...[
+                        // FULL NAME
+                        TextField(
+                          controller: _nameController,
+                          onTap: () => setState(() => _tappedFields['name'] = true),
+                          decoration: InputDecoration(
+                            labelText: "Full Name",
+                            border: const OutlineInputBorder(),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(
+                                color: _getBorderColor('name', hasText: _nameController.text.isNotEmpty),
+                                width: 2,
+                              ),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderSide: BorderSide(
+                                color: _getBorderColor('name', hasText: _nameController.text.isNotEmpty),
+                                width: 1,
+                              ),
+                            ),
+                            errorText: _tappedFields['name']! ? _fieldErrors['name'] : null,
+                          ),
+                          onChanged: (value) => _validateField('name', value),
                         ),
+                        const SizedBox(height: 12),
+
+                        // DOB
+                        GestureDetector(
+                          onTap: () async {
+                            setState(() => _tappedFields['dob'] = true);
+                            final picked = await showDatePicker(
+                              context: context,
+                              initialDate: dob ?? DateTime(2000),
+                              firstDate: DateTime(1950),
+                              lastDate: DateTime.now(),
+                            );
+                            if (picked != null) {
+                              setState(() {
+                                dob = picked;
+                                _dobController.text = dob!.toLocal().toString().split(' ')[0];
+                                _validateField('dob', dob);
+                              });
+                            }
+                          },
+                          child: AbsorbPointer(
+                            child: TextField(
+                              controller: _dobController,
+                              decoration: InputDecoration(
+                                labelText: "Date of Birth",
+                                border: const OutlineInputBorder(),
+                                suffixIcon: const Icon(Icons.calendar_today),
+                                focusedBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: _getBorderColor('dob', hasText: dob != null),
+                                    width: 2,
+                                  ),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: _getBorderColor('dob', hasText: dob != null),
+                                    width: 1,
+                                  ),
+                                ),
+                                errorText: _tappedFields['dob']! ? _fieldErrors['dob'] : null,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        // ROLE
+                        DropdownButtonFormField<String>(
+                          value: selectedRole,
+                          items: roles
+                              .map((role) => DropdownMenuItem(
+                            value: role,
+                            child: Text(role),
+                          ))
+                              .toList(),
+                          onChanged: (value) => setState(() {
+                            selectedRole = value!;
+                          }),
+                          decoration: const InputDecoration(
+                            labelText: "Role",
+                            border: OutlineInputBorder(),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+
+                        // SPORT/SPECIALIZATION
+                        (selectedRole == 'Doctor')
+                            ? TextField(
+                          controller: _sportController,
+                          onTap: () => setState(() => _tappedFields['sport'] = true),
+                          decoration: InputDecoration(
+                            labelText: "Specialization",
+                            border: const OutlineInputBorder(),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(
+                                color: _getBorderColor('sport', hasText: _sportController.text.isNotEmpty),
+                                width: 2,
+                              ),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderSide: BorderSide(
+                                color: _getBorderColor('sport', hasText: _sportController.text.isNotEmpty),
+                                width: 1,
+                              ),
+                            ),
+                            errorText: _tappedFields['sport']! ? _fieldErrors['sport'] : null,
+                          ),
+                          onChanged: (value) => _validateField('sport', value),
+                        )
+                            : DropdownButtonFormField<String>(
+                          value: _sportController.text.isNotEmpty ? _sportController.text : null,
+                          items: [
+                            'Football',
+                            'Basketball',
+                            'Cricket',
+                            'Tennis',
+                            'Athletics',
+                            'Swimming',
+                          ].map((sport) => DropdownMenuItem(
+                            value: sport,
+                            child: Text(sport),
+                          )).toList(),
+                          onChanged: (value) {
+                            _debounceInput(() {
+                              _sportController.text = value ?? '';
+                              _tappedFields['sport'] = true;
+                              _validateField('sport', value);
+                            });
+                          },
+                          decoration: InputDecoration(
+                            labelText: "Sport",
+                            border: const OutlineInputBorder(),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(
+                                color: _getBorderColor('sport', hasText: _sportController.text.isNotEmpty),
+                                width: 2,
+                              ),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderSide: BorderSide(
+                                color: _getBorderColor('sport', hasText: _sportController.text.isNotEmpty),
+                                width: 1,
+                              ),
+                            ),
+                            errorText: _tappedFields['sport']! ? _fieldErrors['sport'] : null,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
                       ],
-                    ),
-                    const SizedBox(height: 20),
-                    if (!isLogin) ...[
-                      // FULL NAME
+
+                      // EMAIL
                       TextField(
-                        controller: _nameController,
-                        onTap: () => setState(() => _tappedFields['name'] = true),
+                        controller: _emailController,
+                        onTap: () => setState(() => _tappedFields['email'] = true),
                         decoration: InputDecoration(
-                          labelText: "Full Name",
+                          labelText: "Email",
                           border: const OutlineInputBorder(),
                           focusedBorder: OutlineInputBorder(
                             borderSide: BorderSide(
-                              color: _getBorderColor('name', hasText: _nameController.text.isNotEmpty),
+                              color: _getBorderColor('email', hasText: _emailController.text.isNotEmpty),
                               width: 2,
                             ),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderSide: BorderSide(
-                              color: _getBorderColor('name', hasText: _nameController.text.isNotEmpty),
+                              color: _getBorderColor('email', hasText: _emailController.text.isNotEmpty),
                               width: 1,
                             ),
                           ),
-                          errorText: _tappedFields['name']! ? _fieldErrors['name'] : null,
+                          errorText: (!isLogin && _tappedFields['email']!) ? _fieldErrors['email'] : null,
                         ),
-                        onChanged: (value) => _validateField('name', value),
+                        onChanged: (value) => _validateField('email', value),
                       ),
                       const SizedBox(height: 12),
-                      
-                      // DOB
-                      GestureDetector(
-                        onTap: () async {
-                          setState(() => _tappedFields['dob'] = true);
-                          final picked = await showDatePicker(
-                            context: context,
-                            initialDate: dob ?? DateTime(2000),
-                            firstDate: DateTime(1950),
-                            lastDate: DateTime.now(),
-                          );
-                          if (picked != null) {
-                            setState(() {
-                              dob = picked;
-                              _dobController.text = dob!.toLocal().toString().split(' ')[0];
-                              _validateField('dob', dob);
-                            });
-                          }
-                        },
-                        child: AbsorbPointer(
-                          child: TextField(
-                            controller: _dobController,
-                            decoration: InputDecoration(
-                              labelText: "Date of Birth",
-                              border: const OutlineInputBorder(),
-                              suffixIcon: const Icon(Icons.calendar_today),
-                              focusedBorder: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: _getBorderColor('dob', hasText: dob != null),
-                                  width: 2,
-                                ),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: _getBorderColor('dob', hasText: dob != null),
-                                  width: 1,
-                                ),
-                              ),
-                              errorText: _tappedFields['dob']! ? _fieldErrors['dob'] : null,
+
+                      // PASSWORD
+                      TextField(
+                        controller: _passwordController,
+                        obscureText: true,
+                        onTap: () => setState(() => _tappedFields['password'] = true),
+                        decoration: InputDecoration(
+                          labelText: "Password",
+                          border: const OutlineInputBorder(),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                              color: _getBorderColor('password', hasText: _passwordController.text.isNotEmpty),
+                              width: 2,
                             ),
                           ),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      // ROLE
-                      DropdownButtonFormField<String>(
-                        value: selectedRole,
-                        items: roles
-                            .map((role) => DropdownMenuItem(
-                                  value: role,
-                                  child: Text(role),
-                                ))
-                            .toList(),
-                        onChanged: (value) => setState(() {
-                          selectedRole = value!;
-                        }),
-                        decoration: const InputDecoration(
-                          labelText: "Role",
-                          border: OutlineInputBorder(),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      
-                      // SPORT/SPECIALIZATION
-                      (selectedRole == 'Doctor')
-                          ? TextField(
-                              controller: _sportController,
-                              onTap: () => setState(() => _tappedFields['sport'] = true),
-                              decoration: InputDecoration(
-                                labelText: "Specialization",
-                                border: const OutlineInputBorder(),
-                                focusedBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                    color: _getBorderColor('sport', hasText: _sportController.text.isNotEmpty),
-                                    width: 2,
-                                  ),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                    color: _getBorderColor('sport', hasText: _sportController.text.isNotEmpty),
-                                    width: 1,
-                                  ),
-                                ),
-                                errorText: _tappedFields['sport']! ? _fieldErrors['sport'] : null,
-                              ),
-                              onChanged: (value) => _validateField('sport', value),
-                            )
-                          : DropdownButtonFormField<String>(
-                              value: _sportController.text.isNotEmpty ? _sportController.text : null,
-                              items: [
-                                'Football',
-                                'Basketball',
-                                'Cricket',
-                                'Tennis',
-                                'Athletics',
-                                'Swimming',
-                              ].map((sport) => DropdownMenuItem(
-                                    value: sport,
-                                    child: Text(sport),
-                                  )).toList(),
-                              onChanged: (value) {
-                                _debounceInput(() {
-                                  _sportController.text = value ?? '';
-                                  _tappedFields['sport'] = true;
-                                  _validateField('sport', value);
-                                });
-                              },
-                              decoration: InputDecoration(
-                                labelText: "Sport",
-                                border: const OutlineInputBorder(),
-                                focusedBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                    color: _getBorderColor('sport', hasText: _sportController.text.isNotEmpty),
-                                    width: 2,
-                                  ),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                    color: _getBorderColor('sport', hasText: _sportController.text.isNotEmpty),
-                                    width: 1,
-                                  ),
-                                ),
-                                errorText: _tappedFields['sport']! ? _fieldErrors['sport'] : null,
-                              ),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                              color: _getBorderColor('password', hasText: _passwordController.text.isNotEmpty),
+                              width: 1,
                             ),
-                      const SizedBox(height: 12),
+                          ),
+                          errorText: (!isLogin && _tappedFields['password']!)  ? _fieldErrors['password'] : null,
+                        ),
+                        onChanged: (value) => _validateField('password', value),
+                      ),
+                      if (!isLogin && _tappedFields['password']!) ...[
+                        const SizedBox(height: 12),
+                        _buildPasswordChecklist(),
+                      ],
+                      const SizedBox(height: 20),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          onPressed: isLoading ? null : handleAuth,
+                          child: isLoading
+                              ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                            ),
+                          )
+                              : Text(
+                            isLogin ? "Login" : "Signup",
+                            style: const TextStyle(fontSize: 16),
+                          ),
+                        ),
+                      ),
                     ],
-                    
-                    // EMAIL
-                    TextField(
-                      controller: _emailController,
-                      onTap: () => setState(() => _tappedFields['email'] = true),
-                      decoration: InputDecoration(
-                        labelText: "Email",
-                        border: const OutlineInputBorder(),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                            color: _getBorderColor('email', hasText: _emailController.text.isNotEmpty),
-                            width: 2,
-                          ),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                            color: _getBorderColor('email', hasText: _emailController.text.isNotEmpty),
-                            width: 1,
-                          ),
-                        ),
-                        errorText: (!isLogin && _tappedFields['email']!) ? _fieldErrors['email'] : null,
-                      ),
-                      onChanged: (value) => _validateField('email', value),
-                    ),
-                    const SizedBox(height: 12),
-                    
-                    // PASSWORD
-                    TextField(
-                      controller: _passwordController,
-                      obscureText: true,
-                      onTap: () => setState(() => _tappedFields['password'] = true),
-                      decoration: InputDecoration(
-                        labelText: "Password",
-                        border: const OutlineInputBorder(),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                            color: _getBorderColor('password', hasText: _passwordController.text.isNotEmpty),
-                            width: 2,
-                          ),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                            color: _getBorderColor('password', hasText: _passwordController.text.isNotEmpty),
-                            width: 1,
-                          ),
-                        ),
-                        errorText: (!isLogin && _tappedFields['password']!)  ? _fieldErrors['password'] : null,
-                      ),
-                      onChanged: (value) => _validateField('password', value),
-                    ),
-                    if (!isLogin && _tappedFields['password']!) ...[
-                      const SizedBox(height: 12),
-                      _buildPasswordChecklist(),
-                    ],
-                    const SizedBox(height: 20),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        onPressed: handleAuth,
-                        child: Text(
-                          isLogin ? "Login" : "Signup",
-                          style: const TextStyle(fontSize: 16),
-                        ),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
-              ),
             ],
           ),
         ),

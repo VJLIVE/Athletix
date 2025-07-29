@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
 
+/// A reusable bottom navigation bar widget that adapts to user role.
 class BottomNavBar extends StatelessWidget {
+  /// The currently selected index in the navigation bar.
   final int currentIndex;
+  /// Callback when a navigation item is tapped.
   final ValueChanged<int> onTap;
+  /// The role of the current user (affects navigation items).
   final String role;
 
+  /// Creates a [BottomNavBar] widget.
   const BottomNavBar({
     super.key,
     required this.currentIndex,
