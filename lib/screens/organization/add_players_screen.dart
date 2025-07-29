@@ -299,3 +299,276 @@ class _AddPlayersScreenState extends State<AddPlayersScreen> {
     }
   }
 }
+import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
+class AddPlayersScreen extends StatefulWidget {
+  final String sport;
+  
+  const AddPlayersScreen({super.key, required this.sport});
+
+  @Override
+  State<AddPlayersScreen> createState() => _AddPlayersScreenState();
+}
+
+class _AddPlayersScreenState extends State<AddPlayersScreen> {
+  final TextEditingController _searchController = TextEditingController();
+  List<DocumentSnapshot> _searchResults = [];
+  bool _isSearching = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Add Players"),
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
+        elevation: 1,
+      ),
+      body: Column(
+        children: [
+          // Search Section
+          Container(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Search Athletes by Email',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _searchController,
+                        decoration: InputDecoration(
+                          hintText: 'Enter athlete email',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          prefixIcon: const Icon(Icons.search),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    ElevatedButton(
+                      onPressed: _searchAthletes,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                      ),
+                      child: const Text('Search'),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          // Results Section
+          Expanded(
+            child: _isSearching
+                ? const Center(child: CircularProgressIndicator())
+                : _searchResults.isEmpty
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.search,
+                              size: 80,
+                              color: Colors.grey[400],
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              'Search for athletes to connect',
+                              style: TextStyle(
+                                fontSize: 18,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    : ListView.builder(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        itemCount: _searchResults.length,
+                        itemBuilder: (context, index) {
+                          final athlete = _searchResults[index];
+                          final athleteData = athlete.data() as Map<String, dynamic>;
+                          
+                          return Card(
+                            margin: const EdgeInsets.only(bottom: 12),
+                            child: ListTile(
+                              leading: CircleAvatar(
+                                backgroundColor: Colors.blue,
+                                child: Text(
+                                  (athleteData['name'] ?? 'U')[0].toUpperCase(),
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              title: Text(
+                                athleteData['name'] ?? 'Unknown',
+                                style: const TextStyle(fontWeight: FontWeight.w600),
+                              ),
+                              subtitle: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('Email: ${athleteData['email'] ?? 'N/A'}'),
+                                  Text('Sport: ${athleteData['sport'] ?? 'N/A'}'),
+                                ],
+                              ),
+                              trailing: ElevatedButton(
+                                onPressed: () => _sendConnectionRequest(athlete.id, athleteData),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.green,
+                                  foregroundColor: Colors.white,
+                                ),
+                                child: const Text('Connect'),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _searchAthletes() async {
+    if (_searchController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter an email to search'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    setState(() {
+      _isSearching = true;
+      _searchResults = [];
+    });
+
+    try {
+      final querySnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .where('role', isEqualTo: 'athlete')
+          .where('sport', isEqualTo: widget.sport)
+          .where('email', isEqualTo: _searchController.text.trim().toLowerCase())
+          .get();
+
+      setState(() {
+        _searchResults = querySnapshot.docs;
+        _isSearching = false;
+      });
+
+      if (_searchResults.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('No athletes found with that email'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
+    } catch (e) {
+      setState(() {
+        _isSearching = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error searching: ${e.toString()}'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  Future<void> _sendConnectionRequest(String athleteId, Map<String, dynamic> athleteData) async {
+    try {
+      final currentUserId = FirebaseAuth.instance.currentUser!.uid;
+      
+      // Check if connection request already exists
+      final existingRequest = await FirebaseFirestore.instance
+          .collection('connection_requests')
+          .where('athleteId', isEqualTo: athleteId)
+          .where('organizationId', isEqualTo: currentUserId)
+          .where('status', isEqualTo: 'pending')
+          .get();
+
+      if (existingRequest.docs.isNotEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Connection request already sent'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+        return;
+      }
+
+      // Check if already connected
+      final existingConnection = await FirebaseFirestore.instance
+          .collection('player_connections')
+          .where('playerId', isEqualTo: athleteId)
+          .where('organizationId', isEqualTo: currentUserId)
+          .where('status', isEqualTo: 'accepted')
+          .get();
+
+      if (existingConnection.docs.isNotEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Already connected with this athlete'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+        return;
+      }
+
+      // Create connection request
+      await FirebaseFirestore.instance
+          .collection('connection_requests')
+          .add({
+        'athleteId': athleteId,
+        'organizationId': currentUserId,
+        'status': 'pending',
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Connection request sent to ${athleteData['name']}'),
+          backgroundColor: Colors.green,
+        ),
+      );
+
+      // Remove from search results
+      setState(() {
+        _searchResults.removeWhere((doc) => doc.id == athleteId);
+      });
+
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error sending request: ${e.toString()}'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+}
