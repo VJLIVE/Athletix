@@ -200,12 +200,13 @@ class _AthleteConnectionRequestsScreenState extends State<AthleteConnectionReque
         
         final requestData = requestDoc.data() as Map<String, dynamic>;
         
-        // Create a connection record
+        // Create a connection record in player_connections collection
         await FirebaseFirestore.instance
-            .collection('connections')
+            .collection('player_connections')
             .add({
-          'athleteId': requestData['athleteId'],
+          'playerId': requestData['athleteId'],
           'organizationId': requestData['organizationId'],
+          'status': 'accepted',
           'createdAt': FieldValue.serverTimestamp(),
         });
 
