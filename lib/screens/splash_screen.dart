@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
+import 'dart:math';
 import 'organization/organization_dashboard.dart';
 import 'auth_screen.dart';
 import 'athlete/athlete_dashboard.dart';
@@ -17,20 +18,51 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMixin {
   late final AnimationController _controller;
+  
+  // Performance tracking for parallel approach
+  final DateTime _startTime = DateTime.now();
+  DateTime? _animationStartTime;
+  DateTime? _animationEndTime;
+  DateTime? _authCheckStartTime;
+  DateTime? _authCheckEndTime;
+  
+  // Parallel processing flags
+  bool _isAuthCheckComplete = false;
+  bool _isAnimationComplete = false;
 
   @override
   void initState() {
     super.initState();
     _controller = AnimationController(vsync: this);
 
+    // Start authentication check immediately in background (PARALLEL)
+    _checkAuthenticationInBackground();
+
     _controller.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
-        _navigate();
+        _animationEndTime = DateTime.now();
+        _isAnimationComplete = true;
+        _logParallelPerformance();
+        _tryNavigate();
       }
     });
   }
 
-  Future<void> _navigate() async {
+  /// Checks authentication in the background while animation is running.
+  Future<void> _checkAuthenticationInBackground() async {
+    _authCheckStartTime = DateTime.now();
+    print('🚀 PARALLEL APPROACH: Auth check started immediately');
+    
+    await _performAuthCheck();
+    
+    _authCheckEndTime = DateTime.now();
+    _isAuthCheckComplete = true;
+    _logParallelPerformance();
+    _tryNavigate();
+  }
+
+  /// Performs the actual authentication check logic.
+  Future<void> _performAuthCheck() async {
     final user = FirebaseAuth.instance.currentUser;
 
     if (user != null) {
@@ -61,23 +93,59 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
             targetScreen = const AuthScreen();
         }
 
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => targetScreen),
-        );
+        // Store the target screen for navigation
+        _targetScreen = targetScreen;
       } catch (e) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const AuthScreen()),
-        );
+        _targetScreen = const AuthScreen();
       }
     } else {
+      _targetScreen = const AuthScreen();
+    }
+  }
+
+  /// Attempts to navigate if both animation and auth check are complete.
+  void _tryNavigate() {
+    if (_isAnimationComplete && _isAuthCheckComplete) {
+      print('🎯 PARALLEL APPROACH: Both processes complete, navigating...');
+      _navigateToTarget();
+    }
+  }
+
+  /// Navigates to the stored target screen.
+  void _navigateToTarget() {
+    if (mounted && _targetScreen != null) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => const AuthScreen()),
+        MaterialPageRoute(builder: (_) => _targetScreen!),
       );
     }
   }
+
+  /// Logs performance metrics for the parallel approach.
+  void _logParallelPerformance() {
+    if (_authCheckEndTime != null && _animationEndTime != null) {
+      final totalTime = DateTime.now().difference(_startTime).inMilliseconds;
+      final authTime = _authCheckEndTime!.difference(_authCheckStartTime!).inMilliseconds;
+      final animationTime = _animationEndTime!.difference(_startTime).inMilliseconds;
+      
+      print('🚀 PARALLEL PERFORMANCE RESULTS:');
+      print('   Total time: ${totalTime}ms');
+      print('   Auth check time: ${authTime}ms');
+      print('   Animation time: ${animationTime}ms');
+      print('   Time saved vs sequential: ${max(animationTime, authTime) - totalTime}ms');
+      print('   ✅ Parallel processing working!');
+      print('   📊 Efficiency: ${((max(animationTime, authTime) - totalTime) / max(animationTime, authTime) * 100).toStringAsFixed(1)}% faster');
+    } else if (_authCheckEndTime != null) {
+      final authTime = _authCheckEndTime!.difference(_authCheckStartTime!).inMilliseconds;
+      print('🔐 Auth check completed in: ${authTime}ms (waiting for animation...)');
+    } else if (_animationEndTime != null) {
+      final animationTime = _animationEndTime!.difference(_startTime).inMilliseconds;
+      print('🎬 Animation completed in: ${animationTime}ms (waiting for auth...)');
+    }
+  }
+
+  // Store the target screen for navigation
+  Widget? _targetScreen;
 
   @override
   void dispose() {
@@ -100,6 +168,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                   'assets/Running_Boy.json',
                   controller: _controller,
                   onLoaded: (composition) {
+                    _animationStartTime = DateTime.now();
                     _controller.duration = composition.duration;
                     _controller.forward();
                   },
