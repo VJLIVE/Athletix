@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
-import 'dart:isolate';
 import 'dart:async';
 import 'dart:math';
 import 'organization/organization_dashboard.dart';
@@ -26,9 +25,8 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
   bool _isAnimationComplete = false;
   Widget? _targetScreen;
   
-  // Performance tracking for Isolate approach
+  // Performance tracking for Parallel approach
   final DateTime _startTime = DateTime.now();
-  DateTime? _animationStartTime;
   DateTime? _animationEndTime;
   DateTime? _authCheckStartTime;
   DateTime? _authCheckEndTime;
@@ -38,98 +36,71 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
     super.initState();
     _controller = AnimationController(vsync: this);
 
-    // Start authentication check in isolate (separate thread)
-    _startAuthCheckInIsolate();
+    // Start authentication check in parallel (not in isolate)
+    _startAuthCheckInParallel();
 
     _controller.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
         _animationEndTime = DateTime.now();
         _isAnimationComplete = true;
-        _logIsolatePerformance();
+        _logParallelPerformance();
         _tryNavigate();
       }
     });
   }
 
-  /// Starts authentication check in a separate isolate to avoid main thread load.
-  void _startAuthCheckInIsolate() async {
+  /// Starts authentication check in parallel with animation (not isolate).
+  void _startAuthCheckInParallel() async {
     _authCheckStartTime = DateTime.now();
-    print('🚀 ISOLATE APPROACH: Auth check started in separate thread');
+    print('🚀 PARALLEL APPROACH: Auth check started in parallel with animation');
     
     try {
-      final result = await _runAuthCheckInIsolate();
+      final result = await _runAuthCheckDirectly();
       _authCheckEndTime = DateTime.now();
       setState(() {
         _targetScreen = result;
         _isAuthCheckComplete = true;
       });
-      _logIsolatePerformance();
+      _logParallelPerformance();
       _tryNavigate();
     } catch (e) {
       _authCheckEndTime = DateTime.now();
-      // Fallback to auth screen if isolate fails
+      // Fallback to auth screen if auth check fails
       setState(() {
         _targetScreen = const AuthScreen();
         _isAuthCheckComplete = true;
       });
-      _logIsolatePerformance();
+      _logParallelPerformance();
       _tryNavigate();
     }
   }
 
-  /// Logs performance metrics for the Isolate-based approach.
-  void _logIsolatePerformance() {
+  /// Logs performance metrics for the Parallel approach.
+  void _logParallelPerformance() {
     if (_authCheckEndTime != null && _animationEndTime != null) {
       final totalTime = DateTime.now().difference(_startTime).inMilliseconds;
       final authTime = _authCheckEndTime!.difference(_authCheckStartTime!).inMilliseconds;
       final animationTime = _animationEndTime!.difference(_startTime).inMilliseconds;
       
-      print('🚀 ISOLATE PERFORMANCE RESULTS:');
+      print('🚀 PARALLEL PERFORMANCE RESULTS:');
       print('   Total time: ${totalTime}ms');
-      print('   Auth check time (isolate): ${authTime}ms');
+      print('   Auth check time (main thread): ${authTime}ms');
       print('   Animation time (main thread): ${animationTime}ms');
       print('   Time saved vs sequential: ${max(animationTime, authTime) - totalTime}ms');
-      print('   ✅ Isolate parallel processing working!');
+      print('   ✅ Parallel processing working!');
       print('   📊 Efficiency: ${((max(animationTime, authTime) - totalTime) / max(animationTime, authTime) * 100).toStringAsFixed(1)}% faster');
-      print('   🧵 Main thread load: Zero (auth runs in isolate)');
+      print('   🧵 Both operations on main thread but parallel');
     } else if (_authCheckEndTime != null) {
       final authTime = _authCheckEndTime!.difference(_authCheckStartTime!).inMilliseconds;
-      print('🔐 Auth check completed in isolate: ${authTime}ms (waiting for animation...)');
+      print('🔐 Auth check completed: ${authTime}ms (waiting for animation...)');
     } else if (_animationEndTime != null) {
       final animationTime = _animationEndTime!.difference(_startTime).inMilliseconds;
-      print('🎬 Animation completed on main thread: ${animationTime}ms (waiting for auth...)');
+      print('🎬 Animation completed: ${animationTime}ms (waiting for auth...)');
     }
   }
 
-  /// Runs authentication check in a separate isolate.
-  Future<Widget> _runAuthCheckInIsolate() async {
-    final receivePort = ReceivePort();
-    
-    await Isolate.spawn(_authCheckIsolate, receivePort.sendPort);
-    
-    final result = await receivePort.first as Map<String, dynamic>;
-    
-    if (result['success'] == true) {
-      final role = result['role'] as String;
-      switch (role) {
-        case 'Athlete':
-          return const DashboardScreen();
-        case 'Coach':
-          return const CoachDashboardScreen();
-        case 'Doctor':
-          return const DoctorDashboardScreen();
-        case 'Organization':
-          return const OrganizationDashboardScreen();
-        default:
-          return const AuthScreen();
-      }
-    } else {
-      return const AuthScreen();
-    }
-  }
-
-  /// Isolate function that runs authentication check in separate thread.
-  static void _authCheckIsolate(SendPort sendPort) async {
+  /// Runs authentication check directly on main thread (Firebase works here).
+  Future<Widget> _runAuthCheckDirectly() async {
     try {
       final user = FirebaseAuth.instance.currentUser;
       
@@ -138,25 +109,34 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
         final data = doc.data();
         
         if (data != null && data['role'] != null) {
-          sendPort.send({
-            'success': true,
-            'role': data['role'],
-          });
+          final role = data['role'] as String;
+          switch (role) {
+            case 'Athlete':
+              return const DashboardScreen();
+            case 'Coach':
+              return const CoachDashboardScreen();
+            case 'Doctor':
+              return const DoctorDashboardScreen();
+            case 'Organization':
+              return const OrganizationDashboardScreen();
+            default:
+              return const AuthScreen();
+          }
         } else {
-          sendPort.send({'success': false});
+          return const AuthScreen();
         }
       } else {
-        sendPort.send({'success': false});
+        return const AuthScreen();
       }
     } catch (e) {
-      sendPort.send({'success': false});
+      return const AuthScreen();
     }
   }
 
   /// Attempts to navigate if both animation and auth check are complete.
   void _tryNavigate() {
     if (_isAnimationComplete && _isAuthCheckComplete && _targetScreen != null) {
-      print('🎯 ISOLATE APPROACH: Both processes complete, navigating...');
+      print('🎯 PARALLEL APPROACH: Both processes complete, navigating...');
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => _targetScreen!),
@@ -185,7 +165,6 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                   'assets/Running_Boy.json',
                   controller: _controller,
                   onLoaded: (composition) {
-                    _animationStartTime = DateTime.now();
                     _controller.duration = composition.duration;
                     _controller.forward();
                   },
