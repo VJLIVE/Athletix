@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'screens/splash_screen.dart';
+import 'screens/athlete/performance_logs_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,6 +23,9 @@ class MyApp extends StatelessWidget {
         fontFamily: 'Montserrat',
       ),
       home: const SplashScreen(),
+      routes: {
+        '/performance-logs': (context) => const PerformanceLogScreen(),
+      },
     );
   }
 }
