@@ -11,6 +11,7 @@ import 'tournaments_screen.dart';
 import '../profile_screen.dart';
 import '../../components/fcm_listener.dart';
 import 'financial_tracker_screen.dart';
+import 'athlete_connection_requests_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -159,6 +160,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           context,
                           MaterialPageRoute(
                             builder: (_) => const FinancialTrackerPage(),
+                          ),
+                        );
+                      },
+                    ),
+                    _buildActionCard(
+                      context,
+                      icon: Icons.connect_without_contact,
+                      label: "Connection Requests",
+                      color: Colors.purple,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const AthleteConnectionRequestsScreen(),
                           ),
                         );
                       },
