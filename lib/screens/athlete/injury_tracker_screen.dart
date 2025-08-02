@@ -3,13 +3,16 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+/// Screen for tracking athlete injuries and adding new injury records.
 class InjuryTrackerScreen extends StatefulWidget {
+  /// Creates an [InjuryTrackerScreen].
   const InjuryTrackerScreen({super.key});
 
   @override
   State<InjuryTrackerScreen> createState() => _InjuryTrackerScreenState();
 }
 
+/// State for [InjuryTrackerScreen] that manages form and Firestore logic.
 class _InjuryTrackerScreenState extends State<InjuryTrackerScreen> {
   final _auth = FirebaseAuth.instance;
   final _firestore = FirebaseFirestore.instance;
@@ -21,9 +24,11 @@ class _InjuryTrackerScreenState extends State<InjuryTrackerScreen> {
   DateTime? _injuryDate;
   bool _isLoading = false;
 
+  /// Returns true if the form is valid (injury and date are provided).
   bool get _isFormValid =>
       _injuryController.text.trim().isNotEmpty && _injuryDate != null;
 
+  /// Clears all form fields and resets the injury date.
   void _clearForm() {
     _injuryController.clear();
     _notesController.clear();
@@ -33,6 +38,7 @@ class _InjuryTrackerScreenState extends State<InjuryTrackerScreen> {
     });
   }
 
+  /// Adds a new injury record to Firestore if the form is valid.
   Future<void> _addInjury() async {
     if (!_isFormValid) {
       ScaffoldMessenger.of(context).showSnackBar(

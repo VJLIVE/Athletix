@@ -8,13 +8,16 @@ import 'athlete/athlete_dashboard.dart';
 import 'coach/coach_dashboard.dart';
 import 'doctor/doctor_dashboard.dart';
 
+/// Splash screen that shows an animation and navigates based on user authentication state.
 class SplashScreen extends StatefulWidget {
+  /// Creates a [SplashScreen] widget.
   const SplashScreen({super.key});
 
   @override
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
+/// State for [SplashScreen] that manages animation and navigation logic.
 class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMixin {
   late final AnimationController _controller;
 
@@ -30,6 +33,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
     });
   }
 
+  /// Navigates to the appropriate screen based on authentication and user role.
   Future<void> _navigate() async {
     final user = FirebaseAuth.instance.currentUser;
 
