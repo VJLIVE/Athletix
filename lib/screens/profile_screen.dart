@@ -138,7 +138,6 @@ class ProfileScreen extends StatelessWidget {
                     style: TextStyle(
                       color: Colors.blue,
                       fontSize: 14,
-                      decoration: TextDecoration.underline,
                     ),
                   ),
                 ),
