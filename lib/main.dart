@@ -2,6 +2,8 @@ import 'package:athletix/views/screens/athlete/athlete_dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'views/screens/splash_screen.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:athletix/l10n/app_localizations.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,7 +24,18 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
         fontFamily: 'Montserrat',
       ),
-      home: SplashScreen(),
+      localizationsDelegates: [
+        AppLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        // Add new locales in this list for enabling them
+        Locale('en', ""),
+        Locale('hi', ""),
+      ],
+      home: const SplashScreen(),
     );
   }
 }
