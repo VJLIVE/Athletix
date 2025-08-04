@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
-import '../../models/financial_entry_model.dart';
-import '../../services/firestore_service.dart';
-import '../../components/financial_chart.dart';
+import 'package:athletix/models/financial_entry_model.dart';
+import 'package:athletix/services/firestore_service.dart';
+import 'package:athletix/components/financial_chart.dart';
 
 class FinancialTrackerPage extends StatefulWidget {
   const FinancialTrackerPage({super.key});
@@ -321,7 +321,8 @@ class _FinancialTrackerPageState extends State<FinancialTrackerPage>
     return FadeTransition(
       opacity: _fadeAnimation,
       child: Scaffold(
-        resizeToAvoidBottomInset: false, // Use default for smooth keyboard transitions
+        resizeToAvoidBottomInset:
+            false, // Use default for smooth keyboard transitions
         backgroundColor: isDark ? const Color(0xFF181A20) : Colors.white,
         appBar: AppBar(
           title: Text(
@@ -388,176 +389,260 @@ class _FinancialTrackerPageState extends State<FinancialTrackerPage>
             children: [
               AnimatedSwitcher(
                 duration: const Duration(milliseconds: 500),
-                child: !_showForm
-                    ? const SizedBox.shrink()
-                    : AnimatedContainer(
-                        duration: const Duration(milliseconds: 400),
-                        curve: Curves.easeInOut,
-                        decoration: BoxDecoration(
-                          color: isDark ? const Color(0xFF23262F) : Colors.white,
-                          borderRadius: BorderRadius.circular(20),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.07),
-                              blurRadius: 18,
-                              offset: const Offset(0, 8),
-                            ),
-                          ],
-                        ),
-                        margin: const EdgeInsets.only(bottom: 24),
-                        padding: const EdgeInsets.all(20),
-                        child: Form(
-                          key: _formKey,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  DropdownButton<String>(
-                                    value: _type,
-                                    items: const [
-                                      DropdownMenuItem(
-                                        value: 'income',
-                                        child: Text('Income'),
-                                      ),
-                                      DropdownMenuItem(
-                                        value: 'expense',
-                                        child: Text('Expense'),
-                                      ),
-                                    ],
-                                    onChanged: (val) => setState(() {
-                                      _type = val!;
-                                      _selectedExpenseCategory = null;
-                                      _selectedIncomeCategory = null;
-                                    }),
-                                    borderRadius: BorderRadius.circular(14),
-                                    style: GoogleFonts.nunito(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
-                                      color: Colors.blueAccent,
-                                    ),
-                                    dropdownColor: Colors.white,
-                                  ),
-                                  const SizedBox(width: 14),
-                                  Expanded(
-                                    child: _type == 'income'
-                                        ? DropdownButtonFormField<IncomeCategory>(
-                                            value: _selectedIncomeCategory,
-                                            decoration: InputDecoration(
-                                              labelText: 'Category',
-                                              border: OutlineInputBorder(
-                                                borderRadius: BorderRadius.circular(14),
-                                              ),
-                                            ),
-                                            items: IncomeCategory.values
-                                                .map((cat) => DropdownMenuItem(
-                                                      value: cat,
-                                                      child: Text(
-                                                        incomeCategoryToString(cat)
-                                                            .replaceAll(RegExp(r'([A-Z])'), ' ' r'$1')
-                                                            .replaceAll('_', ' ')
-                                                            .replaceFirstMapped(RegExp(r'^[a-z]'), (m) => m[0]!.toUpperCase()),
-                                                      ),
-                                                    ))
-                                                .toList(),
-                                            onChanged: (cat) => setState(() => _selectedIncomeCategory = cat),
-                                            validator: (cat) => cat == null ? 'Required' : null,
-                                            borderRadius: BorderRadius.circular(14),
-                                            style: GoogleFonts.nunito(
-                                              fontWeight: FontWeight.w800,
-                                              fontSize: 18,
-                                              color: Colors.blueAccent,
-                                            ),
-                                            dropdownColor: Colors.white,
-                                          )
-                                        : DropdownButtonFormField<ExpenseCategory>(
-                                            value: _selectedExpenseCategory,
-                                            decoration: InputDecoration(
-                                              labelText: 'Category',
-                                              border: OutlineInputBorder(
-                                                borderRadius: BorderRadius.circular(14),
-                                              ),
-                                            ),
-                                            items: ExpenseCategory.values
-                                                .map((cat) => DropdownMenuItem(
-                                                      value: cat,
-                                                      child: Text(
-                                                        expenseCategoryToString(cat)
-                                                            .replaceAll(RegExp(r'([A-Z])'), ' ' r'$1')
-                                                            .replaceAll('_', ' ')
-                                                            .replaceFirstMapped(RegExp(r'^[a-z]'), (m) => m[0]!.toUpperCase()),
-                                                      ),
-                                                    ))
-                                                .toList(),
-                                            onChanged: (cat) => setState(() => _selectedExpenseCategory = cat),
-                                            validator: (cat) => cat == null ? 'Required' : null,
-                                            borderRadius: BorderRadius.circular(14),
-                                            style: GoogleFonts.nunito(
-                                              fontWeight: FontWeight.w800,
-                                              fontSize: 18,
-                                              color: Colors.blueAccent,
-                                            ),
-                                            dropdownColor: Colors.white,
-                                          ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 16),
-                              TextFormField(
-                                decoration: InputDecoration(
-                                  labelText: 'Amount',
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(14),
-                                  ),
-                                ),
-                                keyboardType: TextInputType.number,
-                                onSaved: (val) => _amount = double.parse(val!),
-                                validator: (val) => val!.isEmpty ? 'Required' : null,
-                              ),
-                              const SizedBox(height: 16),
-                              TextFormField(
-                                decoration: InputDecoration(
-                                  labelText: 'Notes (optional)',
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(14),
-                                  ),
-                                ),
-                                onSaved: (val) => _notes = val,
-                              ),
-                              const SizedBox(height: 18),
-                              AnimatedContainer(
-                                duration: const Duration(milliseconds: 200),
-                                curve: Curves.easeInOut,
-                                child: ElevatedButton.icon(
-                                  onPressed: _submitEntry,
-                                  icon: const Icon(
-                                    Icons.check_circle_outline,
-                                  ),
-                                  label: Text(
-                                    _editingEntryId != null ? "Update Entry" : "Add Entry",
-                                  ),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.blueAccent,
-                                    foregroundColor: Colors.white,
-                                    elevation: 2,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(14),
-                                    ),
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 24,
-                                      vertical: 14,
-                                    ),
-                                    textStyle: GoogleFonts.nunito(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                ),
+                child:
+                    !_showForm
+                        ? const SizedBox.shrink()
+                        : AnimatedContainer(
+                          duration: const Duration(milliseconds: 400),
+                          curve: Curves.easeInOut,
+                          decoration: BoxDecoration(
+                            color:
+                                isDark ? const Color(0xFF23262F) : Colors.white,
+                            borderRadius: BorderRadius.circular(20),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.07),
+                                blurRadius: 18,
+                                offset: const Offset(0, 8),
                               ),
                             ],
                           ),
+                          margin: const EdgeInsets.only(bottom: 24),
+                          padding: const EdgeInsets.all(20),
+                          child: Form(
+                            key: _formKey,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    DropdownButton<String>(
+                                      value: _type,
+                                      items: const [
+                                        DropdownMenuItem(
+                                          value: 'income',
+                                          child: Text('Income'),
+                                        ),
+                                        DropdownMenuItem(
+                                          value: 'expense',
+                                          child: Text('Expense'),
+                                        ),
+                                      ],
+                                      onChanged:
+                                          (val) => setState(() {
+                                            _type = val!;
+                                            _selectedExpenseCategory = null;
+                                            _selectedIncomeCategory = null;
+                                          }),
+                                      borderRadius: BorderRadius.circular(14),
+                                      style: GoogleFonts.nunito(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                        color: Colors.blueAccent,
+                                      ),
+                                      dropdownColor: Colors.white,
+                                    ),
+                                    const SizedBox(width: 14),
+                                    Expanded(
+                                      child:
+                                          _type == 'income'
+                                              ? DropdownButtonFormField<
+                                                IncomeCategory
+                                              >(
+                                                value: _selectedIncomeCategory,
+                                                decoration: InputDecoration(
+                                                  labelText: 'Category',
+                                                  border: OutlineInputBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          14,
+                                                        ),
+                                                  ),
+                                                ),
+                                                items:
+                                                    IncomeCategory.values
+                                                        .map(
+                                                          (
+                                                            cat,
+                                                          ) => DropdownMenuItem(
+                                                            value: cat,
+                                                            child: Text(
+                                                              incomeCategoryToString(
+                                                                    cat,
+                                                                  )
+                                                                  .replaceAll(
+                                                                    RegExp(
+                                                                      r'([A-Z])',
+                                                                    ),
+                                                                    ' '
+                                                                    r'$1',
+                                                                  )
+                                                                  .replaceAll(
+                                                                    '_',
+                                                                    ' ',
+                                                                  )
+                                                                  .replaceFirstMapped(
+                                                                    RegExp(
+                                                                      r'^[a-z]',
+                                                                    ),
+                                                                    (m) =>
+                                                                        m[0]!
+                                                                            .toUpperCase(),
+                                                                  ),
+                                                            ),
+                                                          ),
+                                                        )
+                                                        .toList(),
+                                                onChanged:
+                                                    (cat) => setState(
+                                                      () =>
+                                                          _selectedIncomeCategory =
+                                                              cat,
+                                                    ),
+                                                validator:
+                                                    (cat) =>
+                                                        cat == null
+                                                            ? 'Required'
+                                                            : null,
+                                                borderRadius:
+                                                    BorderRadius.circular(14),
+                                                style: GoogleFonts.nunito(
+                                                  fontWeight: FontWeight.w800,
+                                                  fontSize: 18,
+                                                  color: Colors.blueAccent,
+                                                ),
+                                                dropdownColor: Colors.white,
+                                              )
+                                              : DropdownButtonFormField<
+                                                ExpenseCategory
+                                              >(
+                                                value: _selectedExpenseCategory,
+                                                decoration: InputDecoration(
+                                                  labelText: 'Category',
+                                                  border: OutlineInputBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          14,
+                                                        ),
+                                                  ),
+                                                ),
+                                                items:
+                                                    ExpenseCategory.values
+                                                        .map(
+                                                          (
+                                                            cat,
+                                                          ) => DropdownMenuItem(
+                                                            value: cat,
+                                                            child: Text(
+                                                              expenseCategoryToString(
+                                                                    cat,
+                                                                  )
+                                                                  .replaceAll(
+                                                                    RegExp(
+                                                                      r'([A-Z])',
+                                                                    ),
+                                                                    ' '
+                                                                    r'$1',
+                                                                  )
+                                                                  .replaceAll(
+                                                                    '_',
+                                                                    ' ',
+                                                                  )
+                                                                  .replaceFirstMapped(
+                                                                    RegExp(
+                                                                      r'^[a-z]',
+                                                                    ),
+                                                                    (m) =>
+                                                                        m[0]!
+                                                                            .toUpperCase(),
+                                                                  ),
+                                                            ),
+                                                          ),
+                                                        )
+                                                        .toList(),
+                                                onChanged:
+                                                    (cat) => setState(
+                                                      () =>
+                                                          _selectedExpenseCategory =
+                                                              cat,
+                                                    ),
+                                                validator:
+                                                    (cat) =>
+                                                        cat == null
+                                                            ? 'Required'
+                                                            : null,
+                                                borderRadius:
+                                                    BorderRadius.circular(14),
+                                                style: GoogleFonts.nunito(
+                                                  fontWeight: FontWeight.w800,
+                                                  fontSize: 18,
+                                                  color: Colors.blueAccent,
+                                                ),
+                                                dropdownColor: Colors.white,
+                                              ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 16),
+                                TextFormField(
+                                  decoration: InputDecoration(
+                                    labelText: 'Amount',
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(14),
+                                    ),
+                                  ),
+                                  keyboardType: TextInputType.number,
+                                  onSaved:
+                                      (val) => _amount = double.parse(val!),
+                                  validator:
+                                      (val) => val!.isEmpty ? 'Required' : null,
+                                ),
+                                const SizedBox(height: 16),
+                                TextFormField(
+                                  decoration: InputDecoration(
+                                    labelText: 'Notes (optional)',
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(14),
+                                    ),
+                                  ),
+                                  onSaved: (val) => _notes = val,
+                                ),
+                                const SizedBox(height: 18),
+                                AnimatedContainer(
+                                  duration: const Duration(milliseconds: 200),
+                                  curve: Curves.easeInOut,
+                                  child: ElevatedButton.icon(
+                                    onPressed: _submitEntry,
+                                    icon: const Icon(
+                                      Icons.check_circle_outline,
+                                    ),
+                                    label: Text(
+                                      _editingEntryId != null
+                                          ? "Update Entry"
+                                          : "Add Entry",
+                                    ),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.blueAccent,
+                                      foregroundColor: Colors.white,
+                                      elevation: 2,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(14),
+                                      ),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 24,
+                                        vertical: 14,
+                                      ),
+                                      textStyle: GoogleFonts.nunito(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
-                      ),
               ),
               const SizedBox(height: 18),
               _buildFilters(),
@@ -572,22 +657,41 @@ class _FinancialTrackerPageState extends State<FinancialTrackerPage>
                       }
                       List<FinancialEntry> entries = snapshot.data!;
                       if (_filterStart != null && _filterEnd != null) {
-                        entries = entries.where((e) {
-                          return e.date.isAfter(
-                                _filterStart!.subtract(const Duration(days: 1)),
-                              ) &&
-                              e.date.isBefore(
-                                _filterEnd!.add(const Duration(days: 1)),
-                              );
-                        }).toList();
+                        entries =
+                            entries.where((e) {
+                              return e.date.isAfter(
+                                    _filterStart!.subtract(
+                                      const Duration(days: 1),
+                                    ),
+                                  ) &&
+                                  e.date.isBefore(
+                                    _filterEnd!.add(const Duration(days: 1)),
+                                  );
+                            }).toList();
                       }
-                      if (_filterCategory != null && _filterCategory!.isNotEmpty) {
-                        entries = entries.where((e) => e.category.toLowerCase().contains(_filterCategory!)).toList();
+                      if (_filterCategory != null &&
+                          _filterCategory!.isNotEmpty) {
+                        entries =
+                            entries
+                                .where(
+                                  (e) => e.category.toLowerCase().contains(
+                                    _filterCategory!,
+                                  ),
+                                )
+                                .toList();
                       }
                       final now = DateTime.now();
-                      final thisMonth = entries.where((e) => e.date.month == now.month && e.date.year == now.year);
-                      final income = thisMonth.where((e) => e.type == 'income').fold(0.0, (sum, e) => sum + e.amount);
-                      final expense = thisMonth.where((e) => e.type == 'expense').fold(0.0, (sum, e) => sum + e.amount);
+                      final thisMonth = entries.where(
+                        (e) =>
+                            e.date.month == now.month &&
+                            e.date.year == now.year,
+                      );
+                      final income = thisMonth
+                          .where((e) => e.type == 'income')
+                          .fold(0.0, (sum, e) => sum + e.amount);
+                      final expense = thisMonth
+                          .where((e) => e.type == 'expense')
+                          .fold(0.0, (sum, e) => sum + e.amount);
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -595,7 +699,10 @@ class _FinancialTrackerPageState extends State<FinancialTrackerPage>
                             duration: const Duration(milliseconds: 400),
                             curve: Curves.easeInOut,
                             decoration: BoxDecoration(
-                              color: isDark ? const Color(0xFF23262F) : Colors.white,
+                              color:
+                                  isDark
+                                      ? const Color(0xFF23262F)
+                                      : Colors.white,
                               borderRadius: BorderRadius.circular(20),
                               boxShadow: [
                                 BoxShadow(
@@ -707,11 +814,16 @@ class _FinancialTrackerPageState extends State<FinancialTrackerPage>
                                 curve: Curves.easeInOut,
                                 margin: const EdgeInsets.only(bottom: 12),
                                 decoration: BoxDecoration(
-                                  color: isDark ? const Color(0xFF23262F) : Colors.white,
+                                  color:
+                                      isDark
+                                          ? const Color(0xFF23262F)
+                                          : Colors.white,
                                   borderRadius: BorderRadius.circular(18),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withValues(alpha: 0.06),
+                                      color: Colors.black.withValues(
+                                        alpha: 0.06,
+                                      ),
                                       blurRadius: 12,
                                       offset: const Offset(0, 4),
                                     ),
@@ -719,10 +831,18 @@ class _FinancialTrackerPageState extends State<FinancialTrackerPage>
                                 ),
                                 child: ListTile(
                                   leading: CircleAvatar(
-                                    backgroundColor: e.type == 'income' ? Colors.green[100] : Colors.red[100],
+                                    backgroundColor:
+                                        e.type == 'income'
+                                            ? Colors.green[100]
+                                            : Colors.red[100],
                                     child: Icon(
-                                      e.type == 'income' ? Icons.call_received : Icons.call_made,
-                                      color: e.type == 'income' ? Colors.green : Colors.red,
+                                      e.type == 'income'
+                                          ? Icons.call_received
+                                          : Icons.call_made,
+                                      color:
+                                          e.type == 'income'
+                                              ? Colors.green
+                                              : Colors.red,
                                     ),
                                   ),
                                   title: Text(
@@ -746,28 +866,49 @@ class _FinancialTrackerPageState extends State<FinancialTrackerPage>
                                       fontSize: 16,
                                     ),
                                   ),
-                                  subtitle: Text(DateFormat.yMMMd().format(e.date)),
+                                  subtitle: Text(
+                                    DateFormat.yMMMd().format(e.date),
+                                  ),
                                   trailing: Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       IconButton(
-                                        icon: Icon(Icons.edit, color: Colors.blue),
+                                        icon: Icon(
+                                          Icons.edit,
+                                          color: Colors.blue,
+                                        ),
                                         splashRadius: 22,
                                         onPressed: () {
                                           setState(() {
                                             _showForm = true;
                                             _type = e.type;
                                             if (e.type == 'income') {
-                                              _selectedIncomeCategory = IncomeCategory.values.firstWhere(
-                                                (cat) => incomeCategoryToString(cat) == e.category,
-                                                orElse: () => IncomeCategory.others,
-                                              );
+                                              _selectedIncomeCategory =
+                                                  IncomeCategory.values.firstWhere(
+                                                    (cat) =>
+                                                        incomeCategoryToString(
+                                                          cat,
+                                                        ) ==
+                                                        e.category,
+                                                    orElse:
+                                                        () =>
+                                                            IncomeCategory
+                                                                .others,
+                                                  );
                                               _selectedExpenseCategory = null;
                                             } else {
-                                              _selectedExpenseCategory = ExpenseCategory.values.firstWhere(
-                                                (cat) => expenseCategoryToString(cat) == e.category,
-                                                orElse: () => ExpenseCategory.others,
-                                              );
+                                              _selectedExpenseCategory =
+                                                  ExpenseCategory.values.firstWhere(
+                                                    (cat) =>
+                                                        expenseCategoryToString(
+                                                          cat,
+                                                        ) ==
+                                                        e.category,
+                                                    orElse:
+                                                        () =>
+                                                            ExpenseCategory
+                                                                .others,
+                                                  );
                                               _selectedIncomeCategory = null;
                                             }
                                             _amount = e.amount;
@@ -779,28 +920,52 @@ class _FinancialTrackerPageState extends State<FinancialTrackerPage>
                                         },
                                       ),
                                       IconButton(
-                                        icon: Icon(Icons.delete, color: Colors.red),
+                                        icon: Icon(
+                                          Icons.delete,
+                                          color: Colors.red,
+                                        ),
                                         splashRadius: 22,
                                         onPressed: () async {
-                                          final confirm = await showDialog<bool>(
+                                          final confirm = await showDialog<
+                                            bool
+                                          >(
                                             context: context,
-                                            builder: (context) => AlertDialog(
-                                              title: const Text('Delete Transaction'),
-                                              content: const Text('Are you sure you want to delete this transaction?'),
-                                              actions: [
-                                                TextButton(
-                                                  onPressed: () => Navigator.of(context).pop(false),
-                                                  child: const Text('Cancel'),
+                                            builder:
+                                                (context) => AlertDialog(
+                                                  title: const Text(
+                                                    'Delete Transaction',
+                                                  ),
+                                                  content: const Text(
+                                                    'Are you sure you want to delete this transaction?',
+                                                  ),
+                                                  actions: [
+                                                    TextButton(
+                                                      onPressed:
+                                                          () => Navigator.of(
+                                                            context,
+                                                          ).pop(false),
+                                                      child: const Text(
+                                                        'Cancel',
+                                                      ),
+                                                    ),
+                                                    TextButton(
+                                                      onPressed:
+                                                          () => Navigator.of(
+                                                            context,
+                                                          ).pop(true),
+                                                      child: const Text(
+                                                        'Delete',
+                                                        style: TextStyle(
+                                                          color: Colors.red,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
                                                 ),
-                                                TextButton(
-                                                  onPressed: () => Navigator.of(context).pop(true),
-                                                  child: const Text('Delete', style: TextStyle(color: Colors.red)),
-                                                ),
-                                              ],
-                                            ),
                                           );
                                           if (confirm == true) {
-                                            await _firestoreService.deleteFinancialEntry(e.id);
+                                            await _firestoreService
+                                                .deleteFinancialEntry(e.id);
                                           }
                                         },
                                       ),

@@ -3,13 +3,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-import '../../components/bottom_nav_bar.dart';
+import 'package:athletix/components/bottom_nav_bar.dart';
 import 'injury_tracker_screen.dart';
 import 'performance_logs_screen.dart';
 import 'calendar_screen.dart';
 import 'tournaments_screen.dart';
 import '../profile_screen.dart';
-import '../../components/fcm_listener.dart';
+import 'package:athletix/components/fcm_listener.dart';
 import 'financial_tracker_screen.dart';
 
 class DashboardScreen extends StatefulWidget {

@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../auth_screen.dart';
-import '../../components/bottom_nav_bar.dart';
+import 'package:athletix/components/bottom_nav_bar.dart';
 import 'manage_players_screen.dart';
 import 'add_tournament_screen.dart';
 import 'view_tournaments_screen.dart';
@@ -12,10 +12,12 @@ class OrganizationDashboardScreen extends StatefulWidget {
   const OrganizationDashboardScreen({super.key});
 
   @override
-  State<OrganizationDashboardScreen> createState() => _OrganizationDashboardScreenState();
+  State<OrganizationDashboardScreen> createState() =>
+      _OrganizationDashboardScreenState();
 }
 
-class _OrganizationDashboardScreenState extends State<OrganizationDashboardScreen> {
+class _OrganizationDashboardScreenState
+    extends State<OrganizationDashboardScreen> {
   int _currentIndex = 0;
 
   @override
@@ -63,7 +65,7 @@ class _OrganizationDashboardScreenState extends State<OrganizationDashboardScree
             },
             icon: const Icon(Icons.logout, color: Colors.red),
             tooltip: 'Logout',
-          )
+          ),
         ],
       ),
       body: FutureBuilder<DocumentSnapshot<Map<String, dynamic>>>(
@@ -86,10 +88,19 @@ class _OrganizationDashboardScreenState extends State<OrganizationDashboardScree
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Card(
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                   child: ListTile(
-                    leading: const Icon(Icons.business, color: Colors.blue, size: 40),
-                    title: Text(name, style: Theme.of(context).textTheme.titleMedium),
+                    leading: const Icon(
+                      Icons.business,
+                      color: Colors.blue,
+                      size: 40,
+                    ),
+                    title: Text(
+                      name,
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
                     subtitle: Text("Sport: $sport"),
                   ),
                 ),
@@ -97,7 +108,9 @@ class _OrganizationDashboardScreenState extends State<OrganizationDashboardScree
 
                 Text(
                   'Quick Actions',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 10),
 
@@ -138,7 +151,9 @@ class _OrganizationDashboardScreenState extends State<OrganizationDashboardScree
                       onTap: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (_) => const ViewTournamentsScreen()),
+                          MaterialPageRoute(
+                            builder: (_) => const ViewTournamentsScreen(),
+                          ),
                         );
                       },
                     ),
