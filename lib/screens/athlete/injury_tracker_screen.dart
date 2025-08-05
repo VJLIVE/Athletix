@@ -402,7 +402,7 @@ class _InjuryTrackerScreenState extends State<InjuryTrackerScreen> {
                   final search = _filterLogType!.toLowerCase();
                   filteredDocs =
                       filteredDocs.where((doc) {
-                        final activity = (doc['notes'] as String).toLowerCase();
+                        final activity = (doc['description'] as String).toLowerCase();
                         return activity.contains(search);
                       }).toList();
                 }
