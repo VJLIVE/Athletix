@@ -480,7 +480,7 @@ class _PerformanceLogScreenState extends State<PerformanceLogScreen>
     if (uid == null) {
       return const Scaffold(body: Center(child: Text("Not logged in")));
     }
-
+    final basePadding = MediaQuery.of(context).size.width < 600 ? 16.0 : 32.0;
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -493,15 +493,11 @@ class _PerformanceLogScreenState extends State<PerformanceLogScreen>
         iconTheme: const IconThemeData(color: Colors.black87),
       ),
       body: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 16),
+        padding: EdgeInsets.all(basePadding),
         child: ListView(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
           children: [
             // _buildFilters(),
-            CustomeSearch(
-              filterLogType: _filterLogType,
-              logdate:_logdate ,
-            ),
+            CustomeSearch(filterLogType: _filterLogType, logdate: _logdate),
 
             if (_logdate != null ||
                 (_filterLogType != null && _filterLogType!.isNotEmpty))

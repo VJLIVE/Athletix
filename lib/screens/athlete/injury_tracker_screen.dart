@@ -22,6 +22,8 @@ class _InjuryTrackerScreenState extends State<InjuryTrackerScreen> {
   final _notesController = TextEditingController();
   final _dateController = TextEditingController(); // Date controller
 
+
+
   DateTime? _injuryDate;
   bool _isLoading = false;
 
@@ -276,6 +278,7 @@ class _InjuryTrackerScreenState extends State<InjuryTrackerScreen> {
   }
 
   Widget _buildInjuryCard(BuildContext context, QueryDocumentSnapshot doc) {
+
     final data = doc.data() as Map<String, dynamic>;
     final description = data['description'] ?? '';
     final notes = data['notes'] ?? '';
@@ -319,8 +322,9 @@ class _InjuryTrackerScreenState extends State<InjuryTrackerScreen> {
 
     if (uid == null) {
       return const Scaffold(body: Center(child: Text("Not logged in")));
-    }
 
+    }
+      final basePadding = MediaQuery.of(context).size.width < 600 ? 16.0 : 32.0;
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -335,91 +339,94 @@ class _InjuryTrackerScreenState extends State<InjuryTrackerScreen> {
         ),
         iconTheme: const IconThemeData(color: Colors.black87),
       ),
-      body: ListView(
-        children: [
-          CustomeSearch(filterLogType: _filterLogType, logdate: _logdate),
-
-          if (_logdate != null ||
-              (_filterLogType != null && _filterLogType!.isNotEmpty))
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              child: Text(
-                "Showing logs for ${_logdate != null ? DateFormat('MMM d, yyyy').format(_logdate!) : 'all dates'}" +
-                    (_filterLogType != null && _filterLogType!.isNotEmpty
-                        ? " | Filtered by: ${_filterLogType!}"
-                        : ""),
-                style: const TextStyle(fontSize: 16, color: Colors.grey),
-              ),
-            ),
-
-          StreamBuilder<QuerySnapshot>(
-            stream:
-                _firestore
-                    .collection('injuries')
-                    .where('uid', isEqualTo: uid)
-                    .orderBy('createdAt', descending: true)
-                    .snapshots(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              }
-              if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                return const Center(
-                  child: Text(
-                    "No injuries logged yet.",
-                    style: TextStyle(fontSize: 16, color: Colors.black54),
-                  ),
-                );
-              }
-
-              final docs = snapshot.data!.docs;
-              List<QueryDocumentSnapshot> filteredDocs = docs;
-
-              if (_logdate != null) {
-                final startOfDay = DateTime(
-                  _logdate!.year,
-                  _logdate!.month,
-                  _logdate!.day,
-                );
-                final endOfDay = startOfDay.add(const Duration(days: 1));
-
-                filteredDocs =
-                    docs.where((doc) {
-                      final date = (doc['date'] as Timestamp).toDate();
-                      return (date.isAtSameMomentAs(startOfDay) ||
-                              date.isAfter(startOfDay)) &&
-                          date.isBefore(endOfDay);
-                    }).toList();
-              }
-
-              if (_filterLogType != null && _filterLogType!.isNotEmpty) {
-                final search = _filterLogType!.toLowerCase();
-                filteredDocs =
-                    filteredDocs.where((doc) {
-                      final activity = (doc['notes'] as String).toLowerCase();
-                      return activity.contains(search);
-                    }).toList();
-              }
-
-              if (filteredDocs.isEmpty) {
-                return const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 20),
-                  child: Center(child: Text("No performance logs yet.")),
-                );
-              }
-
-              return ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
+      body: Padding(
+          padding: EdgeInsets.all(basePadding),
+        child: ListView(
+          children: [
+            CustomeSearch(filterLogType: _filterLogType, logdate: _logdate),
+        
+            if (_logdate != null ||
+                (_filterLogType != null && _filterLogType!.isNotEmpty))
+              Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8),
-                itemCount: filteredDocs.length,
-                itemBuilder:
-                    (context, index) =>
-                        _buildInjuryCard(context, filteredDocs[index]),
-              );
-            },
-          ),
-        ],
+                child: Text(
+                  "Showing logs for ${_logdate != null ? DateFormat('MMM d, yyyy').format(_logdate!) : 'all dates'}" +
+                      (_filterLogType != null && _filterLogType!.isNotEmpty
+                          ? " | Filtered by: ${_filterLogType!}"
+                          : ""),
+                  style: const TextStyle(fontSize: 16, color: Colors.grey),
+                ),
+              ),
+        
+            StreamBuilder<QuerySnapshot>(
+              stream:
+                  _firestore
+                      .collection('injuries')
+                      .where('uid', isEqualTo: uid)
+                      .orderBy('createdAt', descending: true)
+                      .snapshots(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                  return const Center(
+                    child: Text(
+                      "No injuries logged yet.",
+                      style: TextStyle(fontSize: 16, color: Colors.black54),
+                    ),
+                  );
+                }
+        
+                final docs = snapshot.data!.docs;
+                List<QueryDocumentSnapshot> filteredDocs = docs;
+        
+                if (_logdate != null) {
+                  final startOfDay = DateTime(
+                    _logdate!.year,
+                    _logdate!.month,
+                    _logdate!.day,
+                  );
+                  final endOfDay = startOfDay.add(const Duration(days: 1));
+        
+                  filteredDocs =
+                      docs.where((doc) {
+                        final date = (doc['date'] as Timestamp).toDate();
+                        return (date.isAtSameMomentAs(startOfDay) ||
+                                date.isAfter(startOfDay)) &&
+                            date.isBefore(endOfDay);
+                      }).toList();
+                }
+        
+                if (_filterLogType != null && _filterLogType!.isNotEmpty) {
+                  final search = _filterLogType!.toLowerCase();
+                  filteredDocs =
+                      filteredDocs.where((doc) {
+                        final activity = (doc['notes'] as String).toLowerCase();
+                        return activity.contains(search);
+                      }).toList();
+                }
+        
+                if (filteredDocs.isEmpty) {
+                  return const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 20),
+                    child: Center(child: Text("No performance logs yet.")),
+                  );
+                }
+        
+                return ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  itemCount: filteredDocs.length,
+                  itemBuilder:
+                      (context, index) =>
+                          _buildInjuryCard(context, filteredDocs[index]),
+                );
+              },
+            ),
+          ],
+        ),
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showAddInjurySheet(context),
