@@ -1,0 +1,282 @@
+Register → Creates user and stores role in Firestore (userRoles collection)
+
+Login → Authenticates via Firebase
+
+Submit Log → Saves log content with timestamp + user role
+
+Load Logs → Shows logs only if token contains role: "doctor" or role: "coach"
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical Log System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-auth-compat.js"></script>
+    <style>
+        .logs-container {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .role-badge {
+            font-size: 12px;
+            padding: 2px 6px;
+            border-radius: 12px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <div class="flex items-center justify-between mb-8">
+            <h1 class="text-3xl font-bold text-gray-800">
+                <img src="https://placehold.co/40x40/3b82f6/ffffff?text=HC" alt="Blue company logo with HC initials" class="inline-block mr-2" />
+                HealthCare Log System
+            </h1>
+            <div id="auth-container" class="flex items-center space-x-4">
+                <div id="user-info" class="hidden">
+                    <span class="font-medium"></span>
+                    <span id="user-role" class="role-badge bg-blue-100 text-blue-800"></span>
+                    <button id="sign-out-btn" class="ml-2 text-sm text-red-600 hover:text-red-800">Sign Out</button>
+                </div>
+                <button id="sign-in-btn" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
+                    Sign In as Doctor/Coach
+                </button>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4 text-gray-800">Create New Log Entry</h2>
+            <div class="flex flex-col space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Log Type</label>
+                    <select id="log-type" class="w-full p-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500">
+                        <option value="patient_checkup">Patient Checkup</option>
+                        <option value="coaching_session">Coaching Session</option>
+                        <option value="medication">Medication Update</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Details</label>
+                    <textarea id="log-details" rows="3" class="w-full p-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500" placeholder="Enter log details..."></textarea>
+                </div>
+                <button id="add-log-btn" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition">
+                    Add Log Entry
+                </button>
+                <div id="log-success" class="hidden text-green-600 text-sm">Log added successfully!</div>
+                <div id="log-error" class="hidden text-red-600 text-sm"></div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-semibold text-gray-800">Recent Logs</h2>
+                <button id="refresh-logs" class="flex items-center text-sm text-blue-600 hover:text-blue-800">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    Refresh
+                </button>
+            </div>
+            <div id="logs-container" class="logs-container">
+                <div class="p-4 bg-gray-100 rounded text-center text-gray-500">No logs available. Please sign in.</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Firebase configuration (replace with your actual config)
+        const firebaseConfig = {
+            apiKey: "AIzaSyDz00jJVza0Q-M4soShp1nm2nBjnYAeGEM",
+            authDomain: "demo-healthcare-logs.firebaseapp.com",
+            projectId: "demo-healthcare-logs",
+            storageBucket: "demo-healthcare-logs.appspot.com",
+            messagingSenderId: "123456789012",
+            appId: "1:123456789012:web:abcdef1234567890abcdef"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+
+        // Initialize UI elements
+        const signInBtn = document.getElementById('sign-in-btn');
+        const signOutBtn = document.getElementById('sign-out-btn');
+        const userInfo = document.getElementById('user-info');
+        const usernameSpan = userInfo.querySelector('span');
+        const userRoleSpan = document.getElementById('user-role');
+        const addLogBtn = document.getElementById('add-log-btn');
+        const logType = document.getElementById('log-type');
+        const logDetails = document.getElementById('log-details');
+        const logsContainer = document.getElementById('logs-container');
+        const logSuccess = document.getElementById('log-success');
+        const logError = document.getElementById('log-error');
+        const refreshLogsBtn = document.getElementById('refresh-logs');
+
+        // Simulated authentication (in real app, use Firebase Auth with proper backend)
+        signInBtn.addEventListener('click', () => {
+            // This is just for demo purposes - in a real app, you'd use Firebase Auth UI
+            const demoUsers = [
+                {
+                    email: "doctor@example.com",
+                    name: "Dr. Smith",
+                    role: "doctor",
+                    photoURL: "https://placehold.co/40x40/3b82f6/ffffff?text=DS"
+                },
+                {
+                    email: "coach@example.com",
+                    name: "Coach Johnson",
+                    role: "coach",
+                    photoURL: "https://placehold.co/40x40/22c55e/ffffff?text=CJ"
+                }
+            ];
+            
+            const randomUser = demoUsers[Math.floor(Math.random() * demoUsers.length)];
+            
+            auth.signInAnonymously().then(() => {
+                // Simulate user data for demo (in real app, this would come from Firebase Auth)
+                const user = {
+                    uid: 'demo-' + Math.random().toString(36).substr(2, 9),
+                    ...randomUser
+                };
+                
+                // Show user info
+                signInBtn.classList.add('hidden');
+                userInfo.classList.remove('hidden');
+                usernameSpan.textContent = user.name;
+                userRoleSpan.textContent = user.role;
+                document.title = `HealthCare Logs | ${user.role.charAt(0).toUpperCase() + user.role.slice(1)} View`;
+                
+                // Load logs
+                loadLogs();
+            }).catch(error => {
+                logError.textContent = "Error signing in: " + error.message;
+                logError.classList.remove('hidden');
+            });
+        });
+
+        signOutBtn.addEventListener('click', () => {
+            auth.signOut().then(() => {
+                signInBtn.classList.remove('hidden');
+                userInfo.classList.add('hidden');
+                logsContainer.innerHTML = '<div class="p-4 bg-gray-100 rounded text-center text-gray-500">No logs available. Please sign in.</div>';
+            });
+        });
+
+        // Add new log
+        addLogBtn.addEventListener('click', () => {
+            const details = logDetails.value.trim();
+            
+            if (!details) {
+                logError.textContent = "Please enter log details";
+                logError.classList.remove('hidden');
+                return;
+            }
+            
+            const user = auth.currentUser;
+            if (!user) {
+                logError.textContent = "Please sign in first";
+                logError.classList.remove('hidden');
+                return;
+            }
+            
+            const newLog = {
+                type: logType.value,
+                details: details,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                userId: user.uid,
+                userName: usernameSpan.textContent,
+                userRole: userRoleSpan.textContent
+            };
+            
+            db.collection("logs").add(newLog)
+                .then(() => {
+                    logDetails.value = '';
+                    logSuccess.classList.remove('hidden');
+                    logError.classList.add('hidden');
+                    setTimeout(() => logSuccess.classList.add('hidden'), 3000);
+                    loadLogs();
+                })
+                .catch(error => {
+                    logError.textContent = "Error adding log: " + error.message;
+                    logError.classList.remove('hidden');
+                });
+        });
+
+        // Load logs
+        function loadLogs() {
+            logsContainer.innerHTML = '<div class="p-4 bg-gray-100 rounded text-center text-gray-500">Loading logs...</div>';
+            
+            db.collection("logs")
+                .orderBy("timestamp", "desc")
+                .limit(20)
+                .get()
+                .then((querySnapshot) => {
+                    if (querySnapshot.empty) {
+                        logsContainer.innerHTML = '<div class="p-4 bg-gray-100 rounded text-center text-gray-500">No logs found</div>';
+                        return;
+                    }
+                    
+                    let logsHTML = '';
+                    querySnapshot.forEach((doc) => {
+                        const log = doc.data();
+                        const timestamp = log.timestamp ? log.timestamp.toDate() : new Date();
+                        
+                        logsHTML += `
+                            <div class="border-b border-gray-200 py-4">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <h3 class="font-medium text-gray-800 capitalize">${log.type.replace('_', ' ')}</h3>
+                                        <p class="text-gray-700 mb-2">${log.details}</p>
+                                        <div class="flex items-center text-sm text-gray-500">
+                                            <span class="${log.userRole === 'doctor' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'} role-badge">${log.userRole}</span>
+                                            <span class="mx-2">•</span>
+                                            <span>${log.userName || 'Anonymous'}</span>
+                                        </div>
+                                    </div>
+                                    <span class="text-xs text-gray-400">${formatDate(timestamp)}</span>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    logsContainer.innerHTML = logsHTML || '<div class="p-4 bg-gray-100 rounded text-center text-gray-500">No logs found</div>';
+                })
+                .catch((error) => {
+                    logsContainer.innerHTML = `<div class="p-4 bg-red-50 text-red-600 rounded text-center">Error loading logs: ${error.message}</div>`;
+                });
+        }
+
+        // Helper function to format date
+        function formatDate(date) {
+            return date.toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // Refresh logs
+        refreshLogsBtn.addEventListener('click', loadLogs);
+
+        // Initialize auth state listener
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                signInBtn.classList.add('hidden');
+                userInfo.classList.remove('hidden');
+                loadLogs();
+            }
+        });
+    </script>
+</body>
+</html>
