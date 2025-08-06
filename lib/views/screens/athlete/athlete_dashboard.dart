@@ -361,7 +361,7 @@ class _DashboardScreenState extends State<DashboardScreen>
             style: const TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w600,
-              color: Color(0xFF667EEA),
+              color: const Color(0xFF667EEA),
             ),
           ),
         ],
@@ -396,13 +396,19 @@ class _DashboardScreenState extends State<DashboardScreen>
         ),
         const SizedBox(height: 20),
         GridView.count(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
           crossAxisCount: 2,
+          padding: const EdgeInsets.all(16),
           crossAxisSpacing: 16,
           mainAxisSpacing: 16,
           childAspectRatio: 1.1,
           children: [
+            _buildDashboardCard(
+              context,
+              'Connection Requests',
+              Icons.group_add,
+              Colors.orange,
+              () => Navigator.pushNamed(context, '/connection-requests'),
+            ),
             _buildEnhancedActionCard(
               icon: Icons.healing_rounded,
               label: "Injury Tracker",
@@ -645,5 +651,57 @@ class _DashboardScreenState extends State<DashboardScreen>
   Future<DocumentSnapshot<Map<String, dynamic>>> _getUserData() async {
     final uid = FirebaseAuth.instance.currentUser!.uid;
     return await FirebaseFirestore.instance.collection('users').doc(uid).get();
+  }
+
+  Widget _buildDashboardCard(
+      BuildContext context,
+      String title,
+      IconData icon,
+      Color color,
+      VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: color.withOpacity(0.2),
+              blurRadius: 15,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Icon(
+                icon,
+                size: 32,
+                color: color,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+                color: color,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
