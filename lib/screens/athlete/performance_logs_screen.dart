@@ -1,4 +1,4 @@
-import 'package:athletix/screens/athlete/widget/custome_search.dart';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -259,7 +259,187 @@ class _PerformanceLogScreenState extends State<PerformanceLogScreen>
     }
   }
 
-  
+  Widget _buildFilters() {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isNarrow = constraints.maxWidth < 400;
+
+        return Center(
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+            margin: const EdgeInsets.symmetric(vertical: 8),
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF23262F) : Colors.white,
+              borderRadius: BorderRadius.circular(18),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.06),
+                  blurRadius: 14,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child:
+                isNarrow
+                    ? Column(
+                      children: [
+                        Row(
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.date_range),
+                              onPressed: () {
+                                pickDate();
+                              },
+                              tooltip: 'Select Date Range',
+                              splashRadius: 20,
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: TextField(
+                                controller: _FilterController,
+                                decoration: InputDecoration(
+                                  hintText: 'Filter activity',
+                                  prefixIcon: const Icon(
+                                    Icons.filter_alt,
+                                    size: 20,
+                                  ),
+                                  filled: true,
+                                  fillColor:
+                                      isDark
+                                          ? const Color(0xFF23262F)
+                                          : Colors.grey[100],
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    vertical: 0,
+                                    horizontal: 12,
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(14),
+                                    borderSide: BorderSide.none,
+                                  ),
+                                  hintStyle: GoogleFonts.nunito(
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.grey[500],
+                                  ),
+                                ),
+                                style: GoogleFonts.nunito(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 15,
+                                ),
+                                onChanged:
+                                    (val) => setState(() {
+                                      _filterLogType = val;
+                                    }),
+                              ),
+                            ),
+                          ],
+                        ),
+                        if (_logdate != null ||
+                            (_filterLogType != null &&
+                                _filterLogType!.isNotEmpty))
+                          Padding(
+                            padding: const EdgeInsets.only(left: 8),
+                            child: IconButton(
+                              icon: const Icon(
+                                Icons.close_rounded,
+                                color: Colors.redAccent,
+                                size: 22,
+                              ),
+                              tooltip: 'Clear Filters',
+                              splashRadius: 20,
+                              onPressed: () {
+                                setState(() {
+                                  _logdate = null;
+                                  _filterLogType = null;
+                                  _FilterController.clear();
+                                });
+                              },
+                            ),
+                          ),
+                      ],
+                    )
+                    : Row(
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.date_range),
+                          onPressed: () {
+                            pickDate();
+                          },
+                          tooltip: 'Select Date Range',
+                          splashRadius: 20,
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: TextField(
+                            controller: _FilterController,
+                            decoration: InputDecoration(
+                              hintText: 'Filter Category',
+                              prefixIcon: const Icon(
+                                Icons.filter_alt,
+                                size: 20,
+                              ),
+                              filled: true,
+                              fillColor:
+                                  isDark
+                                      ? const Color(0xFF23262F)
+                                      : Colors.grey[100],
+                              contentPadding: const EdgeInsets.symmetric(
+                                vertical: 0,
+                                horizontal: 12,
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(14),
+                                borderSide: BorderSide.none,
+                              ),
+                              hintStyle: GoogleFonts.nunito(
+                                fontWeight: FontWeight.w500,
+                                color: Colors.grey[500],
+                              ),
+                            ),
+                            style: GoogleFonts.nunito(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 15,
+                            ),
+                            onChanged:
+                                (val) => setState(() {
+                                  _filterLogType = val;
+                                }),
+                          ),
+                        ),
+
+                        if (_logdate != null ||
+                            (_filterLogType != null &&
+                                _filterLogType!.isNotEmpty))
+                          Padding(
+                            padding: const EdgeInsets.only(left: 8),
+                            child: IconButton(
+                              icon: const Icon(
+                                Icons.close_rounded,
+                                color: Colors.redAccent,
+                                size: 22,
+                              ),
+                              tooltip: 'Clear Filters',
+                              splashRadius: 20,
+                              onPressed: () {
+                                setState(() {
+                                  _logdate = null;
+                                  _filterLogType = null;
+                                  _FilterController.clear();
+                                });
+                              },
+                            ),
+                          ),
+                      ],
+                    ),
+          ),
+        );
+      },
+    );
+  }
 
   Widget _buildLogCard(BuildContext context, QueryDocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
@@ -316,9 +496,9 @@ class _PerformanceLogScreenState extends State<PerformanceLogScreen>
         padding: EdgeInsets.all(basePadding),
         child: ListView(
           children: [
-            // _buildFilters(),
-            CustomeSearch(filterLogType: _filterLogType, logdate: _logdate),
+            _buildFilters(),
 
+            // CustomeSearch(filterLogType: _filterLogType, logdate: _logdate),
             if (_logdate != null ||
                 (_filterLogType != null && _filterLogType!.isNotEmpty))
               Padding(
