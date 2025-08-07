@@ -71,21 +71,29 @@ class _InjuryTrackerScreenState extends State<InjuryTrackerScreen> {
   Future<void> _deleteInjury(String docId) async {
     final confirm = await showDialog<bool>(
       context: context,
-      builder: (_) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text("Delete Injury"),
-        content: const Text("Are you sure you want to delete this injury entry?"),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text("Cancel"),
+      builder:
+          (_) => AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            title: const Text("Delete Injury"),
+            content: const Text(
+              "Are you sure you want to delete this injury entry?",
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text("Cancel"),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text(
+                  "Delete",
+                  style: TextStyle(color: Colors.red),
+                ),
+              ),
+            ],
           ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text("Delete", style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
     );
 
     if (confirm == true) {
@@ -106,9 +114,10 @@ class _InjuryTrackerScreenState extends State<InjuryTrackerScreen> {
 
         DateTime? modalInjuryDate = _injuryDate;
         // Set initial text for date field for immediate display
-        _dateController.text = modalInjuryDate != null
-            ? DateFormat('yyyy-MM-dd').format(modalInjuryDate)
-            : '';
+        _dateController.text =
+            modalInjuryDate != null
+                ? DateFormat('yyyy-MM-dd').format(modalInjuryDate)
+                : '';
 
         return Padding(
           padding: EdgeInsets.only(
@@ -129,14 +138,17 @@ class _InjuryTrackerScreenState extends State<InjuryTrackerScreen> {
                 if (picked != null) {
                   setModalState(() {
                     modalInjuryDate = picked;
-                    _dateController.text = DateFormat('yyyy-MM-dd').format(picked);
+                    _dateController.text = DateFormat(
+                      'yyyy-MM-dd',
+                    ).format(picked);
                   });
                   setState(() => _injuryDate = picked);
                 }
               }
 
               final isFormValid =
-                  _injuryController.text.trim().isNotEmpty && modalInjuryDate != null;
+                  _injuryController.text.trim().isNotEmpty &&
+                  modalInjuryDate != null;
 
               return SingleChildScrollView(
                 child: Column(
@@ -144,9 +156,7 @@ class _InjuryTrackerScreenState extends State<InjuryTrackerScreen> {
                   children: [
                     Text(
                       "Add Injury",
-                      style: Theme.of(context)
-                          .textTheme
-                          .headlineSmall
+                      style: Theme.of(context).textTheme.headlineSmall
                           ?.copyWith(color: Colors.black87),
                     ),
                     const SizedBox(height: 18),
@@ -192,8 +202,10 @@ class _InjuryTrackerScreenState extends State<InjuryTrackerScreen> {
                               _clearForm();
                             },
                             style: OutlinedButton.styleFrom(
-                              side:
-                              const BorderSide(color: Colors.grey, width: 1.3),
+                              side: const BorderSide(
+                                color: Colors.grey,
+                                width: 1.3,
+                              ),
                               backgroundColor: Colors.white,
                               padding: const EdgeInsets.symmetric(vertical: 14),
                               shape: RoundedRectangleBorder(
@@ -213,16 +225,19 @@ class _InjuryTrackerScreenState extends State<InjuryTrackerScreen> {
                         const SizedBox(width: 16),
                         Expanded(
                           child: OutlinedButton(
-                            onPressed: isFormValid
-                                ? () async {
-                              await _addInjury();
-                            }
-                                : null,
+                            onPressed:
+                                isFormValid
+                                    ? () async {
+                                      await _addInjury();
+                                    }
+                                    : null,
                             style: OutlinedButton.styleFrom(
                               backgroundColor: Colors.white,
                               side: BorderSide(
                                 color:
-                                isFormValid ? const Color(0xFF1565C0) : Colors.grey,
+                                    isFormValid
+                                        ? const Color(0xFF1565C0)
+                                        : Colors.grey,
                                 width: 1.6,
                               ),
                               padding: const EdgeInsets.symmetric(vertical: 14),
@@ -233,9 +248,10 @@ class _InjuryTrackerScreenState extends State<InjuryTrackerScreen> {
                             child: Text(
                               'Add',
                               style: TextStyle(
-                                color: isFormValid
-                                    ? const Color(0xFF1565C0)
-                                    : Colors.grey,
+                                color:
+                                    isFormValid
+                                        ? const Color(0xFF1565C0)
+                                        : Colors.grey,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
                               ),
@@ -298,9 +314,7 @@ class _InjuryTrackerScreenState extends State<InjuryTrackerScreen> {
     final uid = _auth.currentUser?.uid;
 
     if (uid == null) {
-      return const Scaffold(
-        body: Center(child: Text("Not logged in")),
-      );
+      return const Scaffold(body: Center(child: Text("Not logged in")));
     }
 
     return Scaffold(
@@ -318,11 +332,12 @@ class _InjuryTrackerScreenState extends State<InjuryTrackerScreen> {
         iconTheme: const IconThemeData(color: Colors.black87),
       ),
       body: StreamBuilder<QuerySnapshot>(
-        stream: _firestore
-            .collection('injuries')
-            .where('uid', isEqualTo: uid)
-            .orderBy('createdAt', descending: true)
-            .snapshots(),
+        stream:
+            _firestore
+                .collection('injuries')
+                .where('uid', isEqualTo: uid)
+                .orderBy('createdAt', descending: true)
+                .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -340,17 +355,14 @@ class _InjuryTrackerScreenState extends State<InjuryTrackerScreen> {
           return ListView.builder(
             padding: const EdgeInsets.symmetric(vertical: 8),
             itemCount: docs.length,
-            itemBuilder: (context, index) =>
-                _buildInjuryCard(context, docs[index]),
+            itemBuilder:
+                (context, index) => _buildInjuryCard(context, docs[index]),
           );
         },
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showAddInjurySheet(context),
-        icon: const Icon(
-          Icons.add,
-          color: Color(0xFF1565C0),
-        ),
+        icon: const Icon(Icons.add, color: Color(0xFF1565C0)),
         label: const Text(
           "Add Injury",
           style: TextStyle(

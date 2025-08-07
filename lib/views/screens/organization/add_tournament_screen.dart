@@ -497,12 +497,14 @@ class _PurpleSaveButtonState extends State<_PurpleSaveButton>
         onTap: widget.onPressed,
         child: AnimatedBuilder(
           animation: _controller,
-          builder: (context, child) => Transform.scale(
-            scale: _scale.value,
-            child: child,
-          ),
+          builder:
+              (context, child) =>
+                  Transform.scale(scale: _scale.value, child: child),
           child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 24), // Reduced size
+            padding: const EdgeInsets.symmetric(
+              vertical: 10,
+              horizontal: 24,
+            ), // Reduced size
             decoration: BoxDecoration(
               color: const Color(0xFF1976D2), // Blue shade
               borderRadius: BorderRadius.circular(20),

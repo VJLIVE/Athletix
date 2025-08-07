@@ -117,10 +117,7 @@ class _DashboardScreenState extends State<DashboardScreen>
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [
-                Color(0xFF667EEA),
-                Color(0xFF764BA2),
-              ],
+              colors: [Color(0xFF667EEA), Color(0xFF764BA2)],
             ),
           ),
         ),
@@ -204,10 +201,7 @@ class _DashboardScreenState extends State<DashboardScreen>
             const SizedBox(height: 8),
             const Text(
               'Please try refreshing the page',
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey,
-              ),
+              style: TextStyle(fontSize: 14, color: Colors.grey),
             ),
             const SizedBox(height: 24),
             ElevatedButton.icon(
@@ -249,7 +243,12 @@ class _DashboardScreenState extends State<DashboardScreen>
 
   Widget _buildWelcomeCard(String name, String sport, String dob) {
     final hour = DateTime.now().hour;
-    String greeting = hour < 12 ? 'Good Morning' : hour < 17 ? 'Good Afternoon' : 'Good Evening';
+    String greeting =
+        hour < 12
+            ? 'Good Morning'
+            : hour < 17
+            ? 'Good Afternoon'
+            : 'Good Evening';
 
     return Container(
       width: double.infinity,
@@ -257,10 +256,7 @@ class _DashboardScreenState extends State<DashboardScreen>
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            Color(0xFFFFFFFF),
-            Color(0xFFF8FAFC),
-          ],
+          colors: [Color(0xFFFFFFFF), Color(0xFFF8FAFC)],
         ),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
@@ -350,11 +346,7 @@ class _DashboardScreenState extends State<DashboardScreen>
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            icon,
-            size: 16,
-            color: const Color(0xFF667EEA),
-          ),
+          Icon(icon, size: 16, color: const Color(0xFF667EEA)),
           const SizedBox(width: 6),
           Text(
             text,
@@ -493,11 +485,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                       color: Colors.white.withOpacity(0.2),
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    child: Icon(
-                      icon,
-                      size: 32,
-                      color: Colors.white,
-                    ),
+                    child: Icon(icon, size: 32, color: Colors.white),
                   ),
                   const SizedBox(height: 12),
                   Text(
@@ -633,8 +621,18 @@ class _DashboardScreenState extends State<DashboardScreen>
     try {
       final date = DateTime.parse(dateStr);
       final months = [
-        'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-        'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec',
       ];
       return '${months[date.month - 1]} ${date.day}';
     } catch (e) {

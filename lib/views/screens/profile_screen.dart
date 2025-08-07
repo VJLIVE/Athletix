@@ -123,16 +123,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
           CircleAvatar(
             radius: 50,
             backgroundColor: Colors.blue.shade100,
-            backgroundImage: profileImageUrl != null
-                ? NetworkImage(profileImageUrl)
-                : null,
-            child: profileImageUrl == null
-                ? Icon(
-              Icons.person,
-              size: 60,
-              color: Colors.blue.shade700,
-            )
-                : null,
+            backgroundImage:
+                profileImageUrl != null ? NetworkImage(profileImageUrl) : null,
+            child:
+                profileImageUrl == null
+                    ? Icon(Icons.person, size: 60, color: Colors.blue.shade700)
+                    : null,
           ),
           if (_isUploading)
             Container(
@@ -219,14 +215,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
           final createdAtRaw = data['createdAt'];
 
           final dobFormatted =
-          dobRaw != null
-              ? _formatDate(DateTime.tryParse(dobRaw) ?? DateTime.now())
-              : 'N/A';
+              dobRaw != null
+                  ? _formatDate(DateTime.tryParse(dobRaw) ?? DateTime.now())
+                  : 'N/A';
 
           final createdAtFormatted =
-          createdAtRaw != null
-              ? _formatDate((createdAtRaw as Timestamp).toDate())
-              : 'N/A';
+              createdAtRaw != null
+                  ? _formatDate((createdAtRaw as Timestamp).toDate())
+                  : 'N/A';
 
           return Column(
             children: [

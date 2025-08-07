@@ -55,7 +55,8 @@ class UserModel {
       'signupCompleted': signupCompleted,
       'createdAt': Timestamp.fromDate(createdAt),
       if (fcmToken != null) 'fcmToken': fcmToken,
-      if (profileImage != null) 'profileImage': profileImage, // Added profile image to Firestore
+      if (profileImage != null)
+        'profileImage': profileImage, // Added profile image to Firestore
     };
   }
 
@@ -83,7 +84,8 @@ class UserModel {
       signupCompleted: signupCompleted ?? this.signupCompleted,
       createdAt: createdAt ?? this.createdAt,
       fcmToken: fcmToken ?? this.fcmToken,
-      profileImage: profileImage ?? this.profileImage, // Added profile image to copyWith
+      profileImage:
+          profileImage ?? this.profileImage, // Added profile image to copyWith
     );
   }
 }

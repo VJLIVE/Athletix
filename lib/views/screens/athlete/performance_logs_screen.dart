@@ -86,22 +86,29 @@ class _PerformanceLogScreenState extends State<PerformanceLogScreen>
   Future<void> _deleteLog(String docId) async {
     final confirm = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text("Delete Log"),
-        content:
-        const Text("Are you sure you want to delete this performance log entry?"),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text("Cancel"),
+      builder:
+          (context) => AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            title: const Text("Delete Log"),
+            content: const Text(
+              "Are you sure you want to delete this performance log entry?",
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text("Cancel"),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text(
+                  "Delete",
+                  style: TextStyle(color: Colors.red),
+                ),
+              ),
+            ],
           ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text("Delete", style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
     );
 
     if (confirm == true) {
@@ -122,7 +129,9 @@ class _PerformanceLogScreenState extends State<PerformanceLogScreen>
 
         DateTime? modalLogDate = _logDate;
         _dateController.text =
-        modalLogDate != null ? DateFormat('yyyy-MM-dd').format(modalLogDate) : '';
+            modalLogDate != null
+                ? DateFormat('yyyy-MM-dd').format(modalLogDate)
+                : '';
 
         return Padding(
           padding: EdgeInsets.only(
@@ -143,7 +152,9 @@ class _PerformanceLogScreenState extends State<PerformanceLogScreen>
                 if (picked != null) {
                   setModalState(() {
                     modalLogDate = picked;
-                    _dateController.text = DateFormat('yyyy-MM-dd').format(picked);
+                    _dateController.text = DateFormat(
+                      'yyyy-MM-dd',
+                    ).format(picked);
                   });
                   setState(() {
                     _logDate = picked;
@@ -157,10 +168,12 @@ class _PerformanceLogScreenState extends State<PerformanceLogScreen>
                   children: [
                     Text(
                       "Add Performance Log",
-                      style: Theme.of(context)
-                          .textTheme
-                          .headlineSmall
-                          ?.copyWith(fontWeight: FontWeight.bold, color: Colors.black87),
+                      style: Theme.of(
+                        context,
+                      ).textTheme.headlineSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
                     ),
                     const SizedBox(height: 20),
                     TextField(
@@ -198,24 +211,24 @@ class _PerformanceLogScreenState extends State<PerformanceLogScreen>
                     _isLoading
                         ? const CircularProgressIndicator()
                         : ElevatedButton(
-                      onPressed: _isFormValid ? _addLog : null,
-                      style: ElevatedButton.styleFrom(
-                        minimumSize: const Size.fromHeight(48),
-                        backgroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          onPressed: _isFormValid ? _addLog : null,
+                          style: ElevatedButton.styleFrom(
+                            minimumSize: const Size.fromHeight(48),
+                            backgroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            elevation: 2,
+                          ),
+                          child: Text(
+                            "Submit",
+                            style: TextStyle(
+                              color: _isFormValid ? Colors.black : Colors.grey,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
                         ),
-                        elevation: 2,
-                      ),
-                      child: Text(
-                        "Submit",
-                        style: TextStyle(
-                          color: _isFormValid ? Colors.black : Colors.grey,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
-                    ),
                     const SizedBox(height: 12),
                   ],
                 ),
@@ -264,9 +277,7 @@ class _PerformanceLogScreenState extends State<PerformanceLogScreen>
     final uid = _auth.currentUser?.uid;
 
     if (uid == null) {
-      return const Scaffold(
-        body: Center(child: Text("Not logged in")),
-      );
+      return const Scaffold(body: Center(child: Text("Not logged in")));
     }
 
     return Scaffold(
@@ -281,11 +292,12 @@ class _PerformanceLogScreenState extends State<PerformanceLogScreen>
         iconTheme: const IconThemeData(color: Colors.black87),
       ),
       body: StreamBuilder<QuerySnapshot>(
-        stream: _firestore
-            .collection('performance_logs')
-            .where('uid', isEqualTo: uid)
-            .orderBy('createdAt', descending: true)
-            .snapshots(),
+        stream:
+            _firestore
+                .collection('performance_logs')
+                .where('uid', isEqualTo: uid)
+                .orderBy('createdAt', descending: true)
+                .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -297,7 +309,8 @@ class _PerformanceLogScreenState extends State<PerformanceLogScreen>
 
           return ListView.builder(
             itemCount: docs.length,
-            itemBuilder: (context, index) => _buildLogCard(context, docs[index]),
+            itemBuilder:
+                (context, index) => _buildLogCard(context, docs[index]),
           );
         },
       ),

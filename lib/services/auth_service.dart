@@ -14,9 +14,9 @@ class AuthService {
   Stream<User?> get authStateChanges => _auth.authStateChanges();
 
   Future<UserCredential> signInWithEmailAndPassword(
-      String email,
-      String password,
-      ) async {
+    String email,
+    String password,
+  ) async {
     return await _auth.signInWithEmailAndPassword(
       email: email,
       password: password,
@@ -24,9 +24,9 @@ class AuthService {
   }
 
   Future<UserCredential> createUserWithEmailAndPassword(
-      String email,
-      String password,
-      ) async {
+    String email,
+    String password,
+  ) async {
     return await _auth.createUserWithEmailAndPassword(
       email: email,
       password: password,
@@ -72,11 +72,11 @@ class AuthService {
   Future<UserModel?> getUserDataByEmail(String email) async {
     try {
       final querySnapshot =
-      await _firestore
-          .collection('users')
-          .where('email', isEqualTo: email)
-          .limit(1)
-          .get();
+          await _firestore
+              .collection('users')
+              .where('email', isEqualTo: email)
+              .limit(1)
+              .get();
 
       if (querySnapshot.docs.isNotEmpty) {
         return UserModel.fromFirestore(querySnapshot.docs.first);
@@ -89,9 +89,9 @@ class AuthService {
   }
 
   Future<void> updateEmailVerificationStatus(
-      String uid,
-      bool isVerified,
-      ) async {
+    String uid,
+    bool isVerified,
+  ) async {
     await _firestore.collection('users').doc(uid).update({
       'emailVerified': isVerified,
     });
