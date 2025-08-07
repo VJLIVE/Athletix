@@ -1,4 +1,4 @@
-import 'package:athletix/screens/auth_screen.dart';
+import 'package:athletix/views/screens/auth_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -23,17 +23,16 @@ Future<void> signoutConfirmation(BuildContext context) async {
                 onPressed: () async {
                   try {
                     await FirebaseAuth.instance.signOut();
-                    
+
                     if (context.mounted) {
-                     
                       Fluttertoast.showToast(
                         msg: "Signed Out successfully",
                         backgroundColor: Colors.green,
                       );
                       Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (_) => const AuthScreen()),
-                    );
+                        context,
+                        MaterialPageRoute(builder: (_) => const AuthScreen()),
+                      );
                     }
                   } catch (e) {
                     if (context.mounted) {

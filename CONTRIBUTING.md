@@ -1,10 +1,10 @@
-# Contributing to Athletix
+# ✨ Contributing to Athletix
 
 First off, thank you for considering contributing to Athletix! 🙌
 
 ---
 
-## Getting Started
+## 🚀 Getting Started
 
 1. **Fork the repository**: [Fork the repo from here](https://github.com/vjlive/athletix/fork)
 
@@ -22,9 +22,18 @@ cd athletix
 
 ---
 
+### 🙋‍♀️ How to Get Assigned
+
+To start working on an issue:
+
+1. Go through the [Issues](https://github.com/vjlive/athletix/issues) tab.
+2. If you find an unassigned issue you’d like to work on, **comment below the issue** asking to be assigned (mention that you are a GSSoC'25 contributor if applicable).
+3. Wait until a maintainer assigns you the issue.
+4. Do not start working on any issue unless you are assigned to it.
+
 ## Contributing Guidelines
 
-### Project Setup Instructions
+### 🏗️ Project Setup Instructions
 
 * Install dependencies:
 
@@ -40,7 +49,7 @@ flutter run
 
 - It is recommended to use your physical mobile for development. 
 
-### Branching Strategy
+### 🌱 Branching Strategy
 
 * Always branch out from `main`:
 
@@ -57,7 +66,13 @@ git checkout -b feat/your-feature-name
 | Docs    | `docs/`  |
 | Chore   | `chore/` |
 
-### Commit Message Format
+**Examples:**
+
+- `feat/login-screen`
+- `fix/navbar-overlap`
+- `docs/update-contributing-guide`
+
+### ✍️ Commit Message Format
 
 Use [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/):
 
@@ -65,7 +80,7 @@ Use [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/):
 git commit -m "feat(component): add navbar component"
 ```
 
-### Pull Request Process
+### 📬 Pull Request Process
 
 * Ensure your PR includes a clear title and description.
 * Link to any relevant issues.
@@ -77,7 +92,18 @@ git commit -m "feat(component): add navbar component"
 
 ---
 
-## How to File a Bug
+### 🔍 Code Review Process
+
+Once you open a PR:
+
+1. A maintainer will review it and may suggest changes or improvements.
+2. Be prompt and respectful in responding to feedback.
+3. If requested, make the necessary changes and push them to the same branch.
+4. Once approved, your PR will be merged into the `main` branch.
+
+Maintainers may also tag your PR with relevant labels like `gssoc`, `enhancement`, or `documentation`.
+
+## 🐛 How to File a Bug
 
 * Open an [issue](https://github.com/vjlive/athletix/issues)
 * Choose **Bug Report** template
@@ -89,7 +115,7 @@ git commit -m "feat(component): add navbar component"
 
 ---
 
-## Pull Request Checklist
+## ✅ Pull Request Checklist
 
 Before submitting your pull request, please ensure the following:
 
@@ -105,7 +131,7 @@ Before submitting your pull request, please ensure the following:
 
 ---
 
-## Useful Resources
+## 📚 Useful Resources
 
 * [Flutter Documentation](https://docs.flutter.dev/)
 * [Firebase Documentation](https://firebase.google.com/docs)
@@ -114,7 +140,24 @@ Before submitting your pull request, please ensure the following:
 
 ---
 
-## Code of Conduct
+### 🛠️ Troubleshooting
+
+If you face issues during setup or development, here are some common solutions:
+
+- ❗ **Firebase Configuration Missing**
+  - Ensure you have your `google-services.json` and Firebase setup correctly.
+  - Refer to the `DEVELOPMENT.md` file for setup instructions.
+
+- ❗ **Plugin Compatibility Errors**
+  - Run `flutter pub upgrade` to refresh dependencies.
+  - Check if any Flutter or plugin versions need to be updated.
+
+- ❗ **Google Maps API Not Working**
+  - Make sure the correct API key is set in your `AndroidManifest.xml` or `AppDelegate.swift`.
+  - API key must have proper permissions in the Google Cloud console.
+
+
+## 📜 Code of Conduct
 
 We follow the [Contributor Covenant Code of Conduct](./CODE_OF_CONDUCT.md). Be respectful, inclusive, and collaborative in all contributions.
 
