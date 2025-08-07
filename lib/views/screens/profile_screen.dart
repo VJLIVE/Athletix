@@ -22,66 +22,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final ImagePicker _imagePicker = ImagePicker();
   bool _isUploading = false;
 
-  Future<void> _pickAndUploadImage() async {
-    try {
-      final XFile? image = await _imagePicker.pickImage(
-        source: ImageSource.gallery,
-        maxWidth: 800,
-        maxHeight: 800,
-        imageQuality: 85,
-      );
-
-      if (image == null) return;
-
-      setState(() {
-        _isUploading = true;
-      });
-
-      // Upload to Cloudinary
-      final imageUrl = await _cloudinaryService.uploadImage(File(image.path));
-
-      if (imageUrl != null) {
-        // Update user profile with new image URL
-        await _authService.updateProfileImage(imageUrl);
-
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Profile picture updated successfully!'),
-              backgroundColor: Colors.green,
-            ),
-          );
-          // Refresh the screen to show new image
-          setState(() {});
-        }
-      } else {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Failed to upload image. Please try again.'),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error uploading image: ${e.toString()}'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isUploading = false;
-        });
-      }
-    }
-  }
-
   void _showImageSourceDialog() {
     showModalBottomSheet(
       context: context,
@@ -132,11 +72,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _isUploading = true;
       });
 
-      // Upload to Cloudinary
       final imageUrl = await _cloudinaryService.uploadImage(File(image.path));
 
       if (imageUrl != null) {
-        // Update user profile with new image URL
         await _authService.updateProfileImage(imageUrl);
 
         if (mounted) {
@@ -146,7 +84,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
               backgroundColor: Colors.green,
             ),
           );
-          // Refresh the screen to show new image
           setState(() {});
         }
       } else {
@@ -202,7 +139,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               width: 100,
               height: 100,
               decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.5),
+                color: Colors.black.withAlpha(128),
                 shape: BoxShape.circle,
               ),
               child: const CircularProgressIndicator(

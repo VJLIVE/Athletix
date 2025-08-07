@@ -97,8 +97,6 @@ class AuthService {
     });
   }
 
-  /// Updates the current user's profile image URL in Firestore
-  /// Note: Old images are not deleted from Cloudinary due to client-side limitations
   Future<void> updateProfileImage(String newImageUrl) async {
     final uid = _auth.currentUser?.uid;
     if (uid == null) {
@@ -106,7 +104,6 @@ class AuthService {
     }
 
     try {
-      // Update Firestore with new image URL
       await _firestore.collection('users').doc(uid).update({
         'profileImage': newImageUrl,
         'updatedAt': FieldValue.serverTimestamp(),
@@ -119,8 +116,6 @@ class AuthService {
     }
   }
 
-  /// Removes the current user's profile image URL from Firestore
-  /// Note: The actual image is not deleted from Cloudinary due to client-side limitations
   Future<void> removeProfileImage() async {
     final uid = _auth.currentUser?.uid;
     if (uid == null) {
@@ -128,7 +123,6 @@ class AuthService {
     }
 
     try {
-      // Remove profile image field from Firestore
       await _firestore.collection('users').doc(uid).update({
         'profileImage': FieldValue.delete(),
         'updatedAt': FieldValue.serverTimestamp(),
@@ -141,7 +135,6 @@ class AuthService {
     }
   }
 
-  /// Gets the current user's profile image URL
   Future<String?> getProfileImageUrl() async {
     final uid = _auth.currentUser?.uid;
     if (uid == null) return null;
