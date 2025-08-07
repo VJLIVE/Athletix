@@ -3,10 +3,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import '../models/user_model.dart';
+import 'cloudinary_service.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final CloudinaryService _cloudinaryService = CloudinaryService();
 
   User? get currentUser => _auth.currentUser;
   Stream<User?> get authStateChanges => _auth.authStateChanges();
@@ -93,6 +95,68 @@ class AuthService {
     await _firestore.collection('users').doc(uid).update({
       'emailVerified': isVerified,
     });
+  }
+
+  /// Updates the current user's profile image URL in Firestore
+  /// Note: Old images are not deleted from Cloudinary due to client-side limitations
+  Future<void> updateProfileImage(String newImageUrl) async {
+    final uid = _auth.currentUser?.uid;
+    if (uid == null) {
+      throw Exception('No user logged in');
+    }
+
+    try {
+      // Update Firestore with new image URL
+      await _firestore.collection('users').doc(uid).update({
+        'profileImage': newImageUrl,
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+
+      debugPrint('Profile image updated successfully');
+    } catch (e) {
+      debugPrint('Error updating profile image: $e');
+      rethrow;
+    }
+  }
+
+  /// Removes the current user's profile image URL from Firestore
+  /// Note: The actual image is not deleted from Cloudinary due to client-side limitations
+  Future<void> removeProfileImage() async {
+    final uid = _auth.currentUser?.uid;
+    if (uid == null) {
+      throw Exception('No user logged in');
+    }
+
+    try {
+      // Remove profile image field from Firestore
+      await _firestore.collection('users').doc(uid).update({
+        'profileImage': FieldValue.delete(),
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+
+      debugPrint('Profile image URL removed successfully');
+    } catch (e) {
+      debugPrint('Error removing profile image: $e');
+      rethrow;
+    }
+  }
+
+  /// Gets the current user's profile image URL
+  Future<String?> getProfileImageUrl() async {
+    final uid = _auth.currentUser?.uid;
+    if (uid == null) return null;
+
+    try {
+      final userDoc = await _firestore.collection('users').doc(uid).get();
+      if (userDoc.exists) {
+        final userData = userDoc.data() as Map<String, dynamic>;
+        return userData['profileImage'] as String?;
+      }
+      return null;
+    } catch (e) {
+      debugPrint('Error getting profile image URL: $e');
+      return null;
+    }
   }
 
   Future<void> saveFcmToken() async {
