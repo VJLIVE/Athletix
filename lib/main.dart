@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'views/screens/splash_screen.dart';
+import 'views/screens/connection_requests_screen.dart'; 
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,6 +23,10 @@ class MyApp extends StatelessWidget {
         fontFamily: 'Montserrat',
       ),
       home: const SplashScreen(),
+      routes: {
+        '/': (context) => const SplashScreen(),
+        '/connection-requests': (context) => const ConnectionRequestsScreen(),
+      },
     );
   }
 }
