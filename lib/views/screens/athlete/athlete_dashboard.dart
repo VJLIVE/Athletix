@@ -331,6 +331,45 @@ class _DashboardScreenState extends State<DashboardScreen>
                       ),
                     ],
                   ),
+                  children: [
+                    _buildActionCard(
+                      context,
+                      icon: Icons.healing,
+                      label: "Injury Tracker",
+                      color: Colors.orange,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const InjuryTrackerScreen(),
+                          ),
+                        );
+                      },
+                    ),
+                    _buildActionCard(
+                      context,
+                      icon: Icons.show_chart,
+                      label: "Performance Logs",
+                      color: Colors.green,
+                      onTap: () {
+                        Navigator.pushNamed(context, '/performance-logs');
+                      },
+                    ),
+                    _buildActionCard(
+                      context,
+                      icon: Icons.account_balance_wallet,
+                      label: "Financial Tracker",
+                      color: Colors.blue,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const FinancialTrackerPage(),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
                 ),
               ],
             ),

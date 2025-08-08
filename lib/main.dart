@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'screens/splash_screen.dart';
+import 'package:Athletix/features/performance_tracking/performance_log_screen.dart';
 import 'views/screens/splash_screen.dart';
 
 void main() async {
@@ -22,6 +24,9 @@ class MyApp extends StatelessWidget {
         fontFamily: 'Montserrat',
       ),
       home: const SplashScreen(),
+      routes: {
+        '/performance-logs': (context) => const PerformanceLogScreen(),
+      },
     );
   }
 }
