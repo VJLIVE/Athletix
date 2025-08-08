@@ -2,7 +2,6 @@ enum AuthStatus {
   initial,
   loading,
   authenticated,
-  unauthenticated,
   emailVerificationPending,
   error,
 }
@@ -12,12 +11,14 @@ class AuthState {
   final String? errorMessage;
   final String? pendingVerificationEmail;
   final bool isResendingEmail;
+  final String? userRole;
 
   const AuthState({
     this.status = AuthStatus.initial,
     this.errorMessage,
     this.pendingVerificationEmail,
     this.isResendingEmail = false,
+    this.userRole,
   });
 
   AuthState copyWith({
@@ -25,13 +26,14 @@ class AuthState {
     String? errorMessage,
     String? pendingVerificationEmail,
     bool? isResendingEmail,
+    String? userRole,
   }) {
     return AuthState(
       status: status ?? this.status,
-      errorMessage: errorMessage,
-      pendingVerificationEmail:
-          pendingVerificationEmail ?? this.pendingVerificationEmail,
+      errorMessage: errorMessage ?? this.errorMessage,
+      pendingVerificationEmail: pendingVerificationEmail ?? this.pendingVerificationEmail,
       isResendingEmail: isResendingEmail ?? this.isResendingEmail,
+      userRole: userRole ?? this.userRole,
     );
   }
 }

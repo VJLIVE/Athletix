@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import '../../viewmodels/auth_viewmodel.dart';
 import 'responsive_helper.dart';
 
-class CustomInputField extends StatelessWidget {
+class CustomInputField extends StatefulWidget {
   final TextEditingController controller;
   final String label;
   final String fieldKey;
@@ -24,6 +24,16 @@ class CustomInputField extends StatelessWidget {
   });
 
   @override
+  State<CustomInputField> createState() => _CustomInputFieldState();
+}
+
+class _CustomInputFieldState extends State<CustomInputField> {
+  late bool isobscure;
+  @override
+  void initState() {
+    super.initState();
+    isobscure = true;
+  }
   Widget build(BuildContext context) {
     return Consumer<AuthViewModel>(
       builder: (context, viewModel, child) {
@@ -37,17 +47,17 @@ class CustomInputField extends StatelessWidget {
             ),
             border: Border.all(
               color: viewModel.getBorderColor(
-                fieldKey,
-                hasText: controller.text.isNotEmpty,
+                widget.fieldKey,
+                hasText: widget.controller.text.isNotEmpty,
               ),
               width: 1.5,
             ),
           ),
           child: TextField(
-            controller: controller,
-            obscureText: obscureText,
-            onTap: onTap,
-            onChanged: onChanged,
+            controller: widget.controller,
+            obscureText: widget.suffixIcon != null ? isobscure : widget.obscureText,
+            onTap: widget.onTap,
+            onChanged: widget.onChanged,
             style: TextStyle(
               fontSize:
                   ResponsiveHelper.isSmallScreen(context)
@@ -58,7 +68,7 @@ class CustomInputField extends StatelessWidget {
               color: Colors.black87,
             ),
             decoration: InputDecoration(
-              labelText: label,
+              labelText: widget.label,
               labelStyle: TextStyle(
                 color: Colors.grey[600],
                 fontSize:
@@ -74,22 +84,16 @@ class CustomInputField extends StatelessWidget {
                 vertical: screenHeight * 0.001,
               ),
               suffixIcon:
-                  suffixIcon != null
-                      ? Icon(
-                        suffixIcon,
-                        color: Colors.grey[600],
-                        size:
-                            ResponsiveHelper.isSmallScreen(context)
-                                ? screenWidth * 0.045
-                                : ResponsiveHelper.isMediumScreen(context)
-                                ? screenWidth * 0.04
-                                : screenWidth * 0.035,
-                      )
-                      : null,
+                  widget.suffixIcon != null ?
+                  IconButton(onPressed: (){
+                    setState(() {
+                      isobscure = !isobscure;
+                    });
+                  }, icon: isobscure ? Icon(Icons.visibility_off) : Icon(Icons.visibility)) : null,
               errorText:
                   (!viewModel.isLogin &&
-                          viewModel.formValidation.tappedFields[fieldKey]!)
-                      ? viewModel.formValidation.fieldErrors[fieldKey]
+                          viewModel.formValidation.tappedFields[widget.fieldKey]!)
+                      ? viewModel.formValidation.fieldErrors[widget.fieldKey]
                       : null,
               errorStyle: TextStyle(
                 fontSize: ResponsiveHelper.isSmallScreen(context) ? 10 : 12,
@@ -101,3 +105,5 @@ class CustomInputField extends StatelessWidget {
     );
   }
 }
+
+

@@ -1,9 +1,9 @@
 class ValidationService {
   static String? validateEmail(
-    String email, {
-    bool forceValidate = false,
-    bool fieldTapped = false,
-  }) {
+      String email, {
+        bool forceValidate = false,
+        bool fieldTapped = false,
+      }) {
     if (email.isEmpty && (forceValidate || fieldTapped)) {
       return "Email is required";
     } else if (email.isNotEmpty) {
@@ -18,11 +18,11 @@ class ValidationService {
   }
 
   static String? validatePassword(
-    String password, {
-    bool isLogin = false,
-    bool forceValidate = false,
-    bool fieldTapped = false,
-  }) {
+      String password, {
+        bool isLogin = false,
+        bool forceValidate = false,
+        bool fieldTapped = false,
+      }) {
     if (!isLogin) {
       if (password.isEmpty && (forceValidate || fieldTapped)) {
         return "Password is required";
@@ -48,10 +48,10 @@ class ValidationService {
   }
 
   static String? validateName(
-    String name, {
-    bool forceValidate = false,
-    bool fieldTapped = false,
-  }) {
+      String name, {
+        bool forceValidate = false,
+        bool fieldTapped = false,
+      }) {
     if (name.isEmpty && (forceValidate || fieldTapped)) {
       return "Full name is required";
     } else if (name.isNotEmpty) {
@@ -64,11 +64,11 @@ class ValidationService {
   }
 
   static String? validateSport(
-    String sport,
-    String role, {
-    bool forceValidate = false,
-    bool fieldTapped = false,
-  }) {
+      String sport,
+      String role, {
+        bool forceValidate = false,
+        bool fieldTapped = false,
+      }) {
     if (sport.isEmpty && (forceValidate || fieldTapped)) {
       return role == 'Doctor'
           ? "Specialization is required"
@@ -78,21 +78,21 @@ class ValidationService {
   }
 
   static String? validateDob(
-    DateTime? dob, {
-    bool forceValidate = false,
-    bool fieldTapped = false,
-  }) {
+      DateTime? dob, {
+        bool forceValidate = false,
+        bool fieldTapped = false,
+      }) {
     if (dob == null && (forceValidate || fieldTapped)) {
       return "Date of birth is required";
     } else if (dob != null) {
       final now = DateTime.now();
       final age =
           now.year -
-          dob.year -
-          (now.month > dob.month ||
+              dob.year -
+              (now.month > dob.month ||
                   (now.month == dob.month && now.day >= dob.day)
-              ? 0
-              : 1);
+                  ? 0
+                  : 1);
       if (age < 13) return "You must be at least 13 years old";
     }
     return null;

@@ -6,6 +6,8 @@ import 'package:athletix/views/widgets/auth_form.dart';
 import 'package:athletix/views/widgets/email_verification_pending.dart';
 import 'package:athletix/views/widgets/responsive_helper.dart';
 import 'athlete/athlete_dashboard.dart';
+import 'coach/coach_dashboard.dart';
+import 'doctor/doctor_dashboard.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
@@ -16,6 +18,7 @@ class AuthScreen extends StatefulWidget {
 
 class _AuthScreenState extends State<AuthScreen> {
   late AuthViewModel _viewModel;
+  AuthStatus? _lastAuthStatus; // Track the last auth status to prevent duplicate dialogs
 
   @override
   void initState() {
@@ -33,13 +36,18 @@ class _AuthScreenState extends State<AuthScreen> {
   }
 
   void _handleAuthStateChange(AuthState authState) {
+    // Only handle state changes if the status has actually changed
+    if (_lastAuthStatus == authState.status) return;
+
+    _lastAuthStatus = authState.status;
+
     switch (authState.status) {
       case AuthStatus.authenticated:
         _navigateToUserDashboard();
         break;
       case AuthStatus.error:
         if (authState.errorMessage != null) {
-          _showErrorDialog(authState.errorMessage!);
+          _showErrorSnackBar(authState.errorMessage!);
         }
         break;
       default:
@@ -48,28 +56,43 @@ class _AuthScreenState extends State<AuthScreen> {
   }
 
   void _navigateToUserDashboard() async {
-    // This would typically get the user role from the viewmodel
-    // For now, we'll navigate to athlete dashboard as default
+    final userRole = _viewModel.authState.userRole ?? 'Athlete';
+
+    Widget destinationScreen;
+    switch (userRole) {
+      case 'Coach':
+        destinationScreen = const CoachDashboardScreen();
+        break;
+      case 'Doctor':
+        destinationScreen = const DoctorDashboardScreen();
+        break;
+      case 'Athlete':
+      default:
+        destinationScreen = const DashboardScreen();
+        break;
+    }
+
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (_) => const DashboardScreen()),
+      MaterialPageRoute(builder: (_) => destinationScreen),
     );
   }
 
-  void _showErrorDialog(String message) {
-    showDialog(
-      context: context,
-      builder:
-          (context) => AlertDialog(
-            title: const Text('Error'),
-            content: Text(message),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text('OK'),
-              ),
-            ],
-          ),
+  void _showErrorSnackBar(String message) {
+    // Use SnackBar instead of Dialog to prevent infinite loops
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+        duration: const Duration(seconds: 4),
+        action: SnackBarAction(
+          label: 'Dismiss',
+          textColor: Colors.white,
+          onPressed: () {
+            ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          },
+        ),
+      ),
     );
   }
 
@@ -79,7 +102,8 @@ class _AuthScreenState extends State<AuthScreen> {
       value: _viewModel,
       child: Consumer<AuthViewModel>(
         builder: (context, viewModel, child) {
-          // Listen to auth state changes
+          // Listen to auth state changes only when the widget is built
+          // This prevents the infinite loop issue
           WidgetsBinding.instance.addPostFrameCallback((_) {
             _handleAuthStateChange(viewModel.authState);
           });
@@ -93,9 +117,9 @@ class _AuthScreenState extends State<AuthScreen> {
                     width: double.infinity,
                     constraints: BoxConstraints(
                       maxWidth:
-                          ResponsiveHelper.isLargeScreen(context)
-                              ? 800
-                              : double.infinity,
+                      ResponsiveHelper.isLargeScreen(context)
+                          ? 800
+                          : double.infinity,
                       minHeight: MediaQuery.of(context).size.height,
                     ),
                     padding: EdgeInsets.symmetric(
@@ -103,7 +127,7 @@ class _AuthScreenState extends State<AuthScreen> {
                         context,
                       ),
                       vertical:
-                          MediaQuery.of(context).size.height *
+                      MediaQuery.of(context).size.height *
                           (ResponsiveHelper.isSmallScreen(context)
                               ? 0.03
                               : 0.05),
@@ -124,12 +148,11 @@ class _AuthScreenState extends State<AuthScreen> {
                         ),
                         SizedBox(
                           height:
-                              MediaQuery.of(context).size.height *
+                          MediaQuery.of(context).size.height *
                               (ResponsiveHelper.isSmallScreen(context)
                                   ? 0.03
                                   : 0.04),
                         ),
-
                         // Main content based on auth state
                         if (viewModel.authState.status ==
                             AuthStatus.emailVerificationPending)

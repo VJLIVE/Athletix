@@ -31,14 +31,15 @@ class FirestoreService {
         .orderBy('date', descending: true)
         .snapshots()
         .map((snapshot) => snapshot.docs
-            .map((doc) => FinancialEntry.fromMap(doc.id, doc.data()))
-            .toList());
+        .map((doc) => FinancialEntry.fromMap(doc.id, doc.data()))
+        .toList());
   }
 
   /// Updates an existing [FinancialEntry] for the current user in Firestore.
   Future<void> updateFinancialEntry(FinancialEntry entry) async {
     final uid = _auth.currentUser?.uid;
     if (uid == null) return;
+
     await _firestore
         .collection('financial_logs')
         .doc(uid)
@@ -51,6 +52,7 @@ class FirestoreService {
   Future<void> deleteFinancialEntry(String entryId) async {
     final uid = _auth.currentUser?.uid;
     if (uid == null) return;
+
     await _firestore
         .collection('financial_logs')
         .doc(uid)
