@@ -34,6 +34,7 @@ class _CustomInputFieldState extends State<CustomInputField> {
     super.initState();
     isobscure = true;
   }
+
   Widget build(BuildContext context) {
     return Consumer<AuthViewModel>(
       builder: (context, viewModel, child) {
@@ -55,7 +56,8 @@ class _CustomInputFieldState extends State<CustomInputField> {
           ),
           child: TextField(
             controller: widget.controller,
-            obscureText: widget.suffixIcon != null ? isobscure : widget.obscureText,
+            obscureText:
+                widget.suffixIcon != null ? isobscure : widget.obscureText,
             onTap: widget.onTap,
             onChanged: widget.onChanged,
             style: TextStyle(
@@ -84,15 +86,23 @@ class _CustomInputFieldState extends State<CustomInputField> {
                 vertical: screenHeight * 0.001,
               ),
               suffixIcon:
-                  widget.suffixIcon != null ?
-                  IconButton(onPressed: (){
-                    setState(() {
-                      isobscure = !isobscure;
-                    });
-                  }, icon: isobscure ? Icon(Icons.visibility_off) : Icon(Icons.visibility)) : null,
+                  widget.suffixIcon != null
+                      ? IconButton(
+                        onPressed: () {
+                          setState(() {
+                            isobscure = !isobscure;
+                          });
+                        },
+                        icon:
+                            isobscure
+                                ? Icon(Icons.visibility_off)
+                                : Icon(Icons.visibility),
+                      )
+                      : null,
               errorText:
                   (!viewModel.isLogin &&
-                          viewModel.formValidation.tappedFields[widget.fieldKey]!)
+                          viewModel.formValidation.tappedFields[widget
+                              .fieldKey]!)
                       ? viewModel.formValidation.fieldErrors[widget.fieldKey]
                       : null,
               errorStyle: TextStyle(
@@ -105,5 +115,3 @@ class _CustomInputFieldState extends State<CustomInputField> {
     );
   }
 }
-
-

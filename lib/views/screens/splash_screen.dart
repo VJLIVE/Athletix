@@ -18,7 +18,8 @@ class SplashScreen extends StatefulWidget {
 }
 
 /// State for [SplashScreen] that manages animation and navigation logic.
-class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMixin {
+class _SplashScreenState extends State<SplashScreen>
+    with TickerProviderStateMixin {
   late final AnimationController _controller;
 
   @override
@@ -39,7 +40,11 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
 
     if (user != null) {
       try {
-        final doc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+        final doc =
+            await FirebaseFirestore.instance
+                .collection('users')
+                .doc(user.uid)
+                .get();
         final data = doc.data();
         if (data == null || data['role'] == null) {
           throw Exception("User role not found");
@@ -125,10 +130,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                 const Text(
                   'Your Sports Journey Starts Here',
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.black54,
-                  ),
+                  style: TextStyle(fontSize: 16, color: Colors.black54),
                 ),
               ],
             ),

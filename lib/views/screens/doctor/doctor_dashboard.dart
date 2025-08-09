@@ -26,10 +26,7 @@ class _DoctorDashboardScreenState extends State<DoctorDashboardScreen> {
         foregroundColor: Colors.black87,
         title: const Text(
           'Doctor Dashboard',
-          style: TextStyle(
-            fontWeight: FontWeight.w600,
-            fontSize: 22,
-          ),
+          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 22),
         ),
         actions: [
           Container(
@@ -44,7 +41,7 @@ class _DoctorDashboardScreenState extends State<DoctorDashboardScreen> {
                 await signoutConfirmation(context);
               },
             ),
-          )
+          ),
         ],
       ),
       body: FutureBuilder<DocumentSnapshot<Map<String, dynamic>>>(
@@ -56,15 +53,14 @@ class _DoctorDashboardScreenState extends State<DoctorDashboardScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.blue[600]!),
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      Colors.blue[600]!,
+                    ),
                   ),
                   const SizedBox(height: 16),
                   Text(
                     'Loading your dashboard...',
-                    style: TextStyle(
-                      color: Colors.grey[600],
-                      fontSize: 16,
-                    ),
+                    style: TextStyle(color: Colors.grey[600], fontSize: 16),
                   ),
                 ],
               ),
@@ -201,9 +197,17 @@ class _DoctorDashboardScreenState extends State<DoctorDashboardScreen> {
                       const SizedBox(height: 16),
                       _buildInfoRow(Icons.person_outline, 'Full Name', name),
                       const SizedBox(height: 12),
-                      _buildInfoRow(Icons.sports_outlined, 'Specialization', sport.isEmpty ? 'Not specified' : sport),
+                      _buildInfoRow(
+                        Icons.sports_outlined,
+                        'Specialization',
+                        sport.isEmpty ? 'Not specified' : sport,
+                      ),
                       const SizedBox(height: 12),
-                      _buildInfoRow(Icons.cake_outlined, 'Date of Birth', dob.isEmpty ? 'Not specified' : dob),
+                      _buildInfoRow(
+                        Icons.cake_outlined,
+                        'Date of Birth',
+                        dob.isEmpty ? 'Not specified' : dob,
+                      ),
                     ],
                   ),
                 ),
@@ -222,10 +226,7 @@ class _DoctorDashboardScreenState extends State<DoctorDashboardScreen> {
                 const SizedBox(height: 4),
                 Text(
                   'Access your tools and manage your practice',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[600],
-                  ),
+                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                 ),
                 const SizedBox(height: 16),
 
@@ -246,8 +247,7 @@ class _DoctorDashboardScreenState extends State<DoctorDashboardScreen> {
                       label: "Qualifications & License",
                       color: Colors.orange[600]!,
                       gradient: [Colors.orange[400]!, Colors.orange[600]!],
-                      onTap: () {
-                      },
+                      onTap: () {},
                     ),
                     _buildActionCard(
                       context,
@@ -255,8 +255,7 @@ class _DoctorDashboardScreenState extends State<DoctorDashboardScreen> {
                       label: "Announcements",
                       color: Colors.green[600]!,
                       gradient: [Colors.green[400]!, Colors.green[600]!],
-                      onTap: () {
-                      },
+                      onTap: () {},
                     ),
                     _buildActionCard(
                       context,
@@ -264,8 +263,7 @@ class _DoctorDashboardScreenState extends State<DoctorDashboardScreen> {
                       label: "Information Center",
                       color: Colors.blue[600]!,
                       gradient: [Colors.blue[400]!, Colors.blue[600]!],
-                      onTap: () {
-                      },
+                      onTap: () {},
                     ),
                   ],
                 ),
@@ -280,11 +278,7 @@ class _DoctorDashboardScreenState extends State<DoctorDashboardScreen> {
   Widget _buildInfoRow(IconData icon, String label, String value) {
     return Row(
       children: [
-        Icon(
-          icon,
-          size: 18,
-          color: Colors.grey[600],
-        ),
+        Icon(icon, size: 18, color: Colors.grey[600]),
         const SizedBox(width: 12),
         Expanded(
           child: Column(
@@ -320,13 +314,13 @@ class _DoctorDashboardScreenState extends State<DoctorDashboardScreen> {
   }
 
   Widget _buildActionCard(
-      BuildContext context, {
-        required IconData icon,
-        required String label,
-        required Color color,
-        required List<Color> gradient,
-        required VoidCallback onTap,
-      }) {
+    BuildContext context, {
+    required IconData icon,
+    required String label,
+    required Color color,
+    required List<Color> gradient,
+    required VoidCallback onTap,
+  }) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -359,11 +353,7 @@ class _DoctorDashboardScreenState extends State<DoctorDashboardScreen> {
                     color: Colors.white.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(16),
                   ),
-                  child: Icon(
-                    icon,
-                    size: 32,
-                    color: Colors.white,
-                  ),
+                  child: Icon(icon, size: 32, color: Colors.white),
                 ),
                 const SizedBox(height: 12),
                 Text(

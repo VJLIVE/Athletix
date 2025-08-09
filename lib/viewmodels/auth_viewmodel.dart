@@ -284,9 +284,9 @@ class AuthViewModel extends ChangeNotifier {
     );
 
     final activeErrors =
-    _isLogin
-        ? [updatedErrors['email'], updatedErrors['password']]
-        : updatedErrors.values;
+        _isLogin
+            ? [updatedErrors['email'], updatedErrors['password']]
+            : updatedErrors.values;
 
     final errors = activeErrors.where((error) => error != null).toList();
     if (errors.isNotEmpty) {
@@ -373,7 +373,7 @@ class AuthViewModel extends ChangeNotifier {
           break;
         case 'invalid-credential':
           errorMessage =
-          "Invalid email or password. Please check your credentials.";
+              "Invalid email or password. Please check your credentials.";
           break;
         case 'too-many-requests':
           errorMessage = "Too many failed attempts. Please try again later.";
@@ -402,7 +402,7 @@ class AuthViewModel extends ChangeNotifier {
             AuthState(
               status: AuthStatus.error,
               errorMessage:
-              'Email already registered but not verified. Please check your inbox or resend verification email.',
+                  'Email already registered but not verified. Please check your inbox or resend verification email.',
             ),
           );
           return;
@@ -454,19 +454,19 @@ class AuthViewModel extends ChangeNotifier {
           );
           if (userData != null && !userData.emailVerified) {
             errorMessage =
-            'This email is already registered but not verified. Please check your inbox.';
+                'This email is already registered but not verified. Please check your inbox.';
           } else {
             errorMessage =
-            'This email is already registered. Please try logging in.';
+                'This email is already registered. Please try logging in.';
           }
           break;
         case 'weak-password':
           errorMessage =
-          'Your password must be at least 8 characters and contain a number.';
+              'Your password must be at least 8 characters and contain a number.';
           break;
         case 'operation-not-allowed':
           errorMessage =
-          'This operation is not allowed. Please contact support.';
+              'This operation is not allowed. Please contact support.';
           break;
         default:
           errorMessage =
@@ -480,8 +480,8 @@ class AuthViewModel extends ChangeNotifier {
 
   void _startEmailVerificationCheck() {
     _emailVerificationTimer = Timer.periodic(const Duration(seconds: 3), (
-        timer,
-        ) async {
+      timer,
+    ) async {
       try {
         final user = _authService.currentUser;
         if (user == null) {
@@ -536,10 +536,9 @@ class AuthViewModel extends ChangeNotifier {
       }
 
       // Set auth state with user role for navigation
-      setAuthState(AuthState(
-        status: AuthStatus.authenticated,
-        userRole: userData.role,
-      ));
+      setAuthState(
+        AuthState(status: AuthStatus.authenticated, userRole: userData.role),
+      );
     } catch (e) {
       setAuthState(
         AuthState(
@@ -575,10 +574,10 @@ class AuthViewModel extends ChangeNotifier {
       String errorMessage = 'Error sending verification email';
       if (e.toString().contains('too-many-requests')) {
         errorMessage =
-        'Too many requests. Please wait a moment before trying again.';
+            'Too many requests. Please wait a moment before trying again.';
       } else if (e.toString().contains('network')) {
         errorMessage =
-        'Network error. Please check your connection and try again.';
+            'Network error. Please check your connection and try again.';
       }
       setAuthState(
         AuthState(status: AuthStatus.error, errorMessage: errorMessage),
@@ -610,7 +609,7 @@ class AuthViewModel extends ChangeNotifier {
             const AuthState(
               status: AuthStatus.emailVerificationPending,
               errorMessage:
-              'Email is still not verified. Please check your inbox and click the verification link first.',
+                  'Email is still not verified. Please check your inbox and click the verification link first.',
             ),
           );
         }

@@ -3,18 +3,20 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import '../models/user_model.dart';
+import 'cloudinary_service.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final CloudinaryService _cloudinaryService = CloudinaryService();
 
   User? get currentUser => _auth.currentUser;
   Stream<User?> get authStateChanges => _auth.authStateChanges();
 
   Future<UserCredential> signInWithEmailAndPassword(
-      String email,
-      String password,
-      ) async {
+    String email,
+    String password,
+  ) async {
     return await _auth.signInWithEmailAndPassword(
       email: email,
       password: password,
@@ -22,9 +24,9 @@ class AuthService {
   }
 
   Future<UserCredential> createUserWithEmailAndPassword(
-      String email,
-      String password,
-      ) async {
+    String email,
+    String password,
+  ) async {
     return await _auth.createUserWithEmailAndPassword(
       email: email,
       password: password,
@@ -70,11 +72,11 @@ class AuthService {
   Future<UserModel?> getUserDataByEmail(String email) async {
     try {
       final querySnapshot =
-      await _firestore
-          .collection('users')
-          .where('email', isEqualTo: email)
-          .limit(1)
-          .get();
+          await _firestore
+              .collection('users')
+              .where('email', isEqualTo: email)
+              .limit(1)
+              .get();
 
       if (querySnapshot.docs.isNotEmpty) {
         return UserModel.fromFirestore(querySnapshot.docs.first);
@@ -87,12 +89,67 @@ class AuthService {
   }
 
   Future<void> updateEmailVerificationStatus(
-      String uid,
-      bool isVerified,
-      ) async {
+    String uid,
+    bool isVerified,
+  ) async {
     await _firestore.collection('users').doc(uid).update({
       'emailVerified': isVerified,
     });
+  }
+
+  Future<void> updateProfileImage(String newImageUrl) async {
+    final uid = _auth.currentUser?.uid;
+    if (uid == null) {
+      throw Exception('No user logged in');
+    }
+
+    try {
+      await _firestore.collection('users').doc(uid).update({
+        'profileImage': newImageUrl,
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+
+      debugPrint('Profile image updated successfully');
+    } catch (e) {
+      debugPrint('Error updating profile image: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> removeProfileImage() async {
+    final uid = _auth.currentUser?.uid;
+    if (uid == null) {
+      throw Exception('No user logged in');
+    }
+
+    try {
+      await _firestore.collection('users').doc(uid).update({
+        'profileImage': FieldValue.delete(),
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+
+      debugPrint('Profile image URL removed successfully');
+    } catch (e) {
+      debugPrint('Error removing profile image: $e');
+      rethrow;
+    }
+  }
+
+  Future<String?> getProfileImageUrl() async {
+    final uid = _auth.currentUser?.uid;
+    if (uid == null) return null;
+
+    try {
+      final userDoc = await _firestore.collection('users').doc(uid).get();
+      if (userDoc.exists) {
+        final userData = userDoc.data() as Map<String, dynamic>;
+        return userData['profileImage'] as String?;
+      }
+      return null;
+    } catch (e) {
+      debugPrint('Error getting profile image URL: $e');
+      return null;
+    }
   }
 
   Future<void> saveFcmToken() async {

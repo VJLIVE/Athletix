@@ -39,7 +39,8 @@ class _TournamentsScreenState extends State<TournamentsScreen> {
 
     if (permission == LocationPermission.deniedForever) {
       return Future.error(
-          'Location permissions are permanently denied, we cannot request.');
+        'Location permissions are permanently denied, we cannot request.',
+      );
     }
   }
 
@@ -47,21 +48,20 @@ class _TournamentsScreenState extends State<TournamentsScreen> {
     final uid = FirebaseAuth.instance.currentUser!.uid;
 
     // Get user document
-    final userDoc = await FirebaseFirestore.instance
-        .collection('users')
-        .doc(uid)
-        .get();
+    final userDoc =
+        await FirebaseFirestore.instance.collection('users').doc(uid).get();
 
     final userSport = userDoc['sport'] ?? '';
     final now = Timestamp.now(); // current timestamp
 
     // Fetch ONLY upcoming tournaments for the user's sport
-    final snapshot = await FirebaseFirestore.instance
-        .collection('tournaments')
-        .where('sport', isEqualTo: userSport)
-        .where('date', isGreaterThanOrEqualTo: now)
-        .orderBy('date')
-        .get();
+    final snapshot =
+        await FirebaseFirestore.instance
+            .collection('tournaments')
+            .where('sport', isEqualTo: userSport)
+            .where('date', isGreaterThanOrEqualTo: now)
+            .orderBy('date')
+            .get();
 
     return snapshot.docs.map((doc) => Tournament.fromDocument(doc)).toList();
   }
@@ -83,15 +83,22 @@ class _TournamentsScreenState extends State<TournamentsScreen> {
 
           final tournaments = snapshot.data ?? [];
 
-          final CameraPosition initialCameraPosition = tournaments.isNotEmpty
-              ? CameraPosition(
-            target: LatLng(tournaments.first.lat, tournaments.first.lng),
-            zoom: 10,
-          )
-              : const CameraPosition(
-            target: LatLng(20.5937, 78.9629), // Default location (e.g., India)
-            zoom: 4,
-          );
+          final CameraPosition initialCameraPosition =
+              tournaments.isNotEmpty
+                  ? CameraPosition(
+                    target: LatLng(
+                      tournaments.first.lat,
+                      tournaments.first.lng,
+                    ),
+                    zoom: 10,
+                  )
+                  : const CameraPosition(
+                    target: LatLng(
+                      20.5937,
+                      78.9629,
+                    ), // Default location (e.g., India)
+                    zoom: 4,
+                  );
 
           return Stack(
             children: [
@@ -99,15 +106,18 @@ class _TournamentsScreenState extends State<TournamentsScreen> {
                 initialCameraPosition: initialCameraPosition,
                 myLocationEnabled: true,
                 myLocationButtonEnabled: true,
-                markers: tournaments
-                    .map((tournament) => Marker(
-                  markerId: MarkerId(tournament.id),
-                  position: LatLng(tournament.lat, tournament.lng),
-                  onTap: () {
-                    _showTournamentDialog(context, tournament);
-                  },
-                ))
-                    .toSet(),
+                markers:
+                    tournaments
+                        .map(
+                          (tournament) => Marker(
+                            markerId: MarkerId(tournament.id),
+                            position: LatLng(tournament.lat, tournament.lng),
+                            onTap: () {
+                              _showTournamentDialog(context, tournament);
+                            },
+                          ),
+                        )
+                        .toSet(),
               ),
 
               if (tournaments.isEmpty)
@@ -133,95 +143,91 @@ class _TournamentsScreenState extends State<TournamentsScreen> {
       ),
     );
   }
+
   void _showTournamentDialog(BuildContext context, Tournament t) {
-  showDialog(
-    context: context,
-    builder: (_) => AlertDialog(
-      backgroundColor: Colors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
-      title: Text(
-        t.name,
-        style: const TextStyle(
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
-          color: Colors.black87,
-        ),
-      ),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 8),
-          _buildInfoRow("Level", t.level),
-          const SizedBox(height: 6),
-          _buildInfoRow("Sport", t.sport),
-          const SizedBox(height: 6),
-          _buildInfoRow("Date", t.dateString),
-          const SizedBox(height: 6),
-          _buildInfoRow("Time", t.time),
-          const SizedBox(height: 12),
-          const Text(
-            "Address:",
-            style: TextStyle(
-              fontWeight: FontWeight.w600,
-              fontSize: 14,
-              color: Colors.black87,
+    showDialog(
+      context: context,
+      builder:
+          (_) => AlertDialog(
+            backgroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
             ),
-          ),
-          Text(
-            t.address,
-            style: const TextStyle(
-              fontSize: 14,
-              color: Colors.black54,
-            ),
-          ),
-        ],
-      ),
-      actions: [
-        Center(
-          child: TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text(
-              'Close',
-              style: TextStyle(
-                fontSize: 14,
+            title: Text(
+              t.name,
+              style: const TextStyle(
+                fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: Colors.blue,
+                color: Colors.black87,
               ),
             ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 8),
+                _buildInfoRow("Level", t.level),
+                const SizedBox(height: 6),
+                _buildInfoRow("Sport", t.sport),
+                const SizedBox(height: 6),
+                _buildInfoRow("Date", t.dateString),
+                const SizedBox(height: 6),
+                _buildInfoRow("Time", t.time),
+                const SizedBox(height: 12),
+                const Text(
+                  "Address:",
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                    color: Colors.black87,
+                  ),
+                ),
+                Text(
+                  t.address,
+                  style: const TextStyle(fontSize: 14, color: Colors.black54),
+                ),
+              ],
+            ),
+            actions: [
+              Center(
+                child: TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text(
+                    'Close',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blue,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+    );
+  }
+
+  Widget _buildInfoRow(String title, String value) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "$title: ",
+          style: const TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 14,
+            color: Colors.black87,
+          ),
+        ),
+        Expanded(
+          child: Text(
+            value,
+            style: const TextStyle(fontSize: 14, color: Colors.black54),
           ),
         ),
       ],
-    ),
-  );
-}
-
-Widget _buildInfoRow(String title, String value) {
-  return Row(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Text(
-        "$title: ",
-        style: const TextStyle(
-          fontWeight: FontWeight.w600,
-          fontSize: 14,
-          color: Colors.black87,
-        ),
-      ),
-      Expanded(
-        child: Text(
-          value,
-          style: const TextStyle(
-            fontSize: 14,
-            color: Colors.black54,
-          ),
-        ),
-      ),
-    ],
-  );
-}
+    );
+  }
 }
 
 class Tournament {
@@ -251,9 +257,10 @@ class Tournament {
     final data = doc.data() as Map<String, dynamic>;
 
     final Timestamp? dateTs = data['date'];
-    final String dateStr = dateTs != null
-        ? dateTs.toDate().toLocal().toString().split(' ')[0]
-        : '';
+    final String dateStr =
+        dateTs != null
+            ? dateTs.toDate().toLocal().toString().split(' ')[0]
+            : '';
 
     final loc = data['location'] ?? {};
 

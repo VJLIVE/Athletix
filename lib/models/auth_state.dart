@@ -31,7 +31,8 @@ class AuthState {
     return AuthState(
       status: status ?? this.status,
       errorMessage: errorMessage ?? this.errorMessage,
-      pendingVerificationEmail: pendingVerificationEmail ?? this.pendingVerificationEmail,
+      pendingVerificationEmail:
+          pendingVerificationEmail ?? this.pendingVerificationEmail,
       isResendingEmail: isResendingEmail ?? this.isResendingEmail,
       userRole: userRole ?? this.userRole,
     );
