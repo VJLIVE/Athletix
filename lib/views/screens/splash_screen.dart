@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
+import 'dart:async';
 import 'organization/organization_dashboard.dart';
 import 'auth_screen.dart';
 import 'athlete/athlete_dashboard.dart';
@@ -20,65 +21,95 @@ class SplashScreen extends StatefulWidget {
 /// State for [SplashScreen] that manages animation and navigation logic.
 class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMixin {
   late final AnimationController _controller;
+  
+  bool _isAuthCheckComplete = false;
+  bool _isAnimationComplete = false;
+  Widget? _targetScreen;
 
   @override
   void initState() {
     super.initState();
     _controller = AnimationController(vsync: this);
 
+    _startOptimizedParallelOperations();
+
     _controller.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
-        _navigate();
+        _isAnimationComplete = true;
+        _tryNavigate();
       }
     });
   }
 
-  /// Navigates to the appropriate screen based on authentication and user role.
-  Future<void> _navigate() async {
-    final user = FirebaseAuth.instance.currentUser;
+  void _startOptimizedParallelOperations() async {
+    try {
+      final results = await Future.wait([
+        _runOptimizedAuthCheck(),
+        _simulateMinimumSplashTime(),
+      ]);
+      
+      setState(() {
+        _targetScreen = results[0] as Widget;
+        _isAuthCheckComplete = true;
+      });
+      _tryNavigate();
+    } catch (e) {
+      setState(() {
+        _targetScreen = const AuthScreen();
+        _isAuthCheckComplete = true;
+      });
+      _tryNavigate();
+    }
+  }
 
-    if (user != null) {
-      try {
-        final doc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
-        final data = doc.data();
-        if (data == null || data['role'] == null) {
-          throw Exception("User role not found");
-        }
+  Future<void> _simulateMinimumSplashTime() async {
+    await Future.delayed(const Duration(milliseconds: 1500));
+  }
 
+  Future<Widget> _runOptimizedAuthCheck() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      
+      if (user == null) {
+        return const AuthScreen();
+      }
+
+      final doc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .get(const GetOptions(source: Source.cache));
+      
+      final data = doc.exists 
+          ? doc.data() 
+          : (await FirebaseFirestore.instance.collection('users').doc(user.uid).get()).data();
+      
+      if (data != null && data['role'] != null) {
         final role = data['role'] as String;
-        Widget targetScreen;
-
         switch (role) {
           case 'Athlete':
-            targetScreen = const DashboardScreen();
-            break;
+            return const DashboardScreen();
           case 'Coach':
-            targetScreen = const CoachDashboardScreen();
-            break;
+            return const CoachDashboardScreen();
           case 'Doctor':
-            targetScreen = const DoctorDashboardScreen();
-            break;
+            return const DoctorDashboardScreen();
           case 'Organization':
-            targetScreen = const OrganizationDashboardScreen();
-            break;
+            return const OrganizationDashboardScreen();
           default:
-            targetScreen = const AuthScreen();
+            return const AuthScreen();
         }
-
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => targetScreen),
-        );
-      } catch (e) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const AuthScreen()),
-        );
+      } else {
+        return const AuthScreen();
       }
-    } else {
+    } catch (e) {
+      return const AuthScreen();
+    }
+  }
+
+  void _tryNavigate() {
+    if (_isAnimationComplete && _isAuthCheckComplete && _targetScreen != null) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => const AuthScreen()),
+        MaterialPageRoute(builder: (_) => _targetScreen!),
       );
     }
   }
