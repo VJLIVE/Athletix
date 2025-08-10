@@ -2,6 +2,9 @@ import 'package:athletix/components/alertDialog_signOut_confitmation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'dart:math';
 
 import 'package:athletix/components/bottom_nav_bar.dart';
 import 'package:lottie/lottie.dart';
@@ -26,9 +29,28 @@ class _DashboardScreenState extends State<DashboardScreen>
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
 
+  List quotes = [];
+  late int number_;
+
+  Future<void> Fetchquotes() async {
+    final response = await http.get(
+      Uri.parse(
+        'https://raw.githubusercontent.com/Keshav8605/Athletix/refs/heads/motivation_quote_feature_add/assets/motivational_quotes.json',
+      ),
+    );
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      quotes = data;
+    } else {
+      throw Exception('Failed to load quotes');
+    }
+  }
+
   @override
   void initState() {
     super.initState();
+    number_ = Random().nextInt(100) + 1;
+    Fetchquotes();
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 800),
       vsync: this,
@@ -76,6 +98,7 @@ class _DashboardScreenState extends State<DashboardScreen>
       body: CustomScrollView(
         slivers: [
           _buildSliverAppBar(),
+
           SliverToBoxAdapter(
             child: FadeTransition(
               opacity: _fadeAnimation,
@@ -117,10 +140,7 @@ class _DashboardScreenState extends State<DashboardScreen>
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [
-                Color(0xFF667EEA),
-                Color(0xFF764BA2),
-              ],
+              colors: [Color(0xFF667EEA), Color(0xFF764BA2)],
             ),
           ),
         ),
@@ -204,10 +224,7 @@ class _DashboardScreenState extends State<DashboardScreen>
             const SizedBox(height: 8),
             const Text(
               'Please try refreshing the page',
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey,
-              ),
+              style: TextStyle(fontSize: 14, color: Colors.grey),
             ),
             const SizedBox(height: 24),
             ElevatedButton.icon(
@@ -249,7 +266,12 @@ class _DashboardScreenState extends State<DashboardScreen>
 
   Widget _buildWelcomeCard(String name, String sport, String dob) {
     final hour = DateTime.now().hour;
-    String greeting = hour < 12 ? 'Good Morning' : hour < 17 ? 'Good Afternoon' : 'Good Evening';
+    String greeting =
+        hour < 12
+            ? 'Good Morning'
+            : hour < 17
+            ? 'Good Afternoon'
+            : 'Good Evening';
 
     return Container(
       width: double.infinity,
@@ -257,10 +279,7 @@ class _DashboardScreenState extends State<DashboardScreen>
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            Color(0xFFFFFFFF),
-            Color(0xFFF8FAFC),
-          ],
+          colors: [Color(0xFFFFFFFF), Color(0xFFF8FAFC)],
         ),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
@@ -275,6 +294,13 @@ class _DashboardScreenState extends State<DashboardScreen>
         padding: const EdgeInsets.all(24),
         child: Column(
           children: [
+            Text("Todays Quote"),
+            SizedBox(height: 5),
+            Text(
+              "${quotes[number_]['quote']}",
+              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 30),
             Lottie.asset(
               'assets/Athlete.json',
               width: 150,
@@ -350,11 +376,7 @@ class _DashboardScreenState extends State<DashboardScreen>
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            icon,
-            size: 16,
-            color: const Color(0xFF667EEA),
-          ),
+          Icon(icon, size: 16, color: const Color(0xFF667EEA)),
           const SizedBox(width: 6),
           Text(
             text,
@@ -493,11 +515,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                       color: Colors.white.withOpacity(0.2),
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    child: Icon(
-                      icon,
-                      size: 32,
-                      color: Colors.white,
-                    ),
+                    child: Icon(icon, size: 32, color: Colors.white),
                   ),
                   const SizedBox(height: 12),
                   Text(
@@ -633,8 +651,18 @@ class _DashboardScreenState extends State<DashboardScreen>
     try {
       final date = DateTime.parse(dateStr);
       final months = [
-        'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-        'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec',
       ];
       return '${months[date.month - 1]} ${date.day}';
     } catch (e) {

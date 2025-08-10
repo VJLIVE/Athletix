@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
         fontFamily: 'Montserrat',
       ),
-      home: DashboardScreen(),
+      home: SplashScreen(),
     );
   }
 }
