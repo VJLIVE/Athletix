@@ -1,3 +1,6 @@
+<p align="center">
+  <img src="web/athletix_banner.png" alt="Athletix Banner" width="100%">
+</p>
 
 # Don't forget to star our repository
 
@@ -148,6 +151,30 @@ Athletix/
 ```
 
 ---
+## 🧩 Troubleshooting
+### 1. 🔥 Firebase Configuration Missing
+**Issue**: App throws Firebase initialization error.
+**Solution:**
+-Download your google-services.json file from Firebase Console.
+-Place it in android/app/ directory.
+
+### 2. 📦 Plugin Issues
+**Issue**: Plugin not found or version mismatch.
+**Solution:**
+-Run flutter pub get to reinstall dependencies.
+-Check for version conflicts in pubspec.yaml.
+
+### 3. 🗺️ Google Maps Not Showing
+**Issue**: Map doesn't load or crashes.
+**Solution:**
+-Ensure you've added your Google Maps API key in the android/app/src/main/AndroidManifest.xml.
+-Enable Maps SDK in your Google Cloud console.
+
+### 4. 🚫 Emulator Permission Issues
+**Issue**: Notifications or Maps don't work on emulator.
+**Solution:**
+-Use a real device when possible.
+-Emulators may lack Play Services or required permissions.
 
 ## 🧪 How to Run Tests
 

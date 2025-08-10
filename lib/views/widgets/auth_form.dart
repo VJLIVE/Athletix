@@ -233,7 +233,6 @@ class AuthForm extends StatelessWidget {
                     controller: viewModel.passwordController,
                     label: "Password",
                     fieldKey: 'password',
-                    obscureText: true,
                     suffixIcon: Icons.visibility_off,
                     onTap: () => viewModel.onFieldTapped('password'),
                     onChanged:
@@ -250,26 +249,6 @@ class AuthForm extends StatelessWidget {
                   // Forgot Password for Login
                   if (viewModel.isLogin) ...[
                     SizedBox(height: screenHeight * 0.005),
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: TextButton(
-                        onPressed: () {
-                          // Handle forgot password
-                        },
-                        child: Text(
-                          'Forgot Password?',
-                          style: TextStyle(
-                            color: Colors.grey[600],
-                            fontSize:
-                                ResponsiveHelper.isSmallScreen(context)
-                                    ? screenWidth * 0.03
-                                    : ResponsiveHelper.isMediumScreen(context)
-                                    ? screenWidth * 0.025
-                                    : screenWidth * 0.02,
-                          ),
-                        ),
-                      ),
-                    ),
                   ],
 
                   SizedBox(height: screenHeight * 0.02),

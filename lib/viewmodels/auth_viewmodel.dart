@@ -32,7 +32,6 @@ class AuthViewModel extends ChangeNotifier {
   bool get isLogin => _isLogin;
   DateTime? get dob => _dob;
   String get selectedRole => _selectedRole;
-
   List<String> get roles => ['Athlete', 'Coach', 'Doctor'];
   List<String> get sports => [
     'Football',
@@ -107,7 +106,6 @@ class AuthViewModel extends ChangeNotifier {
       _formValidation.tappedFields,
     );
     updatedTappedFields[fieldKey] = true;
-
     setFormValidation(
       _formValidation.copyWith(tappedFields: updatedTappedFields),
     );
@@ -138,7 +136,6 @@ class AuthViewModel extends ChangeNotifier {
               isLogin: _isLogin,
               fieldTapped: _formValidation.tappedFields['password']!,
             );
-
             if (!_isLogin) {
               final checklist = ValidationService.getPasswordChecklist(
                 value as String,
@@ -175,7 +172,6 @@ class AuthViewModel extends ChangeNotifier {
             );
             break;
         }
-
         setFormValidation(_formValidation.copyWith(fieldErrors: updatedErrors));
       }
     });
@@ -193,15 +189,12 @@ class AuthViewModel extends ChangeNotifier {
     if (!_formValidation.tappedFields[fieldKey]!) {
       return Colors.grey;
     }
-
     if (_formValidation.fieldErrors[fieldKey] != null) {
       return Colors.red;
     }
-
     if (hasText && !_isLogin) {
       return Colors.green;
     }
-
     return Colors.grey;
   }
 
@@ -216,7 +209,6 @@ class AuthViewModel extends ChangeNotifier {
       }
 
       bool isEmailVerifiedInFirestore = userData.emailVerified;
-
       if (userData.role == 'Organization' && isEmailVerifiedInFirestore) {
         await _navigateBasedOnRole(user.uid);
         return;
@@ -224,7 +216,6 @@ class AuthViewModel extends ChangeNotifier {
 
       await _authService.reloadUser();
       final refreshedUser = _authService.currentUser;
-
       if (refreshedUser != null &&
           (refreshedUser.emailVerified || isEmailVerifiedInFirestore)) {
         if (!isEmailVerifiedInFirestore) {
@@ -254,6 +245,7 @@ class AuthViewModel extends ChangeNotifier {
 
     updatedTappedFields['email'] = true;
     updatedTappedFields['password'] = true;
+
     updatedErrors['email'] = ValidationService.validateEmail(
       emailController.text.trim(),
       forceValidate: true,
@@ -268,6 +260,7 @@ class AuthViewModel extends ChangeNotifier {
       updatedTappedFields['name'] = true;
       updatedTappedFields['sport'] = true;
       updatedTappedFields['dob'] = true;
+
       updatedErrors['name'] = ValidationService.validateName(
         nameController.text.trim(),
         forceValidate: true,
@@ -291,9 +284,9 @@ class AuthViewModel extends ChangeNotifier {
     );
 
     final activeErrors =
-        _isLogin
-            ? [updatedErrors['email'], updatedErrors['password']]
-            : updatedErrors.values;
+    _isLogin
+        ? [updatedErrors['email'], updatedErrors['password']]
+        : updatedErrors.values;
 
     final errors = activeErrors.where((error) => error != null).toList();
     if (errors.isNotEmpty) {
@@ -336,7 +329,6 @@ class AuthViewModel extends ChangeNotifier {
       }
 
       bool isEmailVerifiedInFirestore = userData.emailVerified;
-
       if (userData.role == 'Organization' && isEmailVerifiedInFirestore) {
         await _navigateBasedOnRole(userCredential.user!.uid);
         return;
@@ -344,7 +336,6 @@ class AuthViewModel extends ChangeNotifier {
 
       await _authService.reloadUser();
       final refreshedUser = _authService.currentUser;
-
       if (refreshedUser == null) {
         throw Exception('User not found after login');
       }
@@ -382,7 +373,7 @@ class AuthViewModel extends ChangeNotifier {
           break;
         case 'invalid-credential':
           errorMessage =
-              "Invalid email or password. Please check your credentials.";
+          "Invalid email or password. Please check your credentials.";
           break;
         case 'too-many-requests':
           errorMessage = "Too many failed attempts. Please try again later.";
@@ -391,7 +382,6 @@ class AuthViewModel extends ChangeNotifier {
           errorMessage =
               e.message ?? "An unknown error occurred. Please try again.";
       }
-
       setAuthState(
         AuthState(status: AuthStatus.error, errorMessage: errorMessage),
       );
@@ -401,10 +391,10 @@ class AuthViewModel extends ChangeNotifier {
   Future<void> _handleSignup() async {
     try {
       final email = emailController.text.trim();
-
       final signInMethods = await _authService.fetchSignInMethodsForEmail(
         email,
       );
+
       if (signInMethods.isNotEmpty) {
         final userData = await _authService.getUserDataByEmail(email);
         if (userData != null && !userData.emailVerified) {
@@ -412,7 +402,7 @@ class AuthViewModel extends ChangeNotifier {
             AuthState(
               status: AuthStatus.error,
               errorMessage:
-                  'Email already registered but not verified. Please check your inbox or resend verification email.',
+              'Email already registered but not verified. Please check your inbox or resend verification email.',
             ),
           );
           return;
@@ -464,25 +454,24 @@ class AuthViewModel extends ChangeNotifier {
           );
           if (userData != null && !userData.emailVerified) {
             errorMessage =
-                'This email is already registered but not verified. Please check your inbox.';
+            'This email is already registered but not verified. Please check your inbox.';
           } else {
             errorMessage =
-                'This email is already registered. Please try logging in.';
+            'This email is already registered. Please try logging in.';
           }
           break;
         case 'weak-password':
           errorMessage =
-              'Your password must be at least 8 characters and contain a number.';
+          'Your password must be at least 8 characters and contain a number.';
           break;
         case 'operation-not-allowed':
           errorMessage =
-              'This operation is not allowed. Please contact support.';
+          'This operation is not allowed. Please contact support.';
           break;
         default:
           errorMessage =
               e.message ?? 'An unknown error occurred. Please try again.';
       }
-
       setAuthState(
         AuthState(status: AuthStatus.error, errorMessage: errorMessage),
       );
@@ -491,8 +480,8 @@ class AuthViewModel extends ChangeNotifier {
 
   void _startEmailVerificationCheck() {
     _emailVerificationTimer = Timer.periodic(const Duration(seconds: 3), (
-      timer,
-    ) async {
+        timer,
+        ) async {
       try {
         final user = _authService.currentUser;
         if (user == null) {
@@ -502,7 +491,6 @@ class AuthViewModel extends ChangeNotifier {
 
         await _authService.reloadUser();
         final refreshedUser = _authService.currentUser;
-
         if (refreshedUser != null && refreshedUser.emailVerified) {
           timer.cancel();
           await _authService.updateEmailVerificationStatus(
@@ -534,7 +522,24 @@ class AuthViewModel extends ChangeNotifier {
   Future<void> _navigateBasedOnRole(String uid) async {
     try {
       await _authService.saveFcmToken();
-      setAuthState(const AuthState(status: AuthStatus.authenticated));
+
+      // Get user data to determine role
+      final userData = await _authService.getUserData(uid);
+      if (userData == null) {
+        setAuthState(
+          const AuthState(
+            status: AuthStatus.error,
+            errorMessage: 'User data not found',
+          ),
+        );
+        return;
+      }
+
+      // Set auth state with user role for navigation
+      setAuthState(AuthState(
+        status: AuthStatus.authenticated,
+        userRole: userData.role,
+      ));
     } catch (e) {
       setAuthState(
         AuthState(
@@ -555,7 +560,6 @@ class AuthViewModel extends ChangeNotifier {
       if (user != null) {
         await _authService.reloadUser();
         final refreshedUser = _authService.currentUser;
-
         if (refreshedUser != null && !refreshedUser.emailVerified) {
           await _authService.sendEmailVerification(refreshedUser);
         } else if (refreshedUser != null && refreshedUser.emailVerified) {
@@ -571,12 +575,11 @@ class AuthViewModel extends ChangeNotifier {
       String errorMessage = 'Error sending verification email';
       if (e.toString().contains('too-many-requests')) {
         errorMessage =
-            'Too many requests. Please wait a moment before trying again.';
+        'Too many requests. Please wait a moment before trying again.';
       } else if (e.toString().contains('network')) {
         errorMessage =
-            'Network error. Please check your connection and try again.';
+        'Network error. Please check your connection and try again.';
       }
-
       setAuthState(
         AuthState(status: AuthStatus.error, errorMessage: errorMessage),
       );
@@ -595,7 +598,6 @@ class AuthViewModel extends ChangeNotifier {
       if (user != null) {
         await _authService.reloadUser();
         final refreshedUser = _authService.currentUser;
-
         if (refreshedUser != null && refreshedUser.emailVerified) {
           await _authService.updateEmailVerificationStatus(
             refreshedUser.uid,
@@ -608,7 +610,7 @@ class AuthViewModel extends ChangeNotifier {
             const AuthState(
               status: AuthStatus.emailVerificationPending,
               errorMessage:
-                  'Email is still not verified. Please check your inbox and click the verification link first.',
+              'Email is still not verified. Please check your inbox and click the verification link first.',
             ),
           );
         }
