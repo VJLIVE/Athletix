@@ -3,8 +3,8 @@ import 'package:cloudinary_public/cloudinary_public.dart';
 import 'package:flutter/foundation.dart';
 
 class CloudinaryService {
-  static const String _cloudName = 'YOUR_CLOUD_NAME';
-  static const String _uploadPreset = 'YOUR_UPLOAD_PRESET';
+  static const String _cloudName = 'dgiqmo1t1';
+  static const String _uploadPreset = 'flutter_unsigned';
 
   final CloudinaryPublic _cloudinary = CloudinaryPublic(
     _cloudName,
