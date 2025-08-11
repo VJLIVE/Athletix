@@ -15,7 +15,7 @@ class CoachDashboardScreen extends StatelessWidget {
             onPressed: () async {
               await signoutConfirmation(context);
             },
-          )
+          ),
         ],
       ),
       body: Column(

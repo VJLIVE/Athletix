@@ -41,6 +41,11 @@ class _DashboardScreenState extends State<DashboardScreen>
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
       quotes = data;
+
+      // Generate random index based on the actual quotes list size
+      setState(() {
+        number_ = Random().nextInt(quotes.length);
+      });
     } else {
       throw Exception('Failed to load quotes');
     }
@@ -294,10 +299,15 @@ class _DashboardScreenState extends State<DashboardScreen>
         padding: const EdgeInsets.all(24),
         child: Column(
           children: [
-            Text("Todays Quote"),
-            SizedBox(height: 5),
-            Text(
+            Text("Today's Quote"),
+            const SizedBox(height: 5),
+            quotes.isNotEmpty
+                ? Text(
               "${quotes[number_]['quote']}",
+              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+            )
+                : const Text(
+              "No quote available",
               style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 30),

@@ -31,7 +31,10 @@ class PrivacyTermsPage extends StatelessWidget {
             height: 1,
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [Colors.blue.withValues(alpha: 0.3), Colors.transparent],
+                colors: [
+                  Colors.blue.withValues(alpha: 0.3),
+                  Colors.transparent,
+                ],
               ),
             ),
           ),
@@ -80,10 +83,7 @@ class PrivacyTermsPage extends StatelessWidget {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            Colors.blue.shade600,
-            Colors.blue.shade700,
-          ],
+          colors: [Colors.blue.shade600, Colors.blue.shade700],
         ),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
@@ -102,11 +102,7 @@ class PrivacyTermsPage extends StatelessWidget {
               color: Colors.white.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Icon(
-              Icons.security,
-              size: 32,
-              color: Colors.white,
-            ),
+            child: const Icon(Icons.security, size: 32, color: Colors.white),
           ),
           const SizedBox(height: 16),
           const Text(
@@ -261,11 +257,7 @@ class PrivacyTermsPage extends StatelessWidget {
                     color: iconColor.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Icon(
-                    icon,
-                    size: 24,
-                    color: iconColor,
-                  ),
+                  child: Icon(icon, size: 24, color: iconColor),
                 ),
                 const SizedBox(width: 16),
                 Text(
@@ -280,10 +272,7 @@ class PrivacyTermsPage extends StatelessWidget {
             ),
           ),
           // Section Content
-          Padding(
-            padding: const EdgeInsets.all(24),
-            child: content,
-          ),
+          Padding(padding: const EdgeInsets.all(24), child: content),
         ],
       ),
     );
@@ -302,11 +291,7 @@ class PrivacyTermsPage extends StatelessWidget {
               color: color.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(6),
             ),
-            child: Icon(
-              icon,
-              size: 16,
-              color: color,
-            ),
+            child: Icon(icon, size: 16, color: color),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -371,21 +356,12 @@ class PrivacyTermsPage extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.amber.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border(
-          left: BorderSide(
-            color: Colors.amber,
-            width: 4,
-          ),
-        ),
+        border: Border(left: BorderSide(color: Colors.amber, width: 4)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(
-            Icons.info,
-            color: Colors.amber[700],
-            size: 20,
-          ),
+          Icon(Icons.info, color: Colors.amber[700], size: 20),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
@@ -435,18 +411,11 @@ class PrivacyTermsPage extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
-                Icons.email_outlined,
-                size: 16,
-                color: Colors.grey[600],
-              ),
+              Icon(Icons.email_outlined, size: 16, color: Colors.grey[600]),
               const SizedBox(width: 8),
               Text(
                 'Questions? Contact support@athletix.com',
-                style: TextStyle(
-                  fontSize: 10,
-                  color: Colors.grey[600],
-                ),
+                style: TextStyle(fontSize: 10, color: Colors.grey[600]),
               ),
             ],
           ),

@@ -11,6 +11,7 @@ class UserModel {
   final bool signupCompleted;
   final DateTime createdAt;
   final String? fcmToken;
+  final String? profileImage; // Added profile image field
 
   UserModel({
     required this.uid,
@@ -23,6 +24,7 @@ class UserModel {
     required this.signupCompleted,
     required this.createdAt,
     this.fcmToken,
+    this.profileImage, // Added to constructor
   });
 
   factory UserModel.fromFirestore(DocumentSnapshot doc) {
@@ -38,6 +40,7 @@ class UserModel {
       signupCompleted: data['signupCompleted'] ?? false,
       createdAt: (data['createdAt'] as Timestamp).toDate(),
       fcmToken: data['fcmToken'],
+      profileImage: data['profileImage'], // Added profile image parsing
     );
   }
 
@@ -52,6 +55,8 @@ class UserModel {
       'signupCompleted': signupCompleted,
       'createdAt': Timestamp.fromDate(createdAt),
       if (fcmToken != null) 'fcmToken': fcmToken,
+      if (profileImage != null)
+        'profileImage': profileImage, // Added profile image to Firestore
     };
   }
 
@@ -66,6 +71,7 @@ class UserModel {
     bool? signupCompleted,
     DateTime? createdAt,
     String? fcmToken,
+    String? profileImage, // Added to copyWith
   }) {
     return UserModel(
       uid: uid ?? this.uid,
@@ -78,6 +84,8 @@ class UserModel {
       signupCompleted: signupCompleted ?? this.signupCompleted,
       createdAt: createdAt ?? this.createdAt,
       fcmToken: fcmToken ?? this.fcmToken,
+      profileImage:
+          profileImage ?? this.profileImage, // Added profile image to copyWith
     );
   }
 }

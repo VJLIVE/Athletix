@@ -18,7 +18,8 @@ class AuthScreen extends StatefulWidget {
 
 class _AuthScreenState extends State<AuthScreen> {
   late AuthViewModel _viewModel;
-  AuthStatus? _lastAuthStatus; // Track the last auth status to prevent duplicate dialogs
+  AuthStatus?
+  _lastAuthStatus; // Track the last auth status to prevent duplicate dialogs
 
   @override
   void initState() {
@@ -117,9 +118,9 @@ class _AuthScreenState extends State<AuthScreen> {
                     width: double.infinity,
                     constraints: BoxConstraints(
                       maxWidth:
-                      ResponsiveHelper.isLargeScreen(context)
-                          ? 800
-                          : double.infinity,
+                          ResponsiveHelper.isLargeScreen(context)
+                              ? 800
+                              : double.infinity,
                       minHeight: MediaQuery.of(context).size.height,
                     ),
                     padding: EdgeInsets.symmetric(
@@ -127,7 +128,7 @@ class _AuthScreenState extends State<AuthScreen> {
                         context,
                       ),
                       vertical:
-                      MediaQuery.of(context).size.height *
+                          MediaQuery.of(context).size.height *
                           (ResponsiveHelper.isSmallScreen(context)
                               ? 0.03
                               : 0.05),
@@ -148,7 +149,7 @@ class _AuthScreenState extends State<AuthScreen> {
                         ),
                         SizedBox(
                           height:
-                          MediaQuery.of(context).size.height *
+                              MediaQuery.of(context).size.height *
                               (ResponsiveHelper.isSmallScreen(context)
                                   ? 0.03
                                   : 0.04),

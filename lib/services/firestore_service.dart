@@ -30,9 +30,12 @@ class FirestoreService {
         .collection('entries')
         .orderBy('date', descending: true)
         .snapshots()
-        .map((snapshot) => snapshot.docs
-        .map((doc) => FinancialEntry.fromMap(doc.id, doc.data()))
-        .toList());
+        .map(
+          (snapshot) =>
+              snapshot.docs
+                  .map((doc) => FinancialEntry.fromMap(doc.id, doc.data()))
+                  .toList(),
+        );
   }
 
   /// Updates an existing [FinancialEntry] for the current user in Firestore.
