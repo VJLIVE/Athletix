@@ -1,3 +1,4 @@
+import 'package:athletix/views/screens/athlete/athlete_dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'views/screens/splash_screen.dart';
@@ -22,11 +23,6 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
         fontFamily: 'Montserrat',
       ),
-      home: const SplashScreen(),
-      routes: {
-        '/': (context) => const SplashScreen(),
-        '/connection-requests': (context) => const ConnectionRequestsScreen(),
-      },
     );
   }
 }
