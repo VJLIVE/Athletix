@@ -249,6 +249,33 @@ class AuthForm extends StatelessWidget {
                   // Forgot Password for Login
                   if (viewModel.isLogin) ...[
                     SizedBox(height: screenHeight * 0.005),
+                    Center(
+                      child: TextButton(
+                        onPressed: viewModel.authState.status == AuthStatus.loading
+                            ? null
+                            : viewModel.handleForgotPassword,
+                        child: viewModel.authState.status == AuthStatus.loading
+                            ? const Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  SizedBox(
+                                    width: 16,
+                                    height: 16,
+                                    child: CircularProgressIndicator(strokeWidth: 2),
+                                  ),
+                                  SizedBox(width: 8),
+                                  Text('Sending...'),
+                                ],
+                              )
+                            : const Text(
+                                'Forgot Password?',
+                                style: TextStyle(
+                                  color: Color(0xFFFF6B6B), // Match app theme
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                      ),
+                    ),
                   ],
 
                   SizedBox(height: screenHeight * 0.02),

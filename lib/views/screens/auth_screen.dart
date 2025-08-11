@@ -53,6 +53,11 @@ class _AuthScreenState extends State<AuthScreen> {
       default:
         break;
     }
+
+    // Check for password reset success
+    if (_viewModel.passwordResetSuccessEmail != null) {
+      _showPasswordResetSuccessDialog(_viewModel.passwordResetSuccessEmail!);
+    }
   }
 
   void _navigateToUserDashboard() async {
@@ -92,6 +97,39 @@ class _AuthScreenState extends State<AuthScreen> {
             ScaffoldMessenger.of(context).hideCurrentSnackBar();
           },
         ),
+      ),
+    );
+  }
+
+  void _showPasswordResetSuccessDialog(String email) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Password Reset Email Sent'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(
+              Icons.mark_email_read,
+              color: Colors.green,
+              size: 48,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'A password reset email has been sent to $email. Please check your inbox and spam folder, then follow the instructions to reset your password.',
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              _viewModel.clearPasswordResetSuccess();
+            },
+            child: const Text('OK'),
+          ),
+        ],
       ),
     );
   }
