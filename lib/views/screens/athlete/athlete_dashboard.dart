@@ -2,6 +2,9 @@ import 'package:athletix/components/alertDialog_signOut_confitmation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'dart:math';
 
 import 'package:athletix/components/bottom_nav_bar.dart';
 import 'package:lottie/lottie.dart';
@@ -26,9 +29,33 @@ class _DashboardScreenState extends State<DashboardScreen>
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
 
+  List quotes = [];
+  late int number_;
+
+  Future<void> Fetchquotes() async {
+    final response = await http.get(
+      Uri.parse(
+        'https://raw.githubusercontent.com/Keshav8605/Athletix/refs/heads/motivation_quote_feature_add/assets/motivational_quotes.json',
+      ),
+    );
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      quotes = data;
+
+      // Generate random index based on the actual quotes list size
+      setState(() {
+        number_ = Random().nextInt(quotes.length);
+      });
+    } else {
+      throw Exception('Failed to load quotes');
+    }
+  }
+
   @override
   void initState() {
     super.initState();
+    number_ = Random().nextInt(100) + 1;
+    Fetchquotes();
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 800),
       vsync: this,
@@ -76,6 +103,7 @@ class _DashboardScreenState extends State<DashboardScreen>
       body: CustomScrollView(
         slivers: [
           _buildSliverAppBar(),
+
           SliverToBoxAdapter(
             child: FadeTransition(
               opacity: _fadeAnimation,
@@ -271,6 +299,18 @@ class _DashboardScreenState extends State<DashboardScreen>
         padding: const EdgeInsets.all(24),
         child: Column(
           children: [
+            Text("Today's Quote"),
+            const SizedBox(height: 5),
+            quotes.isNotEmpty
+                ? Text(
+              "${quotes[number_]['quote']}",
+              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+            )
+                : const Text(
+              "No quote available",
+              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 30),
             Lottie.asset(
               'assets/Athlete.json',
               width: 150,
