@@ -383,7 +383,7 @@ class _DashboardScreenState extends State<DashboardScreen>
             style: const TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w600,
-              color: Color(0xFF667EEA),
+              color: const Color(0xFF667EEA),
             ),
           ),
         ],
@@ -418,13 +418,19 @@ class _DashboardScreenState extends State<DashboardScreen>
         ),
         const SizedBox(height: 20),
         GridView.count(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
           crossAxisCount: 2,
+          padding: const EdgeInsets.all(16),
           crossAxisSpacing: 16,
           mainAxisSpacing: 16,
           childAspectRatio: 1.1,
           children: [
+            _buildDashboardCard(
+              context,
+              'Connection Requests',
+              Icons.group_add,
+              Colors.orange,
+              () => Navigator.pushNamed(context, '/connection-requests'),
+            ),
             _buildEnhancedActionCard(
               icon: Icons.healing_rounded,
               label: "Injury Tracker",

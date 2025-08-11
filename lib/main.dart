@@ -2,6 +2,7 @@ import 'package:athletix/views/screens/athlete/athlete_dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'views/screens/splash_screen.dart';
+import 'views/screens/connection_requests_screen.dart'; 
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,7 +23,6 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
         fontFamily: 'Montserrat',
       ),
-      home: SplashScreen(),
     );
   }
 }
