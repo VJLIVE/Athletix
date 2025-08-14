@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:athletix/l10n/app_localizations.dart';
 
 /// A reusable bottom navigation bar widget that adapts to user role.
 class BottomNavBar extends StatelessWidget {
   /// The currently selected index in the navigation bar.
   final int currentIndex;
+
   /// Callback when a navigation item is tapped.
   final ValueChanged<int> onTap;
+
   /// The role of the current user (affects navigation items).
   final String role;
 
@@ -19,45 +22,46 @@ class BottomNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     final List<BottomNavigationBarItem> items;
 
     if (role == 'Organization') {
-      items = const [
+      items = [
         BottomNavigationBarItem(
-          icon: Icon(Icons.home),
-          label: 'Home',
+          icon: const Icon(Icons.home),
+          label: localizations.homeLabel,
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.people),
-          label: 'Players',
+          icon: const Icon(Icons.people),
+          label: localizations.playersLabel,
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.event),
-          label: 'Tournaments',
+          icon: const Icon(Icons.event),
+          label: localizations.tournamentsLabel,
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.person),
-          label: 'Profile',
+          icon: const Icon(Icons.person),
+          label: localizations.profileLabel,
         ),
       ];
     } else {
-      // fallback
-      items = const [
+      // fallback for Athlete, Coach, Doctor
+      items = [
         BottomNavigationBarItem(
-          icon: Icon(Icons.home),
-          label: 'Home',
+          icon: const Icon(Icons.home),
+          label: localizations.homeLabel,
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.calendar_today),
-          label: 'Time Table',
+          icon: const Icon(Icons.calendar_today),
+          label: localizations.timeTableLabel,
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.location_on),
-          label: 'Tournaments',
+          icon: const Icon(Icons.location_on),
+          label: localizations.tournamentsLabel,
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.person),
-          label: 'Profile',
+          icon: const Icon(Icons.person),
+          label: localizations.profileLabel,
         ),
       ];
     }

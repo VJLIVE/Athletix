@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:athletix/l10n/app_localizations.dart';
 
 class ManagePlayersScreen extends StatelessWidget {
   const ManagePlayersScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: AppBar(title: const Text("Manage Players")),
-      body: const Center(child: Text("Manage Players Screen")),
+      appBar: AppBar(title: Text(localizations.managePlayersTitle)),
+      body: Center(child: Text(localizations.managePlayersScreenContent)),
     );
   }
 }

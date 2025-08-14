@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:math';
+import 'package:athletix/l10n/app_localizations.dart';
+import 'package:intl/intl.dart';
 
 import 'package:athletix/components/bottom_nav_bar.dart';
 import 'package:lottie/lottie.dart';
@@ -17,7 +19,9 @@ import 'package:athletix/components/fcm_listener.dart';
 import 'financial_tracker_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
-  const DashboardScreen({super.key});
+  // 1. Add the setLocale function to the constructor
+  final Function(Locale) setLocale;
+  const DashboardScreen({super.key, required this.setLocale});
 
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
@@ -73,7 +77,8 @@ class _DashboardScreenState extends State<DashboardScreen>
       _buildHomeTab(),
       const CalendarScreen(),
       const TournamentsScreen(),
-      const ProfileScreen(),
+      // 2. Pass the setLocale function to the ProfileScreen
+      ProfileScreen(setLocale: widget.setLocale),
     ];
 
     return FcmListener(
@@ -93,6 +98,7 @@ class _DashboardScreenState extends State<DashboardScreen>
   }
 
   Widget _buildHomeTab() {
+    final localizations = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       body: CustomScrollView(
@@ -106,18 +112,27 @@ class _DashboardScreenState extends State<DashboardScreen>
                 future: _getUserData(),
                 builder: (context, snapshot) {
                   if (!snapshot.hasData) {
-                    return _buildLoadingState();
+                    return _buildLoadingState(localizations);
                   }
                   final data = snapshot.data!.data();
                   if (data == null) {
-                    return _buildErrorState();
+                    return _buildErrorState(localizations);
                   }
 
-                  final name = data['name'] ?? '';
-                  final sport = data['sport'] ?? '';
-                  final dob = data['dob']?.toString().split('T').first ?? '';
+                  final name =
+                      data['name'] ?? localizations.notAvailableAbbreviation;
+                  final sport =
+                      data['sport'] ?? localizations.notAvailableAbbreviation;
+                  final dob =
+                      data['dob']?.toString().split('T').first ??
+                      localizations.notAvailableAbbreviation;
 
-                  return _buildDashboardContent(name, sport, dob);
+                  return _buildDashboardContent(
+                    name,
+                    sport,
+                    dob,
+                    localizations,
+                  );
                 },
               ),
             ),
@@ -128,6 +143,7 @@ class _DashboardScreenState extends State<DashboardScreen>
   }
 
   Widget _buildSliverAppBar() {
+    final localizations = AppLocalizations.of(context)!;
     return SliverAppBar(
       expandedHeight: 100,
       floating: false,
@@ -144,9 +160,9 @@ class _DashboardScreenState extends State<DashboardScreen>
             ),
           ),
         ),
-        title: const Text(
-          'Dashboard',
-          style: TextStyle(
+        title: Text(
+          localizations.athleteDashboardTitle,
+          style: const TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.w600,
             fontSize: 24,
@@ -164,31 +180,32 @@ class _DashboardScreenState extends State<DashboardScreen>
           ),
           child: IconButton(
             onPressed: () async {
-              await signoutConfirmation(context);
+              // 3. Pass the setLocale function to the signoutConfirmation dialog
+              await signoutConfirmation(context, setLocale: widget.setLocale);
             },
             icon: const Icon(Icons.logout_rounded, color: Colors.white),
-            tooltip: 'Sign Out',
+            tooltip: localizations.logoutTooltip,
           ),
         ),
       ],
     );
   }
 
-  Widget _buildLoadingState() {
+  Widget _buildLoadingState(AppLocalizations localizations) {
     return Container(
       height: MediaQuery.of(context).size.height * 0.6,
-      child: const Center(
+      child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            CircularProgressIndicator(
+            const CircularProgressIndicator(
               strokeWidth: 3,
               valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF667EEA)),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Text(
-              'Loading your dashboard...',
-              style: TextStyle(
+              localizations.loadingDashboard,
+              style: const TextStyle(
                 fontSize: 16,
                 color: Colors.grey,
                 fontWeight: FontWeight.w500,
@@ -200,7 +217,7 @@ class _DashboardScreenState extends State<DashboardScreen>
     );
   }
 
-  Widget _buildErrorState() {
+  Widget _buildErrorState(AppLocalizations localizations) {
     return Container(
       height: MediaQuery.of(context).size.height * 0.6,
       child: Center(
@@ -213,18 +230,18 @@ class _DashboardScreenState extends State<DashboardScreen>
               color: Colors.grey,
             ),
             const SizedBox(height: 16),
-            const Text(
-              'User data not found',
-              style: TextStyle(
+            Text(
+              localizations.userDataNotFound,
+              style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
                 color: Colors.grey,
               ),
             ),
             const SizedBox(height: 8),
-            const Text(
-              'Please try refreshing the page',
-              style: TextStyle(fontSize: 14, color: Colors.grey),
+            Text(
+              localizations.refreshPrompt,
+              style: const TextStyle(fontSize: 14, color: Colors.grey),
             ),
             const SizedBox(height: 24),
             ElevatedButton.icon(
@@ -232,7 +249,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                 setState(() {});
               },
               icon: const Icon(Icons.refresh),
-              label: const Text('Refresh'),
+              label: Text(localizations.refreshButton),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF667EEA),
                 foregroundColor: Colors.white,
@@ -247,31 +264,41 @@ class _DashboardScreenState extends State<DashboardScreen>
     );
   }
 
-  Widget _buildDashboardContent(String name, String sport, String dob) {
+  Widget _buildDashboardContent(
+    String name,
+    String sport,
+    String dob,
+    AppLocalizations localizations,
+  ) {
     return Padding(
       padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildWelcomeCard(name, sport, dob),
+          _buildWelcomeCard(name, sport, dob, localizations),
           const SizedBox(height: 32),
-          _buildQuickActionsSection(),
+          _buildQuickActionsSection(localizations),
           const SizedBox(height: 32),
-          _buildStatsOverview(),
+          _buildStatsOverview(localizations),
           const SizedBox(height: 32),
         ],
       ),
     );
   }
 
-  Widget _buildWelcomeCard(String name, String sport, String dob) {
+  Widget _buildWelcomeCard(
+    String name,
+    String sport,
+    String dob,
+    AppLocalizations localizations,
+  ) {
     final hour = DateTime.now().hour;
     String greeting =
         hour < 12
-            ? 'Good Morning'
+            ? localizations.greetingMorning
             : hour < 17
-            ? 'Good Afternoon'
-            : 'Good Evening';
+            ? localizations.greetingAfternoon
+            : localizations.greetingEvening;
 
     return Container(
       width: double.infinity,
@@ -307,7 +334,7 @@ class _DashboardScreenState extends State<DashboardScreen>
               height: 150,
               fit: BoxFit.cover,
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Row(
               children: [
                 Container(
@@ -350,9 +377,17 @@ class _DashboardScreenState extends State<DashboardScreen>
                       const SizedBox(height: 8),
                       Row(
                         children: [
-                          _buildInfoChip(Icons.sports_rounded, sport),
+                          _buildInfoChip(
+                            Icons.sports_rounded,
+                            localizations.sportLabel,
+                            sport,
+                          ),
                           const SizedBox(width: 12),
-                          _buildInfoChip(Icons.cake_rounded, _formatDate(dob)),
+                          _buildInfoChip(
+                            Icons.cake_rounded,
+                            localizations.dobLabel,
+                            _formatDate(dob, localizations),
+                          ),
                         ],
                       ),
                     ],
@@ -366,7 +401,7 @@ class _DashboardScreenState extends State<DashboardScreen>
     );
   }
 
-  Widget _buildInfoChip(IconData icon, String text) {
+  Widget _buildInfoChip(IconData icon, String label, String text) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
@@ -391,7 +426,7 @@ class _DashboardScreenState extends State<DashboardScreen>
     );
   }
 
-  Widget _buildQuickActionsSection() {
+  Widget _buildQuickActionsSection(AppLocalizations localizations) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -406,9 +441,9 @@ class _DashboardScreenState extends State<DashboardScreen>
               ),
             ),
             const SizedBox(width: 12),
-            const Text(
-              'Quick Actions',
-              style: TextStyle(
+            Text(
+              localizations.quickActionsTitle,
+              style: const TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
                 color: Color(0xFF1A202C),
@@ -427,8 +462,8 @@ class _DashboardScreenState extends State<DashboardScreen>
           children: [
             _buildEnhancedActionCard(
               icon: Icons.healing_rounded,
-              label: "Injury Tracker",
-              subtitle: "Monitor your health",
+              label: localizations.injuryTrackerLabel,
+              subtitle: localizations.monitorHealthSubtitle,
               gradient: const [Color(0xFFFF6B6B), Color(0xFFEE5A52)],
               onTap: () {
                 Navigator.push(
@@ -441,8 +476,8 @@ class _DashboardScreenState extends State<DashboardScreen>
             ),
             _buildEnhancedActionCard(
               icon: Icons.show_chart_rounded,
-              label: "Performance",
-              subtitle: "Track your progress",
+              label: localizations.performanceLabel,
+              subtitle: localizations.trackProgressSubtitle,
               gradient: const [Color(0xFF4ECDC4), Color(0xFF44A08D)],
               onTap: () {
                 Navigator.push(
@@ -455,8 +490,8 @@ class _DashboardScreenState extends State<DashboardScreen>
             ),
             _buildEnhancedActionCard(
               icon: Icons.account_balance_wallet_rounded,
-              label: "Finances",
-              subtitle: "Manage expenses",
+              label: localizations.financesLabel,
+              subtitle: localizations.manageExpensesSubtitle,
               gradient: const [Color(0xFF667EEA), Color(0xFF764BA2)],
               onTap: () {
                 Navigator.push(
@@ -545,7 +580,7 @@ class _DashboardScreenState extends State<DashboardScreen>
     );
   }
 
-  Widget _buildStatsOverview() {
+  Widget _buildStatsOverview(AppLocalizations localizations) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -560,9 +595,9 @@ class _DashboardScreenState extends State<DashboardScreen>
               ),
             ),
             const SizedBox(width: 12),
-            const Text(
-              'This Week',
-              style: TextStyle(
+            Text(
+              localizations.thisWeekTitle,
+              style: const TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
                 color: Color(0xFF1A202C),
@@ -575,8 +610,9 @@ class _DashboardScreenState extends State<DashboardScreen>
           children: [
             Expanded(
               child: _buildStatCard(
-                title: 'Training Sessions',
-                value: '8',
+                title: localizations.trainingSessionsTitle,
+                value:
+                    '8', // This is a hardcoded placeholder value. It should be replaced with a dynamic value from your app state.
                 icon: Icons.fitness_center_rounded,
                 color: const Color(0xFF4ECDC4),
               ),
@@ -584,8 +620,9 @@ class _DashboardScreenState extends State<DashboardScreen>
             const SizedBox(width: 16),
             Expanded(
               child: _buildStatCard(
-                title: 'Hours Trained',
-                value: '12.5',
+                title: localizations.hoursTrainedTitle,
+                value:
+                    '12.5', // This is a hardcoded placeholder value. It should be replaced with a dynamic value from your app state.
                 icon: Icons.timer_rounded,
                 color: const Color(0xFFFF6B6B),
               ),
@@ -646,25 +683,13 @@ class _DashboardScreenState extends State<DashboardScreen>
     );
   }
 
-  String _formatDate(String dateStr) {
-    if (dateStr.isEmpty) return 'Not set';
+  String _formatDate(String dateStr, AppLocalizations localizations) {
+    if (dateStr.isEmpty) {
+      return localizations.notSetLabel;
+    }
     try {
       final date = DateTime.parse(dateStr);
-      final months = [
-        'Jan',
-        'Feb',
-        'Mar',
-        'Apr',
-        'May',
-        'Jun',
-        'Jul',
-        'Aug',
-        'Sep',
-        'Oct',
-        'Nov',
-        'Dec',
-      ];
-      return '${months[date.month - 1]} ${date.day}';
+      return DateFormat.yMMMd(localizations.localeName).format(date);
     } catch (e) {
       return dateStr;
     }

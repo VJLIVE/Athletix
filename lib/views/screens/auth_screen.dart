@@ -8,9 +8,13 @@ import 'package:athletix/views/widgets/responsive_helper.dart';
 import 'athlete/athlete_dashboard.dart';
 import 'coach/coach_dashboard.dart';
 import 'doctor/doctor_dashboard.dart';
+import 'package:athletix/l10n/app_localizations.dart';
+import 'organization/organization_dashboard.dart';
 
 class AuthScreen extends StatefulWidget {
-  const AuthScreen({super.key});
+  // 1. Add the setLocale function to the constructor
+  final Function(Locale) setLocale;
+  const AuthScreen({super.key, required this.setLocale});
 
   @override
   State<AuthScreen> createState() => _AuthScreenState();
@@ -18,7 +22,7 @@ class AuthScreen extends StatefulWidget {
 
 class _AuthScreenState extends State<AuthScreen> {
   late AuthViewModel _viewModel;
-  AuthStatus? _lastAuthStatus; // Track the last auth status to prevent duplicate dialogs
+  AuthStatus? _lastAuthStatus;
 
   @override
   void initState() {
@@ -36,7 +40,6 @@ class _AuthScreenState extends State<AuthScreen> {
   }
 
   void _handleAuthStateChange(AuthState authState) {
-    // Only handle state changes if the status has actually changed
     if (_lastAuthStatus == authState.status) return;
 
     _lastAuthStatus = authState.status;
@@ -60,15 +63,22 @@ class _AuthScreenState extends State<AuthScreen> {
 
     Widget destinationScreen;
     switch (userRole) {
+      // 2. Pass the setLocale function to the dashboard screens
       case 'Coach':
-        destinationScreen = const CoachDashboardScreen();
+        destinationScreen = CoachDashboardScreen(setLocale: widget.setLocale);
         break;
       case 'Doctor':
-        destinationScreen = const DoctorDashboardScreen();
+        destinationScreen = DoctorDashboardScreen(setLocale: widget.setLocale);
+        break;
+      case 'Organization':
+        // 3. This line was missing the setLocale parameter. It's now corrected.
+        destinationScreen = OrganizationDashboardScreen(
+          setLocale: widget.setLocale,
+        );
         break;
       case 'Athlete':
       default:
-        destinationScreen = const DashboardScreen();
+        destinationScreen = DashboardScreen(setLocale: widget.setLocale);
         break;
     }
 
@@ -79,14 +89,14 @@ class _AuthScreenState extends State<AuthScreen> {
   }
 
   void _showErrorSnackBar(String message) {
-    // Use SnackBar instead of Dialog to prevent infinite loops
+    final localizations = AppLocalizations.of(context)!;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
         backgroundColor: Colors.red,
         duration: const Duration(seconds: 4),
         action: SnackBarAction(
-          label: 'Dismiss',
+          label: localizations.dismissButton,
           textColor: Colors.white,
           onPressed: () {
             ScaffoldMessenger.of(context).hideCurrentSnackBar();
@@ -102,8 +112,6 @@ class _AuthScreenState extends State<AuthScreen> {
       value: _viewModel,
       child: Consumer<AuthViewModel>(
         builder: (context, viewModel, child) {
-          // Listen to auth state changes only when the widget is built
-          // This prevents the infinite loop issue
           WidgetsBinding.instance.addPostFrameCallback((_) {
             _handleAuthStateChange(viewModel.authState);
           });
@@ -117,9 +125,9 @@ class _AuthScreenState extends State<AuthScreen> {
                     width: double.infinity,
                     constraints: BoxConstraints(
                       maxWidth:
-                      ResponsiveHelper.isLargeScreen(context)
-                          ? 800
-                          : double.infinity,
+                          ResponsiveHelper.isLargeScreen(context)
+                              ? 800
+                              : double.infinity,
                       minHeight: MediaQuery.of(context).size.height,
                     ),
                     padding: EdgeInsets.symmetric(
@@ -127,7 +135,7 @@ class _AuthScreenState extends State<AuthScreen> {
                         context,
                       ),
                       vertical:
-                      MediaQuery.of(context).size.height *
+                          MediaQuery.of(context).size.height *
                           (ResponsiveHelper.isSmallScreen(context)
                               ? 0.03
                               : 0.05),
@@ -148,7 +156,7 @@ class _AuthScreenState extends State<AuthScreen> {
                         ),
                         SizedBox(
                           height:
-                          MediaQuery.of(context).size.height *
+                              MediaQuery.of(context).size.height *
                               (ResponsiveHelper.isSmallScreen(context)
                                   ? 0.03
                                   : 0.04),
