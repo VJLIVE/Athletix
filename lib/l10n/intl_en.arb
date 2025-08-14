@@ -1,0 +1,942 @@
+{
+    "@@locale": "en",
+    "appName": "Athletix",
+    "@appName": {
+        "description": "The name of the application"
+    },
+    "appTagline": "Your Sports Journey Starts Here",
+    "@appTagline": {
+        "description": "A tagline for the application on the splash screen"
+    },
+    "helloWorld": "Hello World!",
+    "@helloWorld": {
+        "description": "A classic welcome message"
+    },
+    "welcomeMessage": "Welcome, {name}!",
+    "@welcomeMessage": {
+        "description": "Welcome message with a placeholder for a name",
+        "placeholders": {
+            "name": {
+                "type": "String"
+            }
+        }
+    },
+    "currentDate": "Today's date is {date}",
+    "@currentDate": {
+        "description": "Shows the current date",
+        "placeholders": {
+            "date": {
+                "type": "DateTime",
+                "format": "yMMMd"
+            }
+        }
+    },
+    "confirmButton": "Confirm",
+    "@confirmButton": {
+        "description": "Text for a general confirmation button"
+    },
+    "cancelButton": "Cancel",
+    "@cancelButton": {
+        "description": "Text for a general cancel button"
+    },
+    "saveButton": "Save",
+    "@saveButton": {
+        "description": "Text for general save button"
+    },
+    "deleteButton": "Delete",
+    "@deleteButton": {
+        "description": "Text for the delete button in a dialog"
+    },
+    "okButton": "OK",
+    "@okButton": {
+        "description": "Text for general OK button in dialogs"
+    },
+    "closeButton": "Close",
+    "@closeButton": {
+        "description": "Text for the close button in dialogs"
+    },
+    "submitButton": "Submit",
+    "@submitButton": {
+        "description": "Text for the submit button"
+    },
+    "addButton": "Add",
+    "@addButton": {
+        "description": "Text for the add button"
+    },
+    "requiredField": "This field is required.",
+    "@requiredField": {
+        "description": "Generic validation message for a required field"
+    },
+    "notesOptionalLabel": "Notes (optional)",
+    "@notesOptionalLabel": {
+        "description": "Label for the notes text field"
+    },
+    "notesHint": "Add any relevant notes here...",
+    "@notesHint": {
+        "description": "Hint text for the notes text field"
+    },
+    "profileTitle": "Profile",
+    "@profileTitle": {
+        "description": "Title for the profile screen"
+    },
+    "userProfileNotFound": "User profile not found.",
+    "@userProfileNotFound": {
+        "description": "Message displayed when user profile data is not found"
+    },
+    "notAvailableAbbreviation": "N/A",
+    "@notAvailableAbbreviation": {
+        "description": "Abbreviation for not available"
+    },
+    "joinedAtLabel": "Joined At",
+    "@joinedAtLabel": {
+        "description": "Label for user joined date"
+    },
+    "userDataNotFound": "User data not found",
+    "@userDataNotFound": {
+        "description": "Message shown when user data cannot be found on the dashboard"
+    },
+    "sportLabel": "Sport",
+    "@sportLabel": {
+        "description": "Label for displaying sport in user card"
+    },
+    "dobLabel": "DOB",
+    "@dobLabel": {
+        "description": "Label for Date of Birth in user card"
+    },
+    "privacyTermsLink": "Privacy Policy & Terms",
+    "@privacyTermsLink": {
+        "description": "Text for the privacy policy and terms link"
+    },
+    "privacyTermsTitle": "Privacy & Terms",
+    "@privacyTermsTitle": {
+        "description": "App bar title for the Privacy & Terms page"
+    },
+    "headerTagline": "Your privacy and security matter to us",
+    "@headerTagline": {
+        "description": "Tagline on the header card of Privacy & Terms page"
+    },
+    "privacyPolicyTitle": "Privacy Policy",
+    "@privacyPolicyTitle": {
+        "description": "Title for the Privacy Policy section"
+    },
+    "privacyPolicyIntro": "At Athletix, we respect your privacy. This policy applies to all users, including Athletes, Coaches, Doctors, and Organizations.",
+    "@privacyPolicyIntro": {
+        "description": "Introductory text for the privacy policy"
+    },
+    "privacyBullet1": "We collect personal and professional information to enhance your experience.",
+    "@privacyBullet1": {
+        "description": "Bullet point 1 of privacy policy"
+    },
+    "privacyBullet2": "Your data is shared only with authorized individuals in your role's ecosystem.",
+    "@privacyBullet2": {
+        "description": "Bullet point 2 of privacy policy"
+    },
+    "privacyBullet3": "We do not sell your data to third parties.",
+    "@privacyBullet3": {
+        "description": "Bullet point 3 of privacy policy"
+    },
+    "privacyBullet4": "You may request deletion of your data at any time.",
+    "@privacyBullet4": {
+        "description": "Bullet point 4 of privacy policy"
+    },
+    "termsConditionsTitle": "Terms & Conditions",
+    "@termsConditionsTitle": {
+        "description": "Title for the Terms & Conditions section"
+    },
+    "termsIntro": "By using Athletix, you agree to:",
+    "@termsIntro": {
+        "description": "Introductory text for terms and conditions"
+    },
+    "termsNumbered1": "Provide accurate registration and profile information.",
+    "@termsNumbered1": {
+        "description": "Numbered point 1 of terms and conditions"
+    },
+    "termsNumbered2": "Use the platform respectfully and responsibly.",
+    "@termsNumbered2": {
+        "description": "Numbered point 2 of terms and conditions"
+    },
+    "termsNumbered3": "Not misuse access to other users' data or communication tools.",
+    "@termsNumbered3": {
+        "description": "Numbered point 3 of terms and conditions"
+    },
+    "termsNumbered4": "Accept that Athletix is not liable for any misuse of health or performance data.",
+    "@termsNumbered4": {
+        "description": "Numbered point 4 of terms and conditions"
+    },
+    "termsInfoBox": "Each role (Athlete, Coach, Doctor, Organization) must adhere to guidelines specific to their access and responsibilities.",
+    "@termsInfoBox": {
+        "description": "Information box text in terms and conditions"
+    },
+    "lastUpdatedLabel": "Last Updated",
+    "@lastUpdatedLabel": {
+        "description": "Label for the last updated date in the footer"
+    },
+    "lastUpdatedDate": "January 2025",
+    "@lastUpdatedDate": {
+        "description": "The actual last updated date"
+    },
+    "contactSupport": "Questions? Contact {email}",
+    "@contactSupport": {
+        "description": "Contact support text in the footer",
+        "placeholders": {
+            "email": {
+                "type": "String"
+            }
+        }
+    },
+    "supportEmail": "support@athletix.com",
+    "@supportEmail": {
+        "description": "The support email address"
+    },
+    "welcomeBackTitle": "Welcome Back",
+    "@welcomeBackTitle": {
+        "description": "Title for the login page"
+    },
+    "createAccountTitle": "Create an Account",
+    "@createAccountTitle": {
+        "description": "Title for the signup page"
+    },
+    "loginSubtitle": "Log in to continue",
+    "@loginSubtitle": {
+        "description": "Subtitle for the login page"
+    },
+    "signupSubtitle": "Sign up to get started",
+    "@signupSubtitle": {
+        "description": "Subtitle for the signup page"
+    },
+    "loginButton": "Login",
+    "@loginButton": {
+        "description": "Text for the Login button"
+    },
+    "signupButton": "Signup",
+    "@signupButton": {
+        "description": "Text for the Signup button"
+    },
+    "fullNameLabel": "Full Name",
+    "@fullNameLabel": {
+        "description": "Label for the full name text field"
+    },
+    "dateOfBirthLabel": "Date of Birth",
+    "@dateOfBirthLabel": {
+        "description": "Label for the date of birth text field"
+    },
+    "roleLabel": "Role",
+    "@roleLabel": {
+        "description": "Label for the role dropdown"
+    },
+    "specializationLabel": "Specialization",
+    "@specializationLabel": {
+        "description": "Label for the specialization text field (for doctors)"
+    },
+    "emailLabel": "Email",
+    "@emailLabel": {
+        "description": "Label for the email text field"
+    },
+    "passwordLabel": "Password",
+    "@passwordLabel": {
+        "description": "Label for the password text field"
+    },
+    "roleAthlete": "Athlete",
+    "roleCoach": "Coach",
+    "roleDoctor": "Doctor",
+    "userRoleNotFound": "User role not found",
+    "notLoggedInMessage": "Not logged in",
+    "@notLoggedInMessage": {
+        "description": "Message shown when user is not logged in"
+    },
+    "signOutDialogTitle": "Sign Out",
+    "@signOutDialogTitle": {
+        "description": "Title for the sign out confirmation dialog"
+    },
+    "signOutConfirmationMessage": "Are you sure you want to Sign Out?",
+    "@signOutConfirmationMessage": {
+        "description": "Content message for the sign out confirmation dialog"
+    },
+    "signOutButton": "Sign Out",
+    "@signOutButton": {
+        "description": "Text for the sign out button"
+    },
+    "signOutSuccessToast": "Signed Out successfully",
+    "@signOutSuccessToast": {
+        "description": "Toast message shown on successful sign out"
+    },
+    "signOutFailedToast": "Failed to Sign out: {error}",
+    "@signOutFailedToast": {
+        "description": "Toast message shown when sign out fails",
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "sportFootball": "Football",
+    "sportBasketball": "Basketball",
+    "sportCricket": "Cricket",
+    "sportTennis": "Tennis",
+    "sportAthletics": "Athletics",
+    "sportSwimming": "Swimming",
+    "emailRequired": "Email is required",
+    "@emailRequired": {
+        "description": "Validation error: email is empty"
+    },
+    "emailInvalidFormat": "Use a valid email (e.g., @gmail.com, @yahoo.com, @outlook.com)",
+    "@emailInvalidFormat": {
+        "description": "Validation error: email format is invalid"
+    },
+    "passwordRequired": "Password is required",
+    "@passwordRequired": {
+        "description": "Validation error: password is empty"
+    },
+    "passwordMinLength": "Password must be at least {length} characters long",
+    "@passwordMinLength": {
+        "description": "Validation error: password too short",
+        "placeholders": {
+            "length": {
+                "type": "int"
+            }
+        }
+    },
+    "passwordUppercase": "Password must contain at least one uppercase letter",
+    "@passwordUppercase": {
+        "description": "Validation error: missing uppercase"
+    },
+    "passwordLowercase": "Password must contain at least one lowercase letter",
+    "@passwordLowercase": {
+        "description": "Validation error: missing lowercase"
+    },
+    "passwordNumber": "Password must contain at least one number",
+    "@passwordNumber": {
+        "description": "Validation error: missing number"
+    },
+    "fullNameRequired": "Full name is required",
+    "@fullNameRequired": {
+        "description": "Validation error: full name is empty"
+    },
+    "fullNameMinLength": "Name must be at least {length} characters long",
+    "@fullNameMinLength": {
+        "description": "Validation error: name too short",
+        "placeholders": {
+            "length": {
+                "type": "int"
+            }
+        }
+    },
+    "fullNameInvalidChars": "Name can only contain letters and spaces",
+    "@fullNameInvalidChars": {
+        "description": "Validation error: name contains invalid characters"
+    },
+    "dobRequired": "Date of birth is required",
+    "@dobRequired": {
+        "description": "Validation error: date of birth is empty"
+    },
+    "dobMinAge": "You must be at least {age} years old",
+    "@dobMinAge": {
+        "description": "Validation error: user is too young",
+        "placeholders": {
+            "age": {
+                "type": "int"
+            }
+        }
+    },
+    "sportRequired": "{field} is required",
+    "@sportRequired": {
+        "description": "Validation error: sport or specialization is empty",
+        "placeholders": {
+            "field": {
+                "type": "String"
+            }
+        }
+    },
+    "fixErrorsMessage": "Please fix the errors",
+    "@fixErrorsMessage": {
+        "description": "Generic message for validation errors"
+    },
+    "checklistMinLength": "At least {length} characters",
+    "@checklistMinLength": {
+        "description": "Password checklist item: min length",
+        "placeholders": {
+            "length": {
+                "type": "int"
+            }
+        }
+    },
+    "checklistUppercase": "Contains uppercase letter",
+    "@checklistUppercase": {
+        "description": "Password checklist item: uppercase"
+    },
+    "checklistLowercase": "Contains lowercase letter",
+    "@checklistLowercase": {
+        "description": "Password checklist item: lowercase"
+    },
+    "checklistNumber": "Contains a number",
+    "@checklistNumber": {
+        "description": "Password checklist item: number"
+    },
+    "fieldRequired": "Required",
+    "@fieldRequired": {
+        "description": "Generic validation message for a required field"
+    },
+    "fillAllFieldsMessage": "Please fill all the fields!",
+    "@fillAllFieldsMessage": {
+        "description": "Message shown when not all fields are filled in the tournament form"
+    },
+    "pleaseEnterActivityDate": "Please enter activity & date",
+    "@pleaseEnterActivityDate": {
+        "description": "Validation message for activity and date fields"
+    },
+    "pleaseEnterInjuryDate": "Please enter injury & date",
+    "@pleaseEnterInjuryDate": {
+        "description": "Validation message for injury and date fields"
+    },
+    "authErrorTitle": "Authentication Error",
+    "@authErrorTitle": {
+        "description": "Title for authentication error dialog"
+    },
+    "authErrorEmailPassIncorrect": "Email or password is incorrect. Please try again.",
+    "@authErrorEmailPassIncorrect": {
+        "description": "Firebase auth error: user-not-found, wrong-password"
+    },
+    "authErrorInvalidEmail": "The email address is not valid.",
+    "@authErrorInvalidEmail": {
+        "description": "Firebase auth error: invalid-email"
+    },
+    "authErrorUserDisabled": "This user account has been disabled.",
+    "@authErrorUserDisabled": {
+        "description": "Firebase auth error: user-disabled"
+    },
+    "authErrorEmailInUse": "This email is already registered. Try logging in.",
+    "@authErrorEmailInUse": {
+        "description": "Firebase auth error: email-already-in-use"
+    },
+    "authErrorWeakPassword": "Your password must be at least 8 characters and contain a number.",
+    "@authErrorWeakPassword": {
+        "description": "Firebase auth error: weak-password"
+    },
+    "authErrorOperationNotAllowed": "This operation is not allowed. Please contact support.",
+    "@authErrorOperationNotAllowed": {
+        "description": "Firebase auth error: operation-not-allowed"
+    },
+    "authErrorUnknown": "An unknown error occurred. Please try again.",
+    "@authErrorUnknown": {
+        "description": "Generic unknown Firebase auth error"
+    },
+    "logoutTooltip": "Logout",
+    "@logoutTooltip": {
+        "description": "Tooltip text for the logout button"
+    },
+    "quickActionsTitle": "Quick Actions",
+    "@quickActionsTitle": {
+        "description": "Title for the quick actions section on the dashboard"
+    },
+    "navBarHome": "Home",
+    "@navBarHome": {
+        "description": "Label for Home tab in bottom navigation bar"
+    },
+    "navBarPlayers": "Players",
+    "@navBarPlayers": {
+        "description": "Label for Players tab in bottom navigation bar"
+    },
+    "navBarTournaments": "Tournaments",
+    "@navBarTournaments": {
+        "description": "Label for Tournaments tab in bottom navigation bar"
+    },
+    "navBarProfile": "Profile",
+    "@navBarProfile": {
+        "description": "Label for Profile tab in bottom navigation bar"
+    },
+    "navBarCalendar": "Calendar",
+    "@navBarCalendar": {
+        "description": "Label for Calendar tab in bottom navigation bar"
+    },
+    "doctorDashboardTitle": "Doctor Dashboard",
+    "@doctorDashboardTitle": {
+        "description": "App bar title for the Doctor Dashboard screen"
+    },
+    "welcomeDoctorMessage": "Welcome, Doctor!",
+    "@welcomeDoctorMessage": {
+        "description": "Welcome message for the Doctor Dashboard"
+    },
+    "coachDashboardTitle": "Coach Dashboard",
+    "@coachDashboardTitle": {
+        "description": "App bar title for the Coach Dashboard screen"
+    },
+    "welcomeCoachMessage": "Welcome, Coach!",
+    "@welcomeCoachMessage": {
+        "description": "Welcome message for the Coach Dashboard"
+    },
+    "athleteDashboardTitle": "Dashboard",
+    "@athleteDashboardTitle": {
+        "description": "App bar title for the Athlete Dashboard"
+    },
+    "injuryTrackerLabel": "Injury Tracker",
+    "@injuryTrackerLabel": {
+        "description": "Label for the Injury Tracker quick action card"
+    },
+    "performanceLogsLabel": "Performance Logs",
+    "@performanceLogsLabel": {
+        "description": "Label for the Performance Logs quick action card"
+    },
+    "financialTrackerLabel": "Financial Tracker",
+    "@financialTrackerLabel": {
+        "description": "Label for the Financial Tracker quick action card"
+    },
+    "homeLabel": "Home",
+    "@homeLabel": {
+        "description": "Label for the Home navigation item"
+    },
+    "playersLabel": "Players",
+    "@playersLabel": {
+        "description": "Label for the Players navigation item (Organization role)"
+    },
+    "tournamentsLabel": "Tournaments",
+    "@tournamentsLabel": {
+        "description": "Label for the Tournaments navigation item"
+    },
+    "profileLabel": "Profile",
+    "@profileLabel": {
+        "description": "Label for the Profile navigation item"
+    },
+    "timeTableLabel": "Time Table",
+    "@timeTableLabel": {
+        "description": "Label for the Time Table navigation item (Player role)"
+    },
+    "addTournamentTitle": "Add Tournament",
+    "@addTournamentTitle": {
+        "description": "App bar title for Add Tournament screen"
+    },
+    "tournamentNameLabel": "Tournament Name",
+    "@tournamentNameLabel": {
+        "description": "Label for tournament name text field"
+    },
+    "levelLabel": "Level",
+    "@levelLabel": {
+        "description": "Label for tournament level dropdown"
+    },
+    "levelDistrict": "District",
+    "levelState": "State",
+    "levelNational": "National",
+    "levelInternational": "International",
+    "pickDateButton": "Pick Date",
+    "@pickDateButton": {
+        "description": "Text for pick date button"
+    },
+    "pickTimeButton": "Pick Time",
+    "@pickTimeButton": {
+        "description": "Text for pick time button"
+    },
+    "pickLocationButton": "Pick Location",
+    "@pickLocationButton": {
+        "description": "Text for pick location button"
+    },
+    "locationPicked": "Location picked",
+    "@locationPicked": {
+        "description": "Text shown when a location has been picked"
+    },
+    "saveTournamentButton": "Save Tournament",
+    "@saveTournamentButton": {
+        "description": "Text for save tournament button"
+    },
+    "locationPermissionDenied": "Location permission denied.",
+    "@locationPermissionDenied": {
+        "description": "Error message when location permission is denied"
+    },
+    "locationPermissionDeniedForever": "Location permissions are permanently denied, please enable them in settings.",
+    "@locationPermissionDeniedForever": {
+        "description": "Error message when location permission is permanently denied"
+    },
+    "tournamentAddSuccessTitle": "Success",
+    "@tournamentAddSuccessTitle": {
+        "description": "Title for tournament added successfully dialog"
+    },
+    "tournamentAddSuccessContent": "Tournament added successfully!",
+    "@tournamentAddSuccessContent": {
+        "description": "Content for tournament added successfully dialog"
+    },
+    "pickLocationMapTitle": "Pick Location",
+    "@pickLocationMapTitle": {
+        "description": "App bar title for the Map Screen"
+    },
+    "managePlayersTitle": "Manage Players",
+    "@managePlayersTitle": {
+        "description": "App bar title for the Manage Players screen"
+    },
+    "managePlayersScreenContent": "Manage Players Screen",
+    "@managePlayersScreenContent": {
+        "description": "Content text for the Manage Players screen"
+    },
+    "organizationDashboardTitle": "Organization Dashboard",
+    "@organizationDashboardTitle": {
+        "description": "App bar title for the Organization Dashboard"
+    },
+    "tournamentsTitle": "Tournaments",
+    "@tournamentsTitle": {
+        "description": "App bar title for the Tournaments screen"
+    },
+    "locationServicesDisabled": "Location services are disabled.",
+    "@locationServicesDisabled": {
+        "description": "Error message when location services are disabled."
+    },
+    "errorFetchingTournaments": "Error: {error}",
+    "@errorFetchingTournaments": {
+        "description": "Generic error message when fetching tournaments fails",
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "noTournamentsFound": "No tournaments found.",
+    "@noTournamentsFound": {
+        "description": "Message displayed when no tournaments match the criteria."
+    },
+    "dateLabel": "Date",
+    "@dateLabel": {
+        "description": "Label for tournament date in details dialog"
+    },
+    "timeLabel": "Time",
+    "@timeLabel": {
+        "description": "Label for tournament time in details dialog"
+    },
+    "addressLabel": "Address",
+    "@addressLabel": {
+        "description": "Label for tournament address in details dialog"
+    },
+    "calendarTitle": "Calendar",
+    "@calendarTitle": {
+        "description": "App bar title for the Calendar screen"
+    },
+    "addActivityTitle": "Add Activity",
+    "@addActivityTitle": {
+        "description": "Title for the 'Add Activity' dialog"
+    },
+    "workActivityLabel": "Work/Activity",
+    "@workActivityLabel": {
+        "description": "Label for the work/activity text field"
+    },
+    "selectStartTimeButton": "Select Start Time",
+    "@selectStartTimeButton": {
+        "description": "Text for the 'Select Start Time' button"
+    },
+    "startTimePrefix": "Start",
+    "@startTimePrefix": {
+        "description": "Prefix for displaying selected start time"
+    },
+    "selectEndTimeButton": "Select End Time",
+    "@selectEndTimeButton": {
+        "description": "Text for the 'Select End Time' button"
+    },
+    "endTimePrefix": "End",
+    "@endTimePrefix": {
+        "description": "Prefix for displaying selected end time"
+    },
+    "noActivitiesToday": "No upcoming activities for this day.",
+    "@noActivitiesToday": {
+        "description": "Message shown when no activities are scheduled for the selected day"
+    },
+    "addActivityFabTooltip": "Add New Activity",
+    "@addActivityFabTooltip": {
+        "description": "Tooltip for the floating action button to add an activity"
+    },
+    "performanceLogsTitle": "Performance Logs",
+    "@performanceLogsTitle": {
+        "description": "App bar title for the Performance Logs screen"
+    },
+    "addLogFabLabel": "Add Log",
+    "@addLogFabLabel": {
+        "description": "Label for the Floating Action Button to add a log"
+    },
+    "addLogFabTooltip": "Add new performance log",
+    "@addLogFabTooltip": {
+        "description": "Tooltip for the Floating Action Button to add a log"
+    },
+    "addPerformanceLogTitle": "Add Performance Log",
+    "@addPerformanceLogTitle": {
+        "description": "Title for the 'Add Performance Log' bottom sheet"
+    },
+    "activityLabel": "Activity *",
+    "@activityLabel": {
+        "description": "Label for the activity text field"
+    },
+    "activityHint": "What did you do?",
+    "@activityHint": {
+        "description": "Hint text for the activity text field"
+    },
+    "deleteLogTitle": "Delete Log",
+    "@deleteLogTitle": {
+        "description": "Title for the delete confirmation dialog"
+    },
+    "deleteLogConfirmation": "Are you sure you want to delete this performance log entry?",
+    "@deleteLogConfirmation": {
+        "description": "Content message for the delete confirmation dialog"
+    },
+    "noPerformanceLogsYet": "No performance logs yet.",
+    "@noPerformanceLogsYet": {
+        "description": "Message shown when there are no performance logs"
+    },
+    "logCardDatePrefix": "Date",
+    "@logCardDatePrefix": {
+        "description": "Prefix for date in performance log card"
+    },
+    "logCardNotesPrefix": "Notes",
+    "@logCardNotesPrefix": {
+        "description": "Prefix for notes in performance log card"
+    },
+    "deleteEntryTooltip": "Delete entry",
+    "@deleteEntryTooltip": {
+        "description": "Tooltip for the delete icon button on a log entry"
+    },
+    "injuryTrackerTitle": "Injury Tracker",
+    "@injuryTrackerTitle": {
+        "description": "App bar title for the Injury Tracker screen"
+    },
+    "addInjuryFabLabel": "Add Injury",
+    "@addInjuryFabLabel": {
+        "description": "Label for the Floating Action Button to add an injury"
+    },
+    "addInjurySheetTitle": "Add Injury",
+    "@addInjurySheetTitle": {
+        "description": "Title for the 'Add Injury' bottom sheet"
+    },
+    "injuryDescriptionLabel": "Injury Description *",
+    "@injuryDescriptionLabel": {
+        "description": "Label for the injury description text field"
+    },
+    "injuryDescriptionHint": "Describe your injury",
+    "@injuryDescriptionHint": {
+        "description": "Hint text for the injury description text field"
+    },
+    "injuryDateLabel": "Injury Date *",
+    "@injuryDateLabel": {
+        "description": "Label for the injury date text field"
+    },
+    "deleteInjuryTitle": "Delete Injury",
+    "@deleteInjuryTitle": {
+        "description": "Title for the delete injury confirmation dialog"
+    },
+    "deleteInjuryConfirmation": "Are you sure you want to delete this injury entry?",
+    "@deleteInjuryConfirmation": {
+        "description": "Content message for the delete injury confirmation dialog"
+    },
+    "noInjuriesLoggedYet": "No injuries logged yet.",
+    "@noInjuriesLoggedYet": {
+        "description": "Message shown when there are no injury logs"
+    },
+    "deleteInjuryTooltip": "Delete Injury",
+    "@deleteInjuryTooltip": {
+        "description": "Tooltip for the delete icon button on an injury entry"
+    },
+    "injuryCardDatePrefix": "Date",
+    "injuryCardNotesPrefix": "Notes",
+    "financialTrackerTitle": "Financial Tracker",
+    "@financialTrackerTitle": {
+        "description": "App bar title for the Financial Tracker screen"
+    },
+    "viewGraphTooltip": "View Graph",
+    "@viewGraphTooltip": {
+        "description": "Tooltip for the Floating Action Button to view the financial graph"
+    },
+    "closeFormTooltip": "Close Form",
+    "@closeFormTooltip": {
+        "description": "Tooltip for the Floating Action Button to close the entry form"
+    },
+    "addEntryTooltip": "Add New Entry",
+    "@addEntryTooltip": {
+        "description": "Tooltip for the Floating Action Button to open the entry form or add a new entry"
+    },
+    "incomeType": "Income",
+    "@incomeType": {
+        "description": "Label for income type dropdown option"
+    },
+    "expenseType": "Expense",
+    "@expenseType": {
+        "description": "Label for expense type dropdown option"
+    },
+    "categoryLabel": "Category",
+    "@categoryLabel": {
+        "description": "Label for financial entry category dropdown"
+    },
+    "amountLabel": "Amount",
+    "@amountLabel": {
+        "description": "Label for financial entry amount text field"
+    },
+    "updateEntryButton": "Update Entry",
+    "@updateEntryButton": {
+        "description": "Text for the button to update a financial entry"
+    },
+    "addEntryButton": "Add Entry",
+    "@addEntryButton": {
+        "description": "Text for the button to add a new financial entry"
+    },
+    "selectDateRangeTooltip": "Select Date Range",
+    "@selectDateRangeTooltip": {
+        "description": "Tooltip for the date range filter icon"
+    },
+    "filterCategoryHint": "Filter by category...",
+    "@filterCategoryHint": {
+        "description": "Hint text for the category filter text field"
+    },
+    "clearFiltersTooltip": "Clear Filters",
+    "@clearFiltersTooltip": {
+        "description": "Tooltip for the clear filters button"
+    },
+    "viewTypeMonthly": "Monthly",
+    "@viewTypeMonthly": {
+        "description": "Label for monthly view type chip"
+    },
+    "viewTypeWeekly": "Weekly",
+    "@viewTypeWeekly": {
+        "description": "Label for weekly view type chip"
+    },
+    "viewTypeDaily": "Daily",
+    "@viewTypeDaily": {
+        "description": "Label for daily view type chip"
+    },
+    "viewTypeYearly": "Yearly",
+    "@viewTypeYearly": {
+        "description": "Label for yearly view type chip in financial chart"
+    },
+    "incomeSummary": "Income",
+    "@incomeSummary": {
+        "description": "Label for total income in summary section"
+    },
+    "expenseSummary": "Expense",
+    "@expenseSummary": {
+        "description": "Label for total expense in summary section"
+    },
+    "balanceSummary": "Balance",
+    "@balanceSummary": {
+        "description": "Label for total balance in summary section"
+    },
+    "transactionsHeading": "Transactions",
+    "@transactionsHeading": {
+        "description": "Heading for the list of financial transactions"
+    },
+    "deleteTransactionDialogTitle": "Confirm Deletion",
+    "@deleteTransactionDialogTitle": {
+        "description": "Title for the delete transaction confirmation dialog"
+    },
+    "deleteTransactionConfirmation": "Are you sure you want to delete this financial entry?",
+    "@deleteTransactionConfirmation": {
+        "description": "Content message for the delete transaction confirmation dialog"
+    },
+    "loadingData": "Loading data...",
+    "@loadingData": {
+        "description": "Message shown while data is loading"
+    },
+    "noDataAvailable": "No data available.",
+    "@noDataAvailable": {
+        "description": "Message shown when no financial data is found"
+    },
+    "categorySalary": "Salary",
+    "categoryBonus": "Bonus",
+    "categoryFreelance": "Freelance",
+    "categoryInvestmentsIncome": "Investments",
+    "categoryGifts": "Gifts",
+    "categoryRentIncome": "Rent Income",
+    "categoryOtherIncome": "Other Income",
+    "categoryFood": "Food",
+    "categoryTransportation": "Transportation",
+    "categoryHousing": "Housing",
+    "categoryUtilities": "Utilities",
+    "categoryEntertainment": "Entertainment",
+    "categoryShopping": "Shopping",
+    "categoryHealth": "Health",
+    "categoryEducation": "Education",
+    "categoryTravel": "Travel",
+    "categoryGroceries": "Groceries",
+    "categoryDiningOut": "Dining Out",
+    "categoryLoans": "Loans",
+    "categoryInsurance": "Insurance",
+    "categorySavings": "Savings",
+    "categoryInvestmentsExpense": "Investments",
+    "categoryOtherExpenses": "Other Expenses",
+    "incomeExpensesChartTitle": "Income & Expenses",
+    "@incomeExpensesChartTitle": {
+        "description": "Title for the income and expenses bar chart"
+    },
+    "currencySymbol": "₹",
+    "@currencySymbol": {
+        "description": "The currency symbol used in financial displays"
+    },
+    "dayMon": "Mon",
+    "dayTue": "Tue",
+    "dayWed": "Wed",
+    "dayThu": "Thu",
+    "dayFri": "Fri",
+    "daySat": "Sat",
+    "daySun": "Sun",
+    "monthJan": "Jan",
+    "monthFeb": "Feb",
+    "monthMar": "Mar",
+    "monthApr": "Apr",
+    "monthMay": "May",
+    "monthJun": "Jun",
+    "monthJul": "Jul",
+    "monthAug": "Aug",
+    "monthSep": "Sep",
+    "monthOct": "Oct",
+    "monthNov": "Nov",
+    "monthDec": "Dec",
+    "weekPrefix": "W",
+    "@weekPrefix": {
+        "description": "Prefix for week numbers, e.g., W1, W2"
+    },
+    "loadingDashboard": "Loading your dashboard...",
+    "refreshPrompt": "Please try refreshing the page",
+    "refreshButton": "Refresh",
+    "greetingMorning": "Good Morning",
+    "greetingAfternoon": "Good Afternoon",
+    "greetingEvening": "Good Evening",
+    "notSetLabel": "Not set",
+    "monitorHealthSubtitle": "Monitor your health",
+    "performanceLabel": "Performance",
+    "trackProgressSubtitle": "Track your progress",
+    "financesLabel": "Finances",
+    "manageExpensesSubtitle": "Manage expenses",
+    "thisWeekTitle": "This Week",
+    "trainingSessionsTitle": "Training Sessions",
+    "hoursTrainedTitle": "Hours Trained",
+    "errorPrefix": "Error",
+    "tournamentLevelLabel": "Level",
+    "newUserPrompt": "New user?",
+    "alreadyHaveAccountPrompt": "Already have an account?",
+    "viewTournamentsLabel": "View Tournaments",
+    "dismissButton": "Dismiss",
+    "emailVerificationRequiredTitle": "Email Verification Required",
+    "emailVerificationInstructionMessage": "We've sent a verification email to\n{email}",
+    "@emailVerificationInstructionMessage": {
+        "placeholders": {
+            "email": {}
+        }
+    },
+    "checkInboxSpamMessage": "Please check your inbox and spam folder, then click the verification link. Once verified, click \"I've Verified\" to continue.",
+    "sendingButton": "Sending...",
+    "resendEmailButton": "Resend Email",
+    "checkingButton": "Checking...",
+    "iveVerifiedButton": "I've Verified",
+    "goBackButton": "Go Back",
+    "welcomeGreeting": "Welcome Back,",
+    "doctorName": "Dr. {name}",
+    "@doctorName": {
+        "placeholders": {
+            "name": {}
+        }
+    },
+    "profileInfoTitle": "Profile Information",
+    "yourProfessionalDetails": "Your professional details",
+    "notSpecified": "Not specified",
+    "accessToolsSubtitle": "Access your tools and manage your practice",
+    "qualificationsAndLicense": "Qualifications & License",
+    "announcements": "Announcements",
+    "informationCenter": "Information Center",
+    "filterActivityHint": "Filter activity",
+    "logsFilteredBy": "Showing logs for {dateFilter} | Filtered by: {activityFilter}",
+    "@logsFilteredBy": {
+        "placeholders": {
+            "dateFilter": {},
+            "activityFilter": {}
+        }
+    },
+    "allDatesLabel": "all dates",
+    "allActivitiesLabel": "all activities"
+}

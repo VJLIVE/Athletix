@@ -2,22 +2,27 @@ import 'package:athletix/views/screens/auth_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:athletix/l10n/app_localizations.dart';
 
-Future<void> signoutConfirmation(BuildContext context) async {
+Future<void> signoutConfirmation(
+  BuildContext context, {
+  required Function(Locale) setLocale,
+}) async {
   return showDialog<void>(
     context: context,
     barrierDismissible: false,
     builder: (BuildContext context) {
+      final localizations = AppLocalizations.of(context)!;
       return AlertDialog(
-        title: const Text("Sign Out"),
-        content: const Text("Are you sure you want to Sign Out?"),
+        title: Text(localizations.signOutDialogTitle),
+        content: Text(localizations.signOutConfirmationMessage),
         actions: [
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text("Cancel"),
+                child: Text(localizations.cancelButton),
               ),
               TextButton(
                 onPressed: () async {
@@ -26,28 +31,32 @@ Future<void> signoutConfirmation(BuildContext context) async {
 
                     if (context.mounted) {
                       Fluttertoast.showToast(
-                        msg: "Signed Out successfully",
+                        msg: localizations.signOutSuccessToast,
                         backgroundColor: Colors.green,
                       );
+                      // Pass the setLocale function to the AuthScreen
                       Navigator.pushReplacement(
                         context,
-                        MaterialPageRoute(builder: (_) => const AuthScreen()),
+                        MaterialPageRoute(
+                          builder: (_) => AuthScreen(setLocale: setLocale),
+                        ),
                       );
                     }
                   } catch (e) {
                     if (context.mounted) {
                       Navigator.pop(context);
                       Fluttertoast.showToast(
-                        msg: 'Failed to Sign out: ${e.toString()}',
+                        msg:
+                            '${localizations.signOutFailedToast}: ${e.toString()}',
                         backgroundColor: Colors.red,
                       );
                       debugPrint("Sign out error: $e");
                     }
                   }
                 },
-                child: const Text(
-                  "Sign Out",
-                  style: TextStyle(color: Colors.red),
+                child: Text(
+                  localizations.signOutButton,
+                  style: const TextStyle(color: Colors.red),
                 ),
               ),
             ],

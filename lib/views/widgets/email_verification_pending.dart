@@ -3,12 +3,15 @@ import 'package:provider/provider.dart';
 import '../../models/auth_state.dart';
 import '../../viewmodels/auth_viewmodel.dart';
 import 'responsive_helper.dart';
+import 'package:athletix/l10n/app_localizations.dart';
 
 class EmailVerificationPending extends StatelessWidget {
   const EmailVerificationPending({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
+
     return Consumer<AuthViewModel>(
       builder: (context, viewModel, child) {
         final screenWidth = MediaQuery.of(context).size.width;
@@ -55,7 +58,7 @@ class EmailVerificationPending extends StatelessWidget {
               ),
               SizedBox(height: screenHeight * 0.015),
               Text(
-                'Email Verification Required',
+                localizations.emailVerificationRequiredTitle,
                 style: TextStyle(
                   fontSize:
                       ResponsiveHelper.isSmallScreen(context)
@@ -70,7 +73,10 @@ class EmailVerificationPending extends StatelessWidget {
               ),
               SizedBox(height: screenHeight * 0.01),
               Text(
-                'We\'ve sent a verification email to\n${viewModel.authState.pendingVerificationEmail ?? viewModel.emailController.text.trim()}',
+                localizations.emailVerificationInstructionMessage(
+                  viewModel.authState.pendingVerificationEmail ??
+                      viewModel.emailController.text.trim(),
+                ),
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize:
@@ -83,7 +89,7 @@ class EmailVerificationPending extends StatelessWidget {
               ),
               SizedBox(height: screenHeight * 0.015),
               Text(
-                'Please check your inbox and spam folder, then click the verification link. Once verified, click "I\'ve Verified" to continue.',
+                localizations.checkInboxSpamMessage,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize:
@@ -121,8 +127,8 @@ class EmailVerificationPending extends StatelessWidget {
                                 : const Icon(Icons.refresh),
                         label: Text(
                           viewModel.authState.isResendingEmail
-                              ? 'Sending...'
-                              : 'Resend Email',
+                              ? localizations.sendingButton
+                              : localizations.resendEmailButton,
                           style: const TextStyle(fontSize: 12),
                         ),
                       ),
@@ -147,8 +153,8 @@ class EmailVerificationPending extends StatelessWidget {
                                 : const Icon(Icons.check),
                         label: Text(
                           viewModel.authState.status == AuthStatus.loading
-                              ? 'Checking...'
-                              : 'I\'ve Verified',
+                              ? localizations.checkingButton
+                              : localizations.iveVerifiedButton,
                           style: const TextStyle(fontSize: 12),
                         ),
                       ),
@@ -157,9 +163,9 @@ class EmailVerificationPending extends StatelessWidget {
                     TextButton.icon(
                       onPressed: viewModel.goBackFromVerification,
                       icon: const Icon(Icons.arrow_back),
-                      label: const Text(
-                        'Go Back',
-                        style: TextStyle(fontSize: 12),
+                      label: Text(
+                        localizations.goBackButton,
+                        style: const TextStyle(fontSize: 12),
                       ),
                     ),
                   ],
@@ -186,8 +192,8 @@ class EmailVerificationPending extends StatelessWidget {
                                 : const Icon(Icons.refresh),
                         label: Text(
                           viewModel.authState.isResendingEmail
-                              ? 'Sending...'
-                              : 'Resend Email',
+                              ? localizations.sendingButton
+                              : localizations.resendEmailButton,
                           style: TextStyle(
                             fontSize:
                                 ResponsiveHelper.isMediumScreen(context)
@@ -216,8 +222,8 @@ class EmailVerificationPending extends StatelessWidget {
                                 : const Icon(Icons.check),
                         label: Text(
                           viewModel.authState.status == AuthStatus.loading
-                              ? 'Checking...'
-                              : 'I\'ve Verified',
+                              ? localizations.checkingButton
+                              : localizations.iveVerifiedButton,
                           style: TextStyle(
                             fontSize:
                                 ResponsiveHelper.isMediumScreen(context)
@@ -234,7 +240,7 @@ class EmailVerificationPending extends StatelessWidget {
                   onPressed: viewModel.goBackFromVerification,
                   icon: const Icon(Icons.arrow_back),
                   label: Text(
-                    'Go Back',
+                    localizations.goBackButton,
                     style: TextStyle(
                       fontSize:
                           ResponsiveHelper.isMediumScreen(context) ? 12 : 14,

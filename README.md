@@ -190,6 +190,8 @@ This will execute all unit and widget tests in the `test/` directory.
 
 ## 🤝 How to Contribute
 
+### Submitting Your Contribution
+
 We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on how to get started, report issues, or submit pull requests.
 
 ---

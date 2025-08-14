@@ -5,12 +5,15 @@ import '../../viewmodels/auth_viewmodel.dart';
 import 'custom_input_field.dart';
 import 'password_checklist.dart';
 import 'responsive_helper.dart';
+import 'package:athletix/l10n/app_localizations.dart';
 
 class AuthForm extends StatelessWidget {
   const AuthForm({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
+
     return Consumer<AuthViewModel>(
       builder: (context, viewModel, child) {
         final screenHeight = MediaQuery.of(context).size.height;
@@ -23,7 +26,9 @@ class AuthForm extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Text(
-                  viewModel.isLogin ? 'Welcome Back,' : 'Create Account,',
+                  viewModel.isLogin
+                      ? localizations.welcomeBackTitle
+                      : localizations.createAccountTitle,
                   style: TextStyle(
                     fontSize:
                         ResponsiveHelper.isSmallScreen(context)
@@ -43,8 +48,8 @@ class AuthForm extends StatelessWidget {
               children: [
                 Text(
                   viewModel.isLogin
-                      ? 'Sign in to continue'
-                      : 'Sign up to get started',
+                      ? localizations.loginSubtitle
+                      : localizations.signupSubtitle,
                   style: TextStyle(
                     fontSize:
                         ResponsiveHelper.isSmallScreen(context)
@@ -96,7 +101,7 @@ class AuthForm extends StatelessWidget {
                   if (!viewModel.isLogin) ...[
                     CustomInputField(
                       controller: viewModel.nameController,
-                      label: "Full Name",
+                      label: localizations.fullNameLabel,
                       fieldKey: 'name',
                       onTap: () => viewModel.onFieldTapped('name'),
                       onChanged:
@@ -121,7 +126,7 @@ class AuthForm extends StatelessWidget {
                       child: AbsorbPointer(
                         child: CustomInputField(
                           controller: viewModel.dobController,
-                          label: "Date of Birth",
+                          label: localizations.dateOfBirthLabel,
                           fieldKey: 'dob',
                           suffixIcon: Icons.calendar_today,
                           onTap: () => viewModel.onFieldTapped('dob'),
@@ -142,7 +147,7 @@ class AuthForm extends StatelessWidget {
                       child: DropdownButtonFormField<String>(
                         value: viewModel.selectedRole,
                         decoration: InputDecoration(
-                          labelText: "Role",
+                          labelText: localizations.roleLabel,
                           labelStyle: TextStyle(
                             fontSize:
                                 ResponsiveHelper.isSmallScreen(context)
@@ -175,7 +180,7 @@ class AuthForm extends StatelessWidget {
                     if (viewModel.selectedRole == 'Doctor')
                       CustomInputField(
                         controller: viewModel.sportController,
-                        label: "Specialization",
+                        label: localizations.specializationLabel,
                         fieldKey: 'sport',
                         onTap: () => viewModel.onFieldTapped('sport'),
                         onChanged:
@@ -195,7 +200,7 @@ class AuthForm extends StatelessWidget {
                                   ? viewModel.sportController.text
                                   : null,
                           decoration: InputDecoration(
-                            labelText: "Sport",
+                            labelText: localizations.sportLabel,
                             border: InputBorder.none,
                             contentPadding: EdgeInsets.symmetric(
                               horizontal: screenWidth * 0.04,
@@ -220,7 +225,7 @@ class AuthForm extends StatelessWidget {
                   // Email Field
                   CustomInputField(
                     controller: viewModel.emailController,
-                    label: "Email",
+                    label: localizations.emailLabel,
                     fieldKey: 'email',
                     onTap: () => viewModel.onFieldTapped('email'),
                     onChanged:
@@ -231,7 +236,7 @@ class AuthForm extends StatelessWidget {
                   // Password Field
                   CustomInputField(
                     controller: viewModel.passwordController,
-                    label: "Password",
+                    label: localizations.passwordLabel,
                     fieldKey: 'password',
                     suffixIcon: Icons.visibility_off,
                     onTap: () => viewModel.onFieldTapped('password'),
@@ -254,7 +259,7 @@ class AuthForm extends StatelessWidget {
                   SizedBox(height: screenHeight * 0.02),
 
                   // Auth Button
-                  Container(
+                  SizedBox(
                     width: double.infinity,
                     height:
                         ResponsiveHelper.isSmallScreen(context)
@@ -295,7 +300,9 @@ class AuthForm extends StatelessWidget {
                                 ),
                               )
                               : Text(
-                                viewModel.isLogin ? "Login" : "Signup",
+                                viewModel.isLogin
+                                    ? localizations.loginButton
+                                    : localizations.signupButton,
                                 style: TextStyle(
                                   fontSize:
                                       ResponsiveHelper.isSmallScreen(context)
@@ -326,8 +333,8 @@ class AuthForm extends StatelessWidget {
                     children: [
                       Text(
                         viewModel.isLogin
-                            ? 'New user? '
-                            : 'Already have an account? ',
+                            ? localizations.newUserPrompt
+                            : localizations.alreadyHaveAccountPrompt,
                         style: TextStyle(
                           color: Colors.grey[600],
                           fontSize:
@@ -341,7 +348,9 @@ class AuthForm extends StatelessWidget {
                       GestureDetector(
                         onTap: viewModel.toggleAuthMode,
                         child: Text(
-                          viewModel.isLogin ? 'Signup' : 'Login',
+                          viewModel.isLogin
+                              ? localizations.signupButton
+                              : localizations.loginButton,
                           style: TextStyle(
                             color: const Color(0xFFFF6B6B),
                             fontSize:

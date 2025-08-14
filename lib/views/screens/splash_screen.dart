@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
+import 'package:athletix/l10n/app_localizations.dart';
 import 'dart:async';
 import 'organization/organization_dashboard.dart';
 import 'auth_screen.dart';
@@ -11,106 +12,94 @@ import 'doctor/doctor_dashboard.dart';
 
 /// Splash screen that shows an animation and navigates based on user authentication state.
 class SplashScreen extends StatefulWidget {
+  // Add the setLocale function to the constructor
+  final Function(Locale) setLocale;
+
   /// Creates a [SplashScreen] widget.
-  const SplashScreen({super.key});
+  const SplashScreen({super.key, required this.setLocale});
 
   @override
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
 /// State for [SplashScreen] that manages animation and navigation logic.
-class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMixin {
+class _SplashScreenState extends State<SplashScreen>
+    with TickerProviderStateMixin {
   late final AnimationController _controller;
-  
-  bool _isAuthCheckComplete = false;
-  bool _isAnimationComplete = false;
-  Widget? _targetScreen;
 
   @override
   void initState() {
     super.initState();
     _controller = AnimationController(vsync: this);
 
-    _startOptimizedParallelOperations();
-
     _controller.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
-        _isAnimationComplete = true;
-        _tryNavigate();
+        _navigateToNextScreen();
       }
     });
   }
 
-  void _startOptimizedParallelOperations() async {
-    try {
-      final results = await Future.wait([
-        _runOptimizedAuthCheck(),
-        _simulateMinimumSplashTime(),
-      ]);
-      
-      setState(() {
-        _targetScreen = results[0] as Widget;
-        _isAuthCheckComplete = true;
-      });
-      _tryNavigate();
-    } catch (e) {
-      setState(() {
-        _targetScreen = const AuthScreen();
-        _isAuthCheckComplete = true;
-      });
-      _tryNavigate();
-    }
-  }
+  Future<void> _navigateToNextScreen() async {
+    // Ensure the animation has completed and we haven't already navigated.
+    if (_controller.isCompleted) {
+      try {
+        final user = FirebaseAuth.instance.currentUser;
+        Widget targetScreen;
 
-  Future<void> _simulateMinimumSplashTime() async {
-    await Future.delayed(const Duration(milliseconds: 1500));
-  }
+        if (user == null) {
+          targetScreen = AuthScreen(setLocale: widget.setLocale);
+        } else {
+          final doc =
+              await FirebaseFirestore.instance
+                  .collection('users')
+                  .doc(user.uid)
+                  .get();
+          final data = doc.data();
 
-  Future<Widget> _runOptimizedAuthCheck() async {
-    try {
-      final user = FirebaseAuth.instance.currentUser;
-      
-      if (user == null) {
-        return const AuthScreen();
-      }
-
-      final doc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(user.uid)
-          .get(const GetOptions(source: Source.cache));
-      
-      final data = doc.exists 
-          ? doc.data() 
-          : (await FirebaseFirestore.instance.collection('users').doc(user.uid).get()).data();
-      
-      if (data != null && data['role'] != null) {
-        final role = data['role'] as String;
-        switch (role) {
-          case 'Athlete':
-            return const DashboardScreen();
-          case 'Coach':
-            return const CoachDashboardScreen();
-          case 'Doctor':
-            return const DoctorDashboardScreen();
-          case 'Organization':
-            return const OrganizationDashboardScreen();
-          default:
-            return const AuthScreen();
+          if (data != null && data['role'] != null) {
+            final role = data['role'] as String;
+            switch (role) {
+              case 'Athlete':
+                targetScreen = DashboardScreen(setLocale: widget.setLocale);
+                break;
+              case 'Coach':
+                targetScreen = CoachDashboardScreen(
+                  setLocale: widget.setLocale,
+                );
+                break;
+              case 'Doctor':
+                targetScreen = DoctorDashboardScreen(
+                  setLocale: widget.setLocale,
+                );
+                break;
+              case 'Organization':
+                targetScreen = OrganizationDashboardScreen(
+                  setLocale: widget.setLocale,
+                );
+                break;
+              default:
+                targetScreen = AuthScreen(setLocale: widget.setLocale);
+            }
+          } else {
+            // No role found, redirect to auth screen.
+            targetScreen = AuthScreen(setLocale: widget.setLocale);
+          }
         }
-      } else {
-        return const AuthScreen();
-      }
-    } catch (e) {
-      return const AuthScreen();
-    }
-  }
 
-  void _tryNavigate() {
-    if (_isAnimationComplete && _isAuthCheckComplete && _targetScreen != null) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => _targetScreen!),
-      );
+        // Navigate after the animation is complete and the user's role is determined.
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => targetScreen),
+        );
+      } catch (e) {
+        // Handle any errors during auth or firestore fetch by redirecting to auth screen.
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => AuthScreen(setLocale: widget.setLocale),
+          ),
+        );
+      }
     }
   }
 
@@ -122,6 +111,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -143,9 +133,9 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                   fit: BoxFit.contain,
                 ),
                 const SizedBox(height: 24),
-                const Text(
-                  'Athletix',
-                  style: TextStyle(
+                Text(
+                  localizations.appName,
+                  style: const TextStyle(
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
                     color: Colors.black87,
@@ -153,13 +143,10 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                   ),
                 ),
                 const SizedBox(height: 12),
-                const Text(
-                  'Your Sports Journey Starts Here',
+                Text(
+                  localizations.appTagline,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.black54,
-                  ),
+                  style: const TextStyle(fontSize: 16, color: Colors.black54),
                 ),
               ],
             ),

@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../viewmodels/auth_viewmodel.dart';
 import 'responsive_helper.dart';
+import 'package:athletix/l10n/app_localizations.dart';
 
 class PasswordChecklist extends StatelessWidget {
   const PasswordChecklist({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     return Consumer<AuthViewModel>(
       builder: (context, viewModel, child) {
         final screenWidth = MediaQuery.of(context).size.width;
@@ -16,25 +18,25 @@ class PasswordChecklist extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildChecklistItem(
-              "At least 8 characters",
+              localizations.passwordMinLength(8),
               viewModel.formValidation.hasMinLength,
               screenWidth,
               context,
             ),
             _buildChecklistItem(
-              "Contains uppercase letter",
+              localizations.passwordUppercase,
               viewModel.formValidation.hasUppercase,
               screenWidth,
               context,
             ),
             _buildChecklistItem(
-              "Contains lowercase letter",
+              localizations.passwordLowercase,
               viewModel.formValidation.hasLowercase,
               screenWidth,
               context,
             ),
             _buildChecklistItem(
-              "Contains a number",
+              localizations.passwordNumber,
               viewModel.formValidation.hasNumber,
               screenWidth,
               context,

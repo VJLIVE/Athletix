@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:athletix/l10n/app_localizations.dart';
 
 // This screen displays the privacy policy and terms of service for the Athletix app with refined UI.
 class PrivacyTermsPage extends StatelessWidget {
@@ -6,15 +7,16 @@ class PrivacyTermsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     final screenWidth = MediaQuery.of(context).size.width;
     double horizontalPadding = screenWidth < 600 ? 20.0 : 32.0;
 
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
-        title: const Text(
-          'Privacy & Terms',
-          style: TextStyle(
+        title: Text(
+          localizations.privacyTermsTitle,
+          style: const TextStyle(
             color: Colors.black87,
             fontWeight: FontWeight.w600,
             fontSize: 20,
@@ -31,7 +33,7 @@ class PrivacyTermsPage extends StatelessWidget {
             height: 1,
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [Colors.blue.withValues(alpha: 0.3), Colors.transparent],
+                colors: [Colors.blue.withOpacity(0.3), Colors.transparent],
               ),
             ),
           ),
@@ -49,19 +51,19 @@ class PrivacyTermsPage extends StatelessWidget {
             child: Column(
               children: [
                 // Header Card with App Info
-                _buildHeaderCard(),
+                _buildHeaderCard(localizations),
                 const SizedBox(height: 24),
 
                 // Privacy Policy Section
-                _buildPrivacyPolicyCard(),
+                _buildPrivacyPolicyCard(localizations),
                 const SizedBox(height: 24),
 
                 // Terms & Conditions Section
-                _buildTermsConditionsCard(),
+                _buildTermsConditionsCard(localizations),
                 const SizedBox(height: 32),
 
                 // Footer
-                _buildFooterCard(),
+                _buildFooterCard(localizations),
                 const SizedBox(height: 24),
               ],
             ),
@@ -71,7 +73,7 @@ class PrivacyTermsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildHeaderCard() {
+  Widget _buildHeaderCard(AppLocalizations localizations) {
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.only(bottom: 0),
@@ -80,15 +82,12 @@ class PrivacyTermsPage extends StatelessWidget {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            Colors.blue.shade600,
-            Colors.blue.shade700,
-          ],
+          colors: [Colors.blue.shade600, Colors.blue.shade700],
         ),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.blue.withValues(alpha: 0.3),
+            color: Colors.blue.withOpacity(0.3),
             blurRadius: 12,
             offset: const Offset(0, 6),
           ),
@@ -99,19 +98,15 @@ class PrivacyTermsPage extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.2),
+              color: Colors.white.withOpacity(0.2),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Icon(
-              Icons.security,
-              size: 32,
-              color: Colors.white,
-            ),
+            child: const Icon(Icons.security, size: 32, color: Colors.white),
           ),
           const SizedBox(height: 16),
-          const Text(
-            'Athletix',
-            style: TextStyle(
+          Text(
+            localizations.appName,
+            style: const TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
               color: Colors.white,
@@ -119,11 +114,11 @@ class PrivacyTermsPage extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'Your privacy and security matter to us',
+            localizations.headerTagline,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 16,
-              color: Colors.white.withValues(alpha: 0.9),
+              color: Colors.white.withOpacity(0.9),
             ),
           ),
         ],
@@ -131,16 +126,16 @@ class PrivacyTermsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildPrivacyPolicyCard() {
+  Widget _buildPrivacyPolicyCard(AppLocalizations localizations) {
     return _buildSectionCard(
       icon: Icons.privacy_tip,
       iconColor: Colors.green,
-      title: 'Privacy Policy',
+      title: localizations.privacyPolicyTitle,
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'At Athletix, we respect your privacy. This policy applies to all users, including Athletes, Coaches, Doctors, and Organizations.',
+            localizations.privacyPolicyIntro,
             style: TextStyle(
               fontSize: 16,
               height: 1.6,
@@ -149,22 +144,22 @@ class PrivacyTermsPage extends StatelessWidget {
           ),
           const SizedBox(height: 20),
           _buildBulletPoint(
-            'We collect personal and professional information to enhance your experience.',
+            localizations.privacyBullet1,
             Icons.info_outline,
             Colors.blue,
           ),
           _buildBulletPoint(
-            'Your data is shared only with authorized individuals in your role\'s ecosystem.',
+            localizations.privacyBullet2,
             Icons.group,
             Colors.orange,
           ),
           _buildBulletPoint(
-            'We do not sell your data to third parties.',
+            localizations.privacyBullet3,
             Icons.block,
             Colors.red,
           ),
           _buildBulletPoint(
-            'You may request deletion of your data at any time.',
+            localizations.privacyBullet4,
             Icons.delete_outline,
             Colors.purple,
           ),
@@ -173,16 +168,16 @@ class PrivacyTermsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildTermsConditionsCard() {
+  Widget _buildTermsConditionsCard(AppLocalizations localizations) {
     return _buildSectionCard(
       icon: Icons.gavel,
       iconColor: Colors.orange,
-      title: 'Terms & Conditions',
+      title: localizations.termsConditionsTitle,
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'By using Athletix, you agree to:',
+            localizations.privacyPolicyIntro,
             style: TextStyle(
               fontSize: 16,
               height: 1.6,
@@ -191,30 +186,12 @@ class PrivacyTermsPage extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 20),
-          _buildNumberedPoint(
-            1,
-            'Provide accurate registration and profile information.',
-            Colors.blue,
-          ),
-          _buildNumberedPoint(
-            2,
-            'Use the platform respectfully and responsibly.',
-            Colors.green,
-          ),
-          _buildNumberedPoint(
-            3,
-            'Not misuse access to other users\' data or communication tools.',
-            Colors.orange,
-          ),
-          _buildNumberedPoint(
-            4,
-            'Accept that Athletix is not liable for any misuse of health or performance data.',
-            Colors.red,
-          ),
+          _buildNumberedPoint(1, localizations.termsNumbered1, Colors.blue),
+          _buildNumberedPoint(2, localizations.termsNumbered2, Colors.green),
+          _buildNumberedPoint(3, localizations.termsNumbered3, Colors.orange),
+          _buildNumberedPoint(4, localizations.termsNumbered4, Colors.red),
           const SizedBox(height: 20),
-          _buildInfoBox(
-            'Each role (Athlete, Coach, Doctor, Organization) must adhere to guidelines specific to their access and responsibilities.',
-          ),
+          _buildInfoBox(localizations.termsInfoBox),
         ],
       ),
     );
@@ -233,7 +210,7 @@ class PrivacyTermsPage extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.06),
+            color: Colors.black.withOpacity(0.06),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -247,7 +224,7 @@ class PrivacyTermsPage extends StatelessWidget {
             width: double.infinity,
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: iconColor.withValues(alpha: 0.1),
+              color: iconColor.withOpacity(0.1),
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(16),
                 topRight: Radius.circular(16),
@@ -258,14 +235,10 @@ class PrivacyTermsPage extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: iconColor.withValues(alpha: 0.2),
+                    color: iconColor.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Icon(
-                    icon,
-                    size: 24,
-                    color: iconColor,
-                  ),
+                  child: Icon(icon, size: 24, color: iconColor),
                 ),
                 const SizedBox(width: 16),
                 Text(
@@ -280,10 +253,7 @@ class PrivacyTermsPage extends StatelessWidget {
             ),
           ),
           // Section Content
-          Padding(
-            padding: const EdgeInsets.all(24),
-            child: content,
-          ),
+          Padding(padding: const EdgeInsets.all(24), child: content),
         ],
       ),
     );
@@ -299,14 +269,10 @@ class PrivacyTermsPage extends StatelessWidget {
             margin: const EdgeInsets.only(top: 2),
             padding: const EdgeInsets.all(4),
             decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.1),
+              color: color.withOpacity(0.1),
               borderRadius: BorderRadius.circular(6),
             ),
-            child: Icon(
-              icon,
-              size: 16,
-              color: color,
-            ),
+            child: Icon(icon, size: 16, color: color),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -369,23 +335,14 @@ class PrivacyTermsPage extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.amber.withValues(alpha: 0.1),
+        color: Colors.amber.withOpacity(0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border(
-          left: BorderSide(
-            color: Colors.amber,
-            width: 4,
-          ),
-        ),
+        border: Border(left: BorderSide(color: Colors.amber, width: 4)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(
-            Icons.info,
-            color: Colors.amber[700],
-            size: 20,
-          ),
+          Icon(Icons.info, color: Colors.amber[700], size: 20),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
@@ -403,7 +360,7 @@ class PrivacyTermsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildFooterCard() {
+  Widget _buildFooterCard(AppLocalizations localizations) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
@@ -415,7 +372,7 @@ class PrivacyTermsPage extends StatelessWidget {
       child: Column(
         children: [
           Text(
-            'Last Updated',
+            localizations.lastUpdatedLabel,
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
@@ -424,7 +381,7 @@ class PrivacyTermsPage extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            'January 2025',
+            localizations.lastUpdatedDate,
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w500,
@@ -435,18 +392,11 @@ class PrivacyTermsPage extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
-                Icons.email_outlined,
-                size: 16,
-                color: Colors.grey[600],
-              ),
+              Icon(Icons.email_outlined, size: 16, color: Colors.grey[600]),
               const SizedBox(width: 8),
               Text(
-                'Questions? Contact support@athletix.com',
-                style: TextStyle(
-                  fontSize: 10,
-                  color: Colors.grey[600],
-                ),
+                localizations.contactSupport("support@athletix.com"),
+                style: TextStyle(fontSize: 10, color: Colors.grey[600]),
               ),
             ],
           ),

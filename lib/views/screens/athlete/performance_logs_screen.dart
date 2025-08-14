@@ -1,9 +1,9 @@
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:athletix/l10n/app_localizations.dart';
 
 class PerformanceLogScreen extends StatefulWidget {
   const PerformanceLogScreen({super.key});
@@ -25,7 +25,7 @@ class _PerformanceLogScreenState extends State<PerformanceLogScreen>
   bool _isLoading = false;
   DateTime? _logdate;
   String? _filterLogType;
-  TextEditingController _FilterController = TextEditingController();
+  final TextEditingController _FilterController = TextEditingController();
 
   late AnimationController _animationController;
 
@@ -46,6 +46,7 @@ class _PerformanceLogScreenState extends State<PerformanceLogScreen>
     _notesController.dispose();
     _dateController.dispose();
     _animationController.dispose();
+    _FilterController.dispose(); // Also dispose this controller
     super.dispose();
   }
 
@@ -62,9 +63,10 @@ class _PerformanceLogScreenState extends State<PerformanceLogScreen>
   }
 
   Future<void> _addLog() async {
+    final localizations = AppLocalizations.of(context)!;
     if (!_isFormValid) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please enter activity & date")),
+        SnackBar(content: Text(localizations.pleaseEnterActivityDate)),
       );
       return;
     }
@@ -89,6 +91,7 @@ class _PerformanceLogScreenState extends State<PerformanceLogScreen>
   }
 
   Future<void> _deleteLog(String docId) async {
+    final localizations = AppLocalizations.of(context)!;
     final confirm = await showDialog<bool>(
       context: context,
       builder:
@@ -96,20 +99,18 @@ class _PerformanceLogScreenState extends State<PerformanceLogScreen>
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
             ),
-            title: const Text("Delete Log"),
-            content: const Text(
-              "Are you sure you want to delete this performance log entry?",
-            ),
+            title: Text(localizations.deleteLogTitle),
+            content: Text(localizations.deleteLogConfirmation),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context, false),
-                child: const Text("Cancel"),
+                child: Text(localizations.cancelButton),
               ),
               TextButton(
                 onPressed: () => Navigator.pop(context, true),
-                child: const Text(
-                  "Delete",
-                  style: TextStyle(color: Colors.red),
+                child: Text(
+                  localizations.deleteButton,
+                  style: const TextStyle(color: Colors.red),
                 ),
               ),
             ],
@@ -130,6 +131,7 @@ class _PerformanceLogScreenState extends State<PerformanceLogScreen>
       ),
       backgroundColor: Colors.white,
       builder: (context) {
+        final localizations = AppLocalizations.of(context)!;
         final bottomInset = MediaQuery.of(context).viewInsets.bottom;
 
         DateTime? modalLogDate = _logDate;
@@ -172,7 +174,7 @@ class _PerformanceLogScreenState extends State<PerformanceLogScreen>
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      "Add Performance Log",
+                      localizations.addPerformanceLogTitle,
                       style: Theme.of(
                         context,
                       ).textTheme.headlineSmall?.copyWith(
@@ -183,20 +185,20 @@ class _PerformanceLogScreenState extends State<PerformanceLogScreen>
                     const SizedBox(height: 20),
                     TextField(
                       controller: _activityController,
-                      decoration: const InputDecoration(
-                        labelText: "Activity *",
-                        hintText: "What did you do?",
-                        prefixIcon: Icon(Icons.fitness_center),
-                        border: OutlineInputBorder(),
+                      decoration: InputDecoration(
+                        labelText: localizations.activityLabel,
+                        hintText: localizations.activityHint,
+                        prefixIcon: const Icon(Icons.fitness_center),
+                        border: const OutlineInputBorder(),
                       ),
                     ),
                     const SizedBox(height: 14),
                     TextField(
                       controller: _dateController,
-                      decoration: const InputDecoration(
-                        labelText: "Date *",
-                        prefixIcon: Icon(Icons.calendar_today),
-                        border: OutlineInputBorder(),
+                      decoration: InputDecoration(
+                        labelText: localizations.dateLabel,
+                        prefixIcon: const Icon(Icons.calendar_today),
+                        border: const OutlineInputBorder(),
                       ),
                       readOnly: true,
                       onTap: pickDate,
@@ -205,11 +207,11 @@ class _PerformanceLogScreenState extends State<PerformanceLogScreen>
                     TextField(
                       controller: _notesController,
                       maxLines: 3,
-                      decoration: const InputDecoration(
-                        labelText: "Notes (optional)",
-                        hintText: "Any notes you want to add",
-                        prefixIcon: Icon(Icons.notes),
-                        border: OutlineInputBorder(),
+                      decoration: InputDecoration(
+                        labelText: localizations.notesOptionalLabel,
+                        hintText: localizations.notesHint,
+                        prefixIcon: const Icon(Icons.notes),
+                        border: const OutlineInputBorder(),
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -226,7 +228,7 @@ class _PerformanceLogScreenState extends State<PerformanceLogScreen>
                             elevation: 2,
                           ),
                           child: Text(
-                            "Submit",
+                            localizations.submitButton,
                             style: TextStyle(
                               color: _isFormValid ? Colors.black : Colors.grey,
                               fontWeight: FontWeight.bold,
@@ -262,6 +264,7 @@ class _PerformanceLogScreenState extends State<PerformanceLogScreen>
   Widget _buildFilters() {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final localizations = AppLocalizations.of(context)!;
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -278,7 +281,7 @@ class _PerformanceLogScreenState extends State<PerformanceLogScreen>
               borderRadius: BorderRadius.circular(18),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.06),
+                  color: Colors.black.withOpacity(0.06),
                   blurRadius: 14,
                   offset: const Offset(0, 4),
                 ),
@@ -295,7 +298,7 @@ class _PerformanceLogScreenState extends State<PerformanceLogScreen>
                               onPressed: () {
                                 pickDate();
                               },
-                              tooltip: 'Select Date Range',
+                              tooltip: localizations.selectDateRangeTooltip,
                               splashRadius: 20,
                             ),
                             const SizedBox(width: 8),
@@ -303,7 +306,7 @@ class _PerformanceLogScreenState extends State<PerformanceLogScreen>
                               child: TextField(
                                 controller: _FilterController,
                                 decoration: InputDecoration(
-                                  hintText: 'Filter activity',
+                                  hintText: localizations.filterActivityHint,
                                   prefixIcon: const Icon(
                                     Icons.filter_alt,
                                     size: 20,
@@ -349,7 +352,7 @@ class _PerformanceLogScreenState extends State<PerformanceLogScreen>
                                 color: Colors.redAccent,
                                 size: 22,
                               ),
-                              tooltip: 'Clear Filters',
+                              tooltip: localizations.clearFiltersTooltip,
                               splashRadius: 20,
                               onPressed: () {
                                 setState(() {
@@ -369,7 +372,7 @@ class _PerformanceLogScreenState extends State<PerformanceLogScreen>
                           onPressed: () {
                             pickDate();
                           },
-                          tooltip: 'Select Date Range',
+                          tooltip: localizations.selectDateRangeTooltip,
                           splashRadius: 20,
                         ),
                         const SizedBox(width: 12),
@@ -377,7 +380,7 @@ class _PerformanceLogScreenState extends State<PerformanceLogScreen>
                           child: TextField(
                             controller: _FilterController,
                             decoration: InputDecoration(
-                              hintText: 'Filter Category',
+                              hintText: localizations.filterCategoryHint,
                               prefixIcon: const Icon(
                                 Icons.filter_alt,
                                 size: 20,
@@ -410,7 +413,6 @@ class _PerformanceLogScreenState extends State<PerformanceLogScreen>
                                 }),
                           ),
                         ),
-
                         if (_logdate != null ||
                             (_filterLogType != null &&
                                 _filterLogType!.isNotEmpty))
@@ -422,7 +424,7 @@ class _PerformanceLogScreenState extends State<PerformanceLogScreen>
                                 color: Colors.redAccent,
                                 size: 22,
                               ),
-                              tooltip: 'Clear Filters',
+                              tooltip: localizations.clearFiltersTooltip,
                               splashRadius: 20,
                               onPressed: () {
                                 setState(() {
@@ -442,6 +444,7 @@ class _PerformanceLogScreenState extends State<PerformanceLogScreen>
   }
 
   Widget _buildLogCard(BuildContext context, QueryDocumentSnapshot doc) {
+    final localizations = AppLocalizations.of(context)!;
     final data = doc.data() as Map<String, dynamic>;
     final activity = data['activity'] ?? '';
     final notes = data['notes'] ?? '';
@@ -462,12 +465,14 @@ class _PerformanceLogScreenState extends State<PerformanceLogScreen>
         ),
         subtitle: Padding(
           padding: const EdgeInsets.only(top: 4),
-          child: Text("Date: $dateStr\nNotes: $notes"),
+          child: Text(
+            "${localizations.dateLabel}: $dateStr\n${localizations.notesOptionalLabel}: $notes",
+          ),
         ),
         trailing: IconButton(
           icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
           onPressed: () => _deleteLog(doc.id),
-          tooltip: "Delete entry",
+          tooltip: localizations.deleteEntryTooltip,
         ),
       ),
     );
@@ -475,10 +480,13 @@ class _PerformanceLogScreenState extends State<PerformanceLogScreen>
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     final uid = _auth.currentUser?.uid;
 
     if (uid == null) {
-      return const Scaffold(body: Center(child: Text("Not logged in")));
+      return Scaffold(
+        body: Center(child: Text(localizations.notLoggedInMessage)),
+      );
     }
     final basePadding = MediaQuery.of(context).size.width < 600 ? 16.0 : 32.0;
     return Scaffold(
@@ -486,9 +494,12 @@ class _PerformanceLogScreenState extends State<PerformanceLogScreen>
         backgroundColor: Colors.white,
         elevation: 3,
         centerTitle: true,
-        title: const Text(
-          "Performance Logs",
-          style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold),
+        title: Text(
+          localizations.performanceLogsTitle,
+          style: const TextStyle(
+            color: Colors.black87,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         iconTheme: const IconThemeData(color: Colors.black87),
       ),
@@ -498,16 +509,17 @@ class _PerformanceLogScreenState extends State<PerformanceLogScreen>
           children: [
             _buildFilters(),
 
-            // CustomeSearch(filterLogType: _filterLogType, logdate: _logdate),
             if (_logdate != null ||
                 (_filterLogType != null && _filterLogType!.isNotEmpty))
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 child: Text(
-                  "Showing logs for ${_logdate != null ? DateFormat('MMM d, yyyy').format(_logdate!) : 'all dates'}" +
-                      (_filterLogType != null && _filterLogType!.isNotEmpty
-                          ? " | Filtered by: ${_filterLogType!}"
-                          : ""),
+                  localizations.logsFilteredBy(
+                    _logdate != null
+                        ? DateFormat('MMM d, yyyy').format(_logdate!)
+                        : localizations.allDatesLabel,
+                    _filterLogType ?? localizations.allActivitiesLabel,
+                  ),
                   style: const TextStyle(fontSize: 16, color: Colors.grey),
                 ),
               ),
@@ -523,7 +535,6 @@ class _PerformanceLogScreenState extends State<PerformanceLogScreen>
                       .snapshots(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  // Show progress indicator but keep filters visible above
                   return const Center(child: CircularProgressIndicator());
                 }
 
@@ -558,13 +569,14 @@ class _PerformanceLogScreenState extends State<PerformanceLogScreen>
                 }
 
                 if (filteredDocs.isEmpty) {
-                  return const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 20),
-                    child: Center(child: Text("No performance logs yet.")),
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 20),
+                    child: Center(
+                      child: Text(localizations.noPerformanceLogsYet),
+                    ),
                   );
                 }
 
-                // Render filtered logs inside a Column (non-scrollable) since outer ListView handles scrolling
                 return Column(
                   children:
                       filteredDocs
@@ -579,9 +591,9 @@ class _PerformanceLogScreenState extends State<PerformanceLogScreen>
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showAddLogSheet(context),
         icon: const Icon(Icons.add, color: Color(0xFF1565C0)),
-        label: const Text(
-          "Add Log",
-          style: TextStyle(
+        label: Text(
+          localizations.addLogFabLabel,
+          style: const TextStyle(
             color: Color(0xFF1565C0),
             fontWeight: FontWeight.bold,
             fontSize: 16,

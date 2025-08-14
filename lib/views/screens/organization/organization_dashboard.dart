@@ -1,15 +1,19 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:athletix/components/alertDialog_signOut_confitmation.dart';
 import 'package:flutter/material.dart';
-import '../auth_screen.dart';
+import 'package:athletix/l10n/app_localizations.dart';
 import 'package:athletix/components/bottom_nav_bar.dart';
 import 'manage_players_screen.dart';
 import 'add_tournament_screen.dart';
 import 'view_tournaments_screen.dart';
 import '../profile_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import '../auth_screen.dart';
 
 class OrganizationDashboardScreen extends StatefulWidget {
-  const OrganizationDashboardScreen({super.key});
+  // 1. Add the setLocale function to the constructor
+  final Function(Locale) setLocale;
+  const OrganizationDashboardScreen({super.key, required this.setLocale});
 
   @override
   State<OrganizationDashboardScreen> createState() =>
@@ -26,7 +30,8 @@ class _OrganizationDashboardScreenState
       _buildHomeTab(),
       const ManagePlayersScreen(),
       const AddTournamentScreen(),
-      const ProfileScreen(),
+      // 2. Correctly pass setLocale to ProfileScreen
+      ProfileScreen(setLocale: widget.setLocale),
     ];
 
     return Scaffold(
@@ -45,26 +50,32 @@ class _OrganizationDashboardScreenState
 
   /// Home Tab Content
   Widget _buildHomeTab() {
+    final localizations = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        title: const Text(
-          'Organization Dashboard',
-          style: TextStyle(color: Colors.black),
+        title: Text(
+          localizations.organizationDashboardTitle,
+          style: const TextStyle(color: Colors.black),
         ),
         actions: [
           IconButton(
             onPressed: () async {
               await FirebaseAuth.instance.signOut();
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (_) => const AuthScreen()),
-              );
+              if (context.mounted) {
+                // 3. Ensure AuthScreen also receives the setLocale function
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => AuthScreen(setLocale: widget.setLocale),
+                  ),
+                );
+              }
             },
             icon: const Icon(Icons.logout, color: Colors.red),
-            tooltip: 'Logout',
+            tooltip: localizations.logoutTooltip,
           ),
         ],
       ),
@@ -75,7 +86,7 @@ class _OrganizationDashboardScreenState
             return const Center(child: CircularProgressIndicator());
           }
           if (!snapshot.hasData || snapshot.data!.data() == null) {
-            return const Center(child: Text("User data not found"));
+            return Center(child: Text(localizations.userDataNotFound));
           }
 
           final data = snapshot.data!.data()!;
@@ -101,13 +112,13 @@ class _OrganizationDashboardScreenState
                       name,
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
-                    subtitle: Text("Sport: $sport"),
+                    subtitle: Text("${localizations.sportLabel}: $sport"),
                   ),
                 ),
                 const SizedBox(height: 20),
 
                 Text(
-                  'Quick Actions',
+                  localizations.quickActionsTitle,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -126,7 +137,7 @@ class _OrganizationDashboardScreenState
                   children: [
                     _buildActionCard(
                       icon: Icons.people,
-                      label: "Manage Players",
+                      label: localizations.managePlayersTitle,
                       color: Colors.deepPurple,
                       onTap: () {
                         setState(() {
@@ -136,7 +147,7 @@ class _OrganizationDashboardScreenState
                     ),
                     _buildActionCard(
                       icon: Icons.event,
-                      label: "Add Tournament",
+                      label: localizations.addTournamentTitle,
                       color: Colors.teal,
                       onTap: () {
                         setState(() {
@@ -146,7 +157,7 @@ class _OrganizationDashboardScreenState
                     ),
                     _buildActionCard(
                       icon: Icons.visibility,
-                      label: "View Tournaments",
+                      label: localizations.viewTournamentsLabel,
                       color: Colors.orange,
                       onTap: () {
                         Navigator.push(

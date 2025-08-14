@@ -3,13 +3,16 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
+import 'package:athletix/l10n/app_localizations.dart';
 
 import '../athlete/financial_tracker_screen.dart';
 import '../athlete/injury_tracker_screen.dart';
 import '../athlete/performance_logs_screen.dart';
 
 class DoctorDashboardScreen extends StatefulWidget {
-  const DoctorDashboardScreen({super.key});
+  // 1. Add the setLocale function to the constructor
+  final Function(Locale) setLocale;
+  const DoctorDashboardScreen({super.key, required this.setLocale});
 
   @override
   State<DoctorDashboardScreen> createState() => _DoctorDashboardScreenState();
@@ -18,18 +21,18 @@ class DoctorDashboardScreen extends StatefulWidget {
 class _DoctorDashboardScreenState extends State<DoctorDashboardScreen> {
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
+
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
         elevation: 0,
         backgroundColor: Colors.white,
         foregroundColor: Colors.black87,
-        title: const Text(
-          'Doctor Dashboard',
-          style: TextStyle(
-            fontWeight: FontWeight.w600,
-            fontSize: 22,
-          ),
+        // 2. Use localized string for the title
+        title: Text(
+          localizations.doctorDashboardTitle,
+          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 22),
         ),
         actions: [
           Container(
@@ -40,11 +43,12 @@ class _DoctorDashboardScreenState extends State<DoctorDashboardScreen> {
             ),
             child: IconButton(
               icon: Icon(Icons.logout_rounded, color: Colors.red[600]),
+              // 3. Pass the setLocale function to the signoutConfirmation dialog
               onPressed: () async {
-                await signoutConfirmation(context);
+                await signoutConfirmation(context, setLocale: widget.setLocale);
               },
             ),
-          )
+          ),
         ],
       ),
       body: FutureBuilder<DocumentSnapshot<Map<String, dynamic>>>(
@@ -56,15 +60,15 @@ class _DoctorDashboardScreenState extends State<DoctorDashboardScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.blue[600]!),
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      Colors.blue[600]!,
+                    ),
                   ),
                   const SizedBox(height: 16),
+                  // 4. Use localized string for loading message
                   Text(
-                    'Loading your dashboard...',
-                    style: TextStyle(
-                      color: Colors.grey[600],
-                      fontSize: 16,
-                    ),
+                    localizations.loadingDashboard,
+                    style: TextStyle(color: Colors.grey[600], fontSize: 16),
                   ),
                 ],
               ),
@@ -72,10 +76,11 @@ class _DoctorDashboardScreenState extends State<DoctorDashboardScreen> {
           }
           final data = snapshot.data!.data();
           if (data == null) {
-            return const Center(
+            return Center(
+              // 5. Use localized string for error message
               child: Text(
-                "User data not found",
-                style: TextStyle(fontSize: 16, color: Colors.grey),
+                localizations.userDataNotFound,
+                style: const TextStyle(fontSize: 16, color: Colors.grey),
               ),
             );
           }
@@ -118,7 +123,7 @@ class _DoctorDashboardScreenState extends State<DoctorDashboardScreen> {
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        'Welcome Back,',
+                        localizations.welcomeDoctorMessage,
                         style: TextStyle(
                           color: Colors.white70,
                           fontSize: 16,
@@ -127,7 +132,8 @@ class _DoctorDashboardScreenState extends State<DoctorDashboardScreen> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'Dr. $name',
+                        // 6. Use localized string for the name with prefix
+                        localizations.doctorName(name),
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 24,
@@ -177,8 +183,9 @@ class _DoctorDashboardScreenState extends State<DoctorDashboardScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
+                                // 7. Use localized string for profile info title
                                 Text(
-                                  'Profile Information',
+                                  localizations.profileInfoTitle,
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w600,
@@ -186,8 +193,9 @@ class _DoctorDashboardScreenState extends State<DoctorDashboardScreen> {
                                   ),
                                 ),
                                 const SizedBox(height: 4),
+                                // 8. Use localized string for profile info subtitle
                                 Text(
-                                  'Your professional details',
+                                  localizations.yourProfessionalDetails,
                                   style: TextStyle(
                                     fontSize: 14,
                                     color: Colors.grey[600],
@@ -199,11 +207,24 @@ class _DoctorDashboardScreenState extends State<DoctorDashboardScreen> {
                         ],
                       ),
                       const SizedBox(height: 16),
-                      _buildInfoRow(Icons.person_outline, 'Full Name', name),
+                      // 9. Use localized strings for info rows
+                      _buildInfoRow(
+                        Icons.person_outline,
+                        localizations.fullNameLabel,
+                        name,
+                      ),
                       const SizedBox(height: 12),
-                      _buildInfoRow(Icons.sports_outlined, 'Specialization', sport.isEmpty ? 'Not specified' : sport),
+                      _buildInfoRow(
+                        Icons.sports_outlined,
+                        localizations.specializationLabel,
+                        sport.isEmpty ? localizations.notSpecified : sport,
+                      ),
                       const SizedBox(height: 12),
-                      _buildInfoRow(Icons.cake_outlined, 'Date of Birth', dob.isEmpty ? 'Not specified' : dob),
+                      _buildInfoRow(
+                        Icons.cake_outlined,
+                        localizations.dobLabel,
+                        dob.isEmpty ? localizations.notSpecified : dob,
+                      ),
                     ],
                   ),
                 ),
@@ -211,8 +232,9 @@ class _DoctorDashboardScreenState extends State<DoctorDashboardScreen> {
                 const SizedBox(height: 32),
 
                 // Quick Actions Section
+                // 10. Use localized strings for quick actions section
                 Text(
-                  'Quick Actions',
+                  localizations.quickActionsTitle,
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -221,11 +243,8 @@ class _DoctorDashboardScreenState extends State<DoctorDashboardScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Access your tools and manage your practice',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[600],
-                  ),
+                  localizations.accessToolsSubtitle,
+                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                 ),
                 const SizedBox(height: 16),
 
@@ -243,29 +262,29 @@ class _DoctorDashboardScreenState extends State<DoctorDashboardScreen> {
                     _buildActionCard(
                       context,
                       icon: Icons.verified_user_outlined,
-                      label: "Qualifications & License",
+                      // 11. Use localized string for action card label
+                      label: localizations.qualificationsAndLicense,
                       color: Colors.orange[600]!,
                       gradient: [Colors.orange[400]!, Colors.orange[600]!],
-                      onTap: () {
-                      },
+                      onTap: () {},
                     ),
                     _buildActionCard(
                       context,
                       icon: Icons.campaign_outlined,
-                      label: "Announcements",
+                      // 12. Use localized string for action card label
+                      label: localizations.announcements,
                       color: Colors.green[600]!,
                       gradient: [Colors.green[400]!, Colors.green[600]!],
-                      onTap: () {
-                      },
+                      onTap: () {},
                     ),
                     _buildActionCard(
                       context,
                       icon: Icons.info_outline_rounded,
-                      label: "Information Center",
+                      // 13. Use localized string for action card label
+                      label: localizations.informationCenter,
                       color: Colors.blue[600]!,
                       gradient: [Colors.blue[400]!, Colors.blue[600]!],
-                      onTap: () {
-                      },
+                      onTap: () {},
                     ),
                   ],
                 ),
@@ -280,11 +299,7 @@ class _DoctorDashboardScreenState extends State<DoctorDashboardScreen> {
   Widget _buildInfoRow(IconData icon, String label, String value) {
     return Row(
       children: [
-        Icon(
-          icon,
-          size: 18,
-          color: Colors.grey[600],
-        ),
+        Icon(icon, size: 18, color: Colors.grey[600]),
         const SizedBox(width: 12),
         Expanded(
           child: Column(
@@ -320,13 +335,13 @@ class _DoctorDashboardScreenState extends State<DoctorDashboardScreen> {
   }
 
   Widget _buildActionCard(
-      BuildContext context, {
-        required IconData icon,
-        required String label,
-        required Color color,
-        required List<Color> gradient,
-        required VoidCallback onTap,
-      }) {
+    BuildContext context, {
+    required IconData icon,
+    required String label,
+    required Color color,
+    required List<Color> gradient,
+    required VoidCallback onTap,
+  }) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -359,11 +374,7 @@ class _DoctorDashboardScreenState extends State<DoctorDashboardScreen> {
                     color: Colors.white.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(16),
                   ),
-                  child: Icon(
-                    icon,
-                    size: 32,
-                    color: Colors.white,
-                  ),
+                  child: Icon(icon, size: 32, color: Colors.white),
                 ),
                 const SizedBox(height: 12),
                 Text(
