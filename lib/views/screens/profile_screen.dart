@@ -4,12 +4,22 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:athletix/l10n/app_localizations.dart';
+import 'package:athletix/l10n/language_dropdown.dart'; // 1. Add the import for your LanguageDropdown
 
-class ProfileScreen extends StatelessWidget {
-  const ProfileScreen({super.key});
+class ProfileScreen extends StatefulWidget {
+  // 2. Add the setLocale function to the constructor
+  final Function(Locale) setLocale;
+  const ProfileScreen({super.key, required this.setLocale});
 
   @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     final uid = FirebaseAuth.instance.currentUser!.uid;
     final userDoc = FirebaseFirestore.instance.collection('users').doc(uid);
 
@@ -17,13 +27,22 @@ class ProfileScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        title: const Text("Profile", style: TextStyle(color: Colors.black)),
+        title: Text(
+          localizations.profileTitle,
+          style: const TextStyle(color: Colors.black),
+        ),
         actions: [
+          // 3. Add the LanguageDropdown here
+          LanguageDropdown(
+            onLanguageChanged: widget.setLocale,
+            currentLocale: Localizations.localeOf(context),
+          ),
           IconButton(
             icon: const Icon(Icons.logout, color: Colors.red), // 🔴 Red icon
-            tooltip: 'Logout',
+            tooltip: localizations.logoutTooltip,
             onPressed: () async {
-              await signoutConfirmation(context);
+              // Fix: Pass the setLocale function to the dialog
+              await signoutConfirmation(context, setLocale: widget.setLocale);
             },
           ),
         ],
@@ -36,7 +55,7 @@ class ProfileScreen extends StatelessWidget {
           }
 
           if (!snapshot.hasData || !snapshot.data!.exists) {
-            return const Center(child: Text("User profile not found."));
+            return Center(child: Text(localizations.userProfileNotFound));
           }
 
           final data = snapshot.data!.data() as Map<String, dynamic>;
@@ -45,11 +64,14 @@ class ProfileScreen extends StatelessWidget {
           String? extraFieldValue;
 
           if (role == 'doctor') {
-            extraFieldLabel = 'Specialization';
-            extraFieldValue = data['specialization'] ?? 'N/A';
+            extraFieldLabel = localizations.specializationLabel;
+            extraFieldValue =
+                data['specialization'] ??
+                localizations.notAvailableAbbreviation;
           } else if (role == 'athlete' || role == 'coach') {
-            extraFieldLabel = 'Sport';
-            extraFieldValue = data['sport'] ?? 'N/A';
+            extraFieldLabel = localizations.sportLabel;
+            extraFieldValue =
+                data['sport'] ?? localizations.notAvailableAbbreviation;
           }
 
           final dobRaw = data['dob'];
@@ -57,13 +79,19 @@ class ProfileScreen extends StatelessWidget {
 
           final dobFormatted =
               dobRaw != null
-                  ? _formatDate(DateTime.tryParse(dobRaw) ?? DateTime.now())
-                  : 'N/A';
+                  ? _formatDate(
+                    DateTime.tryParse(dobRaw) ?? DateTime.now(),
+                    localizations,
+                  )
+                  : localizations.notAvailableAbbreviation;
 
           final createdAtFormatted =
               createdAtRaw != null
-                  ? _formatDate((createdAtRaw as Timestamp).toDate())
-                  : 'N/A';
+                  ? _formatDate(
+                    (createdAtRaw as Timestamp).toDate(),
+                    localizations,
+                  )
+                  : localizations.notAvailableAbbreviation;
 
           return Column(
             children: [
@@ -92,7 +120,8 @@ class ProfileScreen extends StatelessWidget {
                             ),
                             const SizedBox(height: 16),
                             Text(
-                              data['name'] ?? 'N/A',
+                              data['name'] ??
+                                  localizations.notAvailableAbbreviation,
                               style: Theme.of(context).textTheme.headlineSmall!
                                   .copyWith(fontWeight: FontWeight.bold),
                             ),
@@ -106,15 +135,22 @@ class ProfileScreen extends StatelessWidget {
                               ),
                             ),
                             const SizedBox(height: 24),
-                            _buildInfoRow("Email", data['email'] ?? 'N/A'),
+                            _buildInfoRow(
+                              localizations.emailLabel,
+                              data['email'] ??
+                                  localizations.notAvailableAbbreviation,
+                            ),
                             const Divider(),
                             if (extraFieldLabel != null &&
                                 extraFieldValue != null)
                               _buildInfoRow(extraFieldLabel, extraFieldValue),
                             const Divider(),
-                            _buildInfoRow("Date of Birth", dobFormatted),
+                            _buildInfoRow(localizations.dobLabel, dobFormatted),
                             const Divider(),
-                            _buildInfoRow("Joined At", createdAtFormatted),
+                            _buildInfoRow(
+                              localizations.joinedAtLabel,
+                              createdAtFormatted,
+                            ),
                           ],
                         ),
                       ),
@@ -133,9 +169,9 @@ class ProfileScreen extends StatelessWidget {
                       ),
                     );
                   },
-                  child: const Text(
-                    'Privacy Policy & Terms',
-                    style: TextStyle(color: Colors.blue, fontSize: 14),
+                  child: Text(
+                    localizations.privacyTermsLink,
+                    style: const TextStyle(color: Colors.blue, fontSize: 14),
                   ),
                 ),
               ),
@@ -146,8 +182,10 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  static String _formatDate(DateTime date) {
-    return DateFormat.yMMMMd().format(date); // e.g., July 21, 2025
+  static String _formatDate(DateTime date, AppLocalizations localizations) {
+    return DateFormat.yMMMMd(
+      localizations.localeName,
+    ).format(date); // e.g., July 21, 2025
   }
 
   Widget _buildInfoRow(String label, String value) {
