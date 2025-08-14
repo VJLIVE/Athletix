@@ -806,4 +806,138 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get weekPrefix => 'सप्ताह';
+
+  @override
+  String get loadingDashboard => 'आपका डैशबोर्ड लोड हो रहा है...';
+
+  @override
+  String get refreshPrompt => 'कृपया पृष्ठ को रीफ्रेश करने का प्रयास करें';
+
+  @override
+  String get refreshButton => 'रीफ्रेश करें';
+
+  @override
+  String get greetingMorning => 'सुप्रभात';
+
+  @override
+  String get greetingAfternoon => 'शुभ दोपहर';
+
+  @override
+  String get greetingEvening => 'शुभ संध्या';
+
+  @override
+  String get notSetLabel => 'सेट नहीं है';
+
+  @override
+  String get monitorHealthSubtitle => 'अपने स्वास्थ्य की निगरानी करें';
+
+  @override
+  String get performanceLabel => 'प्रदर्शन';
+
+  @override
+  String get trackProgressSubtitle => 'अपनी प्रगति को ट्रैक करें';
+
+  @override
+  String get financesLabel => 'वित्त';
+
+  @override
+  String get manageExpensesSubtitle => 'खर्चों का प्रबंधन करें';
+
+  @override
+  String get thisWeekTitle => 'इस सप्ताह';
+
+  @override
+  String get trainingSessionsTitle => 'प्रशिक्षण सत्र';
+
+  @override
+  String get hoursTrainedTitle => 'प्रशिक्षित घंटे';
+
+  @override
+  String get errorPrefix => 'त्रुटि';
+
+  @override
+  String get tournamentLevelLabel => 'स्तर';
+
+  @override
+  String get newUserPrompt => 'नए उपयोगकर्ता?';
+
+  @override
+  String get alreadyHaveAccountPrompt => 'पहले से ही खाता है?';
+
+  @override
+  String get viewTournamentsLabel => 'टूर्नामेंट देखें';
+
+  @override
+  String get dismissButton => 'खारिज करें';
+
+  @override
+  String get emailVerificationRequiredTitle => 'ईमेल सत्यापन आवश्यक है';
+
+  @override
+  String emailVerificationInstructionMessage(Object email) {
+    return 'हमने $email पर एक सत्यापन ईमेल भेजा है';
+  }
+
+  @override
+  String get checkInboxSpamMessage =>
+      'कृपया अपना इनबॉक्स और स्पैम फ़ोल्डर जांचें, फिर सत्यापन लिंक पर क्लिक करें। सत्यापित होने के बाद, जारी रखने के लिए \"मैंने सत्यापित कर लिया है\" पर क्लिक करें।';
+
+  @override
+  String get sendingButton => 'भेजा जा रहा है...';
+
+  @override
+  String get resendEmailButton => 'ईमेल पुनः भेजें';
+
+  @override
+  String get checkingButton => 'जांच रहा है...';
+
+  @override
+  String get iveVerifiedButton => 'मैंने सत्यापित कर लिया है';
+
+  @override
+  String get goBackButton => 'वापस जाएं';
+
+  @override
+  String get welcomeGreeting => 'वापस स्वागत है,';
+
+  @override
+  String doctorName(Object name) {
+    return 'डॉ. $name';
+  }
+
+  @override
+  String get profileInfoTitle => 'प्रोफ़ाइल जानकारी';
+
+  @override
+  String get yourProfessionalDetails => 'आपके पेशेवर विवरण';
+
+  @override
+  String get notSpecified => 'निर्दिष्ट नहीं';
+
+  @override
+  String get accessToolsSubtitle =>
+      'अपने उपकरणों तक पहुंचें और अपनी प्रैक्टिस का प्रबंधन करें';
+
+  @override
+  String get qualificationsAndLicense => 'योग्यता और लाइसेंस';
+
+  @override
+  String get announcements => 'घोषणाएँ';
+
+  @override
+  String get informationCenter => 'सूचना केंद्र';
+
+  @override
+  String get filterActivityHint => 'गतिविधि फ़िल्टर करें';
+
+  @override
+  String logsFilteredBy(Object dateFilter, Object activityFilter) {
+    return '$dateFilter के लिए लॉग दिखा रहा है | $activityFilter द्वारा फ़िल्टर किया गया';
+  }
+
+  @override
+  String get allDatesLabel => 'सभी तारीखें';
+
+  @override
+  String get allActivitiesLabel => 'सभी गतिविधियां';
 }

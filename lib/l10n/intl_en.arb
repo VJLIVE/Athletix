@@ -880,5 +880,63 @@
     "weekPrefix": "W",
     "@weekPrefix": {
         "description": "Prefix for week numbers, e.g., W1, W2"
-    }
+    },
+    "loadingDashboard": "Loading your dashboard...",
+    "refreshPrompt": "Please try refreshing the page",
+    "refreshButton": "Refresh",
+    "greetingMorning": "Good Morning",
+    "greetingAfternoon": "Good Afternoon",
+    "greetingEvening": "Good Evening",
+    "notSetLabel": "Not set",
+    "monitorHealthSubtitle": "Monitor your health",
+    "performanceLabel": "Performance",
+    "trackProgressSubtitle": "Track your progress",
+    "financesLabel": "Finances",
+    "manageExpensesSubtitle": "Manage expenses",
+    "thisWeekTitle": "This Week",
+    "trainingSessionsTitle": "Training Sessions",
+    "hoursTrainedTitle": "Hours Trained",
+    "errorPrefix": "Error",
+    "tournamentLevelLabel": "Level",
+    "newUserPrompt": "New user?",
+    "alreadyHaveAccountPrompt": "Already have an account?",
+    "viewTournamentsLabel": "View Tournaments",
+    "dismissButton": "Dismiss",
+    "emailVerificationRequiredTitle": "Email Verification Required",
+    "emailVerificationInstructionMessage": "We've sent a verification email to\n{email}",
+    "@emailVerificationInstructionMessage": {
+        "placeholders": {
+            "email": {}
+        }
+    },
+    "checkInboxSpamMessage": "Please check your inbox and spam folder, then click the verification link. Once verified, click \"I've Verified\" to continue.",
+    "sendingButton": "Sending...",
+    "resendEmailButton": "Resend Email",
+    "checkingButton": "Checking...",
+    "iveVerifiedButton": "I've Verified",
+    "goBackButton": "Go Back",
+    "welcomeGreeting": "Welcome Back,",
+    "doctorName": "Dr. {name}",
+    "@doctorName": {
+        "placeholders": {
+            "name": {}
+        }
+    },
+    "profileInfoTitle": "Profile Information",
+    "yourProfessionalDetails": "Your professional details",
+    "notSpecified": "Not specified",
+    "accessToolsSubtitle": "Access your tools and manage your practice",
+    "qualificationsAndLicense": "Qualifications & License",
+    "announcements": "Announcements",
+    "informationCenter": "Information Center",
+    "filterActivityHint": "Filter activity",
+    "logsFilteredBy": "Showing logs for {dateFilter} | Filtered by: {activityFilter}",
+    "@logsFilteredBy": {
+        "placeholders": {
+            "dateFilter": {},
+            "activityFilter": {}
+        }
+    },
+    "allDatesLabel": "all dates",
+    "allActivitiesLabel": "all activities"
 }

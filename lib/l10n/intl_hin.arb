@@ -250,5 +250,64 @@
     "monthOct": "अक्टूबर",
     "monthNov": "नवंबर",
     "monthDec": "दिसंबर",
-    "weekPrefix": "सप्ताह"
+    "weekPrefix": "सप्ताह",
+    "dashboardTitle": "डैशबोर्ड",
+    "loadingDashboard": "आपका डैशबोर्ड लोड हो रहा है...",
+    "refreshPrompt": "कृपया पृष्ठ को रीफ्रेश करने का प्रयास करें",
+    "refreshButton": "रीफ्रेश करें",
+    "greetingMorning": "सुप्रभात",
+    "greetingAfternoon": "शुभ दोपहर",
+    "greetingEvening": "शुभ संध्या",
+    "notSetLabel": "सेट नहीं है",
+    "monitorHealthSubtitle": "अपने स्वास्थ्य की निगरानी करें",
+    "performanceLabel": "प्रदर्शन",
+    "trackProgressSubtitle": "अपनी प्रगति को ट्रैक करें",
+    "financesLabel": "वित्त",
+    "manageExpensesSubtitle": "खर्चों का प्रबंधन करें",
+    "thisWeekTitle": "इस सप्ताह",
+    "trainingSessionsTitle": "प्रशिक्षण सत्र",
+    "hoursTrainedTitle": "प्रशिक्षित घंटे",
+    "errorPrefix": "त्रुटि",
+    "tournamentLevelLabel": "स्तर",
+    "newUserPrompt": "नए उपयोगकर्ता?",
+    "alreadyHaveAccountPrompt": "पहले से ही खाता है?",
+    "viewTournamentsLabel": "टूर्नामेंट देखें",
+    "dismissButton": "खारिज करें",
+    "emailVerificationRequiredTitle": "ईमेल सत्यापन आवश्यक है",
+    "emailVerificationInstructionMessage": "हमने {email} पर एक सत्यापन ईमेल भेजा है",
+    "@emailVerificationInstructionMessage": {
+        "placeholders": {
+            "email": {}
+        }
+    },
+    "checkInboxSpamMessage": "कृपया अपना इनबॉक्स और स्पैम फ़ोल्डर जांचें, फिर सत्यापन लिंक पर क्लिक करें। सत्यापित होने के बाद, जारी रखने के लिए \"मैंने सत्यापित कर लिया है\" पर क्लिक करें।",
+    "sendingButton": "भेजा जा रहा है...",
+    "resendEmailButton": "ईमेल पुनः भेजें",
+    "checkingButton": "जांच रहा है...",
+    "iveVerifiedButton": "मैंने सत्यापित कर लिया है",
+    "goBackButton": "वापस जाएं",
+    "welcomeGreeting": "वापस स्वागत है,",
+    "doctorName": "डॉ. {name}",
+    "@doctorName": {
+        "placeholders": {
+            "name": {}
+        }
+    },
+    "profileInfoTitle": "प्रोफ़ाइल जानकारी",
+    "yourProfessionalDetails": "आपके पेशेवर विवरण",
+    "notSpecified": "निर्दिष्ट नहीं",
+    "accessToolsSubtitle": "अपने उपकरणों तक पहुंचें और अपनी प्रैक्टिस का प्रबंधन करें",
+    "qualificationsAndLicense": "योग्यता और लाइसेंस",
+    "announcements": "घोषणाएँ",
+    "informationCenter": "सूचना केंद्र",
+    "filterActivityHint": "गतिविधि फ़िल्टर करें",
+    "logsFilteredBy": "{dateFilter} के लिए लॉग दिखा रहा है | {activityFilter} द्वारा फ़िल्टर किया गया",
+    "@logsFilteredBy": {
+        "placeholders": {
+            "dateFilter": {},
+            "activityFilter": {}
+        }
+    },
+    "allDatesLabel": "सभी तारीखें",
+    "allActivitiesLabel": "सभी गतिविधियां"
 }

@@ -802,4 +802,138 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get weekPrefix => 'W';
+
+  @override
+  String get loadingDashboard => 'Loading your dashboard...';
+
+  @override
+  String get refreshPrompt => 'Please try refreshing the page';
+
+  @override
+  String get refreshButton => 'Refresh';
+
+  @override
+  String get greetingMorning => 'Good Morning';
+
+  @override
+  String get greetingAfternoon => 'Good Afternoon';
+
+  @override
+  String get greetingEvening => 'Good Evening';
+
+  @override
+  String get notSetLabel => 'Not set';
+
+  @override
+  String get monitorHealthSubtitle => 'Monitor your health';
+
+  @override
+  String get performanceLabel => 'Performance';
+
+  @override
+  String get trackProgressSubtitle => 'Track your progress';
+
+  @override
+  String get financesLabel => 'Finances';
+
+  @override
+  String get manageExpensesSubtitle => 'Manage expenses';
+
+  @override
+  String get thisWeekTitle => 'This Week';
+
+  @override
+  String get trainingSessionsTitle => 'Training Sessions';
+
+  @override
+  String get hoursTrainedTitle => 'Hours Trained';
+
+  @override
+  String get errorPrefix => 'Error';
+
+  @override
+  String get tournamentLevelLabel => 'Level';
+
+  @override
+  String get newUserPrompt => 'New user?';
+
+  @override
+  String get alreadyHaveAccountPrompt => 'Already have an account?';
+
+  @override
+  String get viewTournamentsLabel => 'View Tournaments';
+
+  @override
+  String get dismissButton => 'Dismiss';
+
+  @override
+  String get emailVerificationRequiredTitle => 'Email Verification Required';
+
+  @override
+  String emailVerificationInstructionMessage(Object email) {
+    return 'We\'ve sent a verification email to\n$email';
+  }
+
+  @override
+  String get checkInboxSpamMessage =>
+      'Please check your inbox and spam folder, then click the verification link. Once verified, click \"I\'ve Verified\" to continue.';
+
+  @override
+  String get sendingButton => 'Sending...';
+
+  @override
+  String get resendEmailButton => 'Resend Email';
+
+  @override
+  String get checkingButton => 'Checking...';
+
+  @override
+  String get iveVerifiedButton => 'I\'ve Verified';
+
+  @override
+  String get goBackButton => 'Go Back';
+
+  @override
+  String get welcomeGreeting => 'Welcome Back,';
+
+  @override
+  String doctorName(Object name) {
+    return 'Dr. $name';
+  }
+
+  @override
+  String get profileInfoTitle => 'Profile Information';
+
+  @override
+  String get yourProfessionalDetails => 'Your professional details';
+
+  @override
+  String get notSpecified => 'Not specified';
+
+  @override
+  String get accessToolsSubtitle =>
+      'Access your tools and manage your practice';
+
+  @override
+  String get qualificationsAndLicense => 'Qualifications & License';
+
+  @override
+  String get announcements => 'Announcements';
+
+  @override
+  String get informationCenter => 'Information Center';
+
+  @override
+  String get filterActivityHint => 'Filter activity';
+
+  @override
+  String logsFilteredBy(Object dateFilter, Object activityFilter) {
+    return 'Showing logs for $dateFilter | Filtered by: $activityFilter';
+  }
+
+  @override
+  String get allDatesLabel => 'all dates';
+
+  @override
+  String get allActivitiesLabel => 'all activities';
 }

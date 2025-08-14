@@ -1603,6 +1603,258 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'W'**
   String get weekPrefix;
+
+  /// No description provided for @loadingDashboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading your dashboard...'**
+  String get loadingDashboard;
+
+  /// No description provided for @refreshPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Please try refreshing the page'**
+  String get refreshPrompt;
+
+  /// No description provided for @refreshButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh'**
+  String get refreshButton;
+
+  /// No description provided for @greetingMorning.
+  ///
+  /// In en, this message translates to:
+  /// **'Good Morning'**
+  String get greetingMorning;
+
+  /// No description provided for @greetingAfternoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Good Afternoon'**
+  String get greetingAfternoon;
+
+  /// No description provided for @greetingEvening.
+  ///
+  /// In en, this message translates to:
+  /// **'Good Evening'**
+  String get greetingEvening;
+
+  /// No description provided for @notSetLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Not set'**
+  String get notSetLabel;
+
+  /// No description provided for @monitorHealthSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Monitor your health'**
+  String get monitorHealthSubtitle;
+
+  /// No description provided for @performanceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Performance'**
+  String get performanceLabel;
+
+  /// No description provided for @trackProgressSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Track your progress'**
+  String get trackProgressSubtitle;
+
+  /// No description provided for @financesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Finances'**
+  String get financesLabel;
+
+  /// No description provided for @manageExpensesSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage expenses'**
+  String get manageExpensesSubtitle;
+
+  /// No description provided for @thisWeekTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This Week'**
+  String get thisWeekTitle;
+
+  /// No description provided for @trainingSessionsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Training Sessions'**
+  String get trainingSessionsTitle;
+
+  /// No description provided for @hoursTrainedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Hours Trained'**
+  String get hoursTrainedTitle;
+
+  /// No description provided for @errorPrefix.
+  ///
+  /// In en, this message translates to:
+  /// **'Error'**
+  String get errorPrefix;
+
+  /// No description provided for @tournamentLevelLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Level'**
+  String get tournamentLevelLabel;
+
+  /// No description provided for @newUserPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'New user?'**
+  String get newUserPrompt;
+
+  /// No description provided for @alreadyHaveAccountPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Already have an account?'**
+  String get alreadyHaveAccountPrompt;
+
+  /// No description provided for @viewTournamentsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'View Tournaments'**
+  String get viewTournamentsLabel;
+
+  /// No description provided for @dismissButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Dismiss'**
+  String get dismissButton;
+
+  /// No description provided for @emailVerificationRequiredTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Email Verification Required'**
+  String get emailVerificationRequiredTitle;
+
+  /// No description provided for @emailVerificationInstructionMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'We\'ve sent a verification email to\n{email}'**
+  String emailVerificationInstructionMessage(Object email);
+
+  /// No description provided for @checkInboxSpamMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Please check your inbox and spam folder, then click the verification link. Once verified, click \"I\'ve Verified\" to continue.'**
+  String get checkInboxSpamMessage;
+
+  /// No description provided for @sendingButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Sending...'**
+  String get sendingButton;
+
+  /// No description provided for @resendEmailButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Resend Email'**
+  String get resendEmailButton;
+
+  /// No description provided for @checkingButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking...'**
+  String get checkingButton;
+
+  /// No description provided for @iveVerifiedButton.
+  ///
+  /// In en, this message translates to:
+  /// **'I\'ve Verified'**
+  String get iveVerifiedButton;
+
+  /// No description provided for @goBackButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Go Back'**
+  String get goBackButton;
+
+  /// No description provided for @welcomeGreeting.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome Back,'**
+  String get welcomeGreeting;
+
+  /// No description provided for @doctorName.
+  ///
+  /// In en, this message translates to:
+  /// **'Dr. {name}'**
+  String doctorName(Object name);
+
+  /// No description provided for @profileInfoTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile Information'**
+  String get profileInfoTitle;
+
+  /// No description provided for @yourProfessionalDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Your professional details'**
+  String get yourProfessionalDetails;
+
+  /// No description provided for @notSpecified.
+  ///
+  /// In en, this message translates to:
+  /// **'Not specified'**
+  String get notSpecified;
+
+  /// No description provided for @accessToolsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Access your tools and manage your practice'**
+  String get accessToolsSubtitle;
+
+  /// No description provided for @qualificationsAndLicense.
+  ///
+  /// In en, this message translates to:
+  /// **'Qualifications & License'**
+  String get qualificationsAndLicense;
+
+  /// No description provided for @announcements.
+  ///
+  /// In en, this message translates to:
+  /// **'Announcements'**
+  String get announcements;
+
+  /// No description provided for @informationCenter.
+  ///
+  /// In en, this message translates to:
+  /// **'Information Center'**
+  String get informationCenter;
+
+  /// No description provided for @filterActivityHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Filter activity'**
+  String get filterActivityHint;
+
+  /// No description provided for @logsFilteredBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Showing logs for {dateFilter} | Filtered by: {activityFilter}'**
+  String logsFilteredBy(Object dateFilter, Object activityFilter);
+
+  /// No description provided for @allDatesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'all dates'**
+  String get allDatesLabel;
+
+  /// No description provided for @allActivitiesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'all activities'**
+  String get allActivitiesLabel;
 }
 
 class _AppLocalizationsDelegate
