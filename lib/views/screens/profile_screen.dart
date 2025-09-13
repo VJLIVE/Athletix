@@ -4,9 +4,166 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
+import '../../services/auth_service.dart';
+import '../../services/cloudinary_service.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  final AuthService _authService = AuthService();
+  final CloudinaryService _cloudinaryService = CloudinaryService();
+  final ImagePicker _imagePicker = ImagePicker();
+  bool _isUploading = false;
+
+  void _showImageSourceDialog() {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return SafeArea(
+          child: Wrap(
+            children: [
+              ListTile(
+                leading: const Icon(Icons.photo_library),
+                title: const Text('Gallery'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _pickImageFromSource(ImageSource.gallery);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.photo_camera),
+                title: const Text('Camera'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _pickImageFromSource(ImageSource.camera);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.cancel),
+                title: const Text('Cancel'),
+                onTap: () => Navigator.pop(context),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _pickImageFromSource(ImageSource source) async {
+    try {
+      final XFile? image = await _imagePicker.pickImage(
+        source: source,
+        maxWidth: 800,
+        maxHeight: 800,
+        imageQuality: 85,
+      );
+
+      if (image == null) return;
+
+      setState(() {
+        _isUploading = true;
+      });
+
+      final imageUrl = await _cloudinaryService.uploadImage(File(image.path));
+
+      if (imageUrl != null) {
+        await _authService.updateProfileImage(imageUrl);
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Profile picture updated successfully!'),
+              backgroundColor: Colors.green,
+            ),
+          );
+          setState(() {});
+        }
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Failed to upload image. Please try again.'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error uploading image: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isUploading = false;
+        });
+      }
+    }
+  }
+
+  Widget _buildProfileAvatar(String? profileImageUrl) {
+    return GestureDetector(
+      onTap: _isUploading ? null : _showImageSourceDialog,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          CircleAvatar(
+            radius: 50,
+            backgroundColor: Colors.blue.shade100,
+            backgroundImage:
+                profileImageUrl != null ? NetworkImage(profileImageUrl) : null,
+            child:
+                profileImageUrl == null
+                    ? Icon(Icons.person, size: 60, color: Colors.blue.shade700)
+                    : null,
+          ),
+          if (_isUploading)
+            Container(
+              width: 100,
+              height: 100,
+              decoration: BoxDecoration(
+                color: Colors.black.withAlpha(128),
+                shape: BoxShape.circle,
+              ),
+              child: const CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+              ),
+            ),
+          if (!_isUploading)
+            Positioned(
+              bottom: 0,
+              right: 0,
+              child: Container(
+                padding: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  color: Colors.blue,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.white, width: 2),
+                ),
+                child: const Icon(
+                  Icons.camera_alt,
+                  color: Colors.white,
+                  size: 16,
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +177,7 @@ class ProfileScreen extends StatelessWidget {
         title: const Text("Profile", style: TextStyle(color: Colors.black)),
         actions: [
           IconButton(
-            icon: const Icon(Icons.logout, color: Colors.red), // 🔴 Red icon
+            icon: const Icon(Icons.logout, color: Colors.red),
             tooltip: 'Logout',
             onPressed: () async {
               await signoutConfirmation(context);
@@ -41,6 +198,8 @@ class ProfileScreen extends StatelessWidget {
 
           final data = snapshot.data!.data() as Map<String, dynamic>;
           final role = (data['role'] ?? 'N/A').toString().toLowerCase();
+          final profileImageUrl = data['profileImage'] as String?;
+
           String? extraFieldLabel;
           String? extraFieldValue;
 
@@ -81,15 +240,7 @@ class ProfileScreen extends StatelessWidget {
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            CircleAvatar(
-                              radius: 50,
-                              backgroundColor: Colors.blue.shade100,
-                              child: Icon(
-                                Icons.person,
-                                size: 60,
-                                color: Colors.blue.shade700,
-                              ),
-                            ),
+                            _buildProfileAvatar(profileImageUrl),
                             const SizedBox(height: 16),
                             Text(
                               data['name'] ?? 'N/A',
@@ -147,7 +298,7 @@ class ProfileScreen extends StatelessWidget {
   }
 
   static String _formatDate(DateTime date) {
-    return DateFormat.yMMMMd().format(date); // e.g., July 21, 2025
+    return DateFormat.yMMMMd().format(date);
   }
 
   Widget _buildInfoRow(String label, String value) {

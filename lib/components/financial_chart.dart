@@ -10,7 +10,8 @@ class FinancialChart extends StatefulWidget {
 
   const FinancialChart({
     super.key,
-    required this.entries, required ViewType viewType,
+    required this.entries,
+    required ViewType viewType,
   });
 
   @override
@@ -139,14 +140,17 @@ class _FinancialChartState extends State<FinancialChart> {
                         bottomTitles: AxisTitles(
                           sideTitles: SideTitles(
                             showTitles: true,
-                            getTitlesWidget: (value, meta) => Padding(
-                              padding: const EdgeInsets.only(top: 6),
-                              child: Text(
-                                _getLabel(value.toInt()),
-                                style: GoogleFonts.poppins(
-                                    fontSize: 11, fontWeight: FontWeight.w500),
-                              ),
-                            ),
+                            getTitlesWidget:
+                                (value, meta) => Padding(
+                                  padding: const EdgeInsets.only(top: 6),
+                                  child: Text(
+                                    _getLabel(value.toInt()),
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ),
                           ),
                         ),
                         leftTitles: AxisTitles(
@@ -164,32 +168,34 @@ class _FinancialChartState extends State<FinancialChart> {
                         drawVerticalLine: false,
                         drawHorizontalLine: true,
                         horizontalInterval: 2000,
-                        getDrawingHorizontalLine: (value) => FlLine(
-                          color: Colors.grey.withValues(alpha: 0.2),
-                          strokeWidth: 1,
-                        ),
+                        getDrawingHorizontalLine:
+                            (value) => FlLine(
+                              color: Colors.grey.withValues(alpha: 0.2),
+                              strokeWidth: 1,
+                            ),
                       ),
                       borderData: FlBorderData(show: false),
-                      barGroups: spots.map((x) {
-                        return BarChartGroupData(
-                          x: x,
-                          barRods: [
-                            BarChartRodData(
-                              toY: incomeMap[x] ?? 0,
-                              width: 10,
-                              borderRadius: BorderRadius.circular(6),
-                              color: pastelGreen,
-                            ),
-                            BarChartRodData(
-                              toY: expenseMap[x] ?? 0,
-                              width: 10,
-                              borderRadius: BorderRadius.circular(6),
-                              color: pastelBlue,
-                            ),
-                          ],
-                          barsSpace: 6,
-                        );
-                      }).toList(),
+                      barGroups:
+                          spots.map((x) {
+                            return BarChartGroupData(
+                              x: x,
+                              barRods: [
+                                BarChartRodData(
+                                  toY: incomeMap[x] ?? 0,
+                                  width: 10,
+                                  borderRadius: BorderRadius.circular(6),
+                                  color: pastelGreen,
+                                ),
+                                BarChartRodData(
+                                  toY: expenseMap[x] ?? 0,
+                                  width: 10,
+                                  borderRadius: BorderRadius.circular(6),
+                                  color: pastelBlue,
+                                ),
+                              ],
+                              barsSpace: 6,
+                            );
+                          }).toList(),
                     ),
                   ),
                 ),
@@ -224,30 +230,31 @@ class _FinancialChartState extends State<FinancialChart> {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(
-        children: ViewType.values.map((type) {
-          final isSelected = type == _viewType;
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 6),
-            child: ChoiceChip(
-              label: Text(
-                _viewLabels[type]!,
-                style: GoogleFonts.poppins(
-                  fontWeight: FontWeight.w600,
-                  color: isSelected ? Colors.white : Colors.grey[800],
+        children:
+            ViewType.values.map((type) {
+              final isSelected = type == _viewType;
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 6),
+                child: ChoiceChip(
+                  label: Text(
+                    _viewLabels[type]!,
+                    style: GoogleFonts.poppins(
+                      fontWeight: FontWeight.w600,
+                      color: isSelected ? Colors.white : Colors.grey[800],
+                    ),
+                  ),
+                  selected: isSelected,
+                  selectedColor: activeColor,
+                  backgroundColor: Colors.grey.shade200,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  onSelected: (_) {
+                    setState(() => _viewType = type);
+                  },
                 ),
-              ),
-              selected: isSelected,
-              selectedColor: activeColor,
-              backgroundColor: Colors.grey.shade200,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
-              onSelected: (_) {
-                setState(() => _viewType = type);
-              },
-            ),
-          );
-        }).toList(),
+              );
+            }).toList(),
       ),
     );
   }
@@ -260,8 +267,20 @@ class _FinancialChartState extends State<FinancialChart> {
       case ViewType.weekly:
         return "W${value}";
       case ViewType.monthly:
-        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-                        'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const months = [
+          'Jan',
+          'Feb',
+          'Mar',
+          'Apr',
+          'May',
+          'Jun',
+          'Jul',
+          'Aug',
+          'Sep',
+          'Oct',
+          'Nov',
+          'Dec',
+        ];
         return (value >= 1 && value <= 12) ? months[value - 1] : '';
       case ViewType.yearly:
         return value.toString();
@@ -275,8 +294,7 @@ class _FinancialChartState extends State<FinancialChart> {
           label == "Income" ? Icons.arrow_upward : Icons.arrow_downward,
           color: color,
         ),
-        Text(label,
-            style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
+        Text(label, style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
         Text(
           "\$${amount.toStringAsFixed(2)}",
           style: GoogleFonts.poppins(

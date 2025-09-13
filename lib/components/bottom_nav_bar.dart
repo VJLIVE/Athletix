@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 class BottomNavBar extends StatelessWidget {
   /// The currently selected index in the navigation bar.
   final int currentIndex;
+
   /// Callback when a navigation item is tapped.
   final ValueChanged<int> onTap;
+
   /// The role of the current user (affects navigation items).
   final String role;
 
@@ -23,30 +25,15 @@ class BottomNavBar extends StatelessWidget {
 
     if (role == 'Organization') {
       items = const [
-        BottomNavigationBarItem(
-          icon: Icon(Icons.home),
-          label: 'Home',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.people),
-          label: 'Players',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.event),
-          label: 'Tournaments',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.person),
-          label: 'Profile',
-        ),
+        BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+        BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Players'),
+        BottomNavigationBarItem(icon: Icon(Icons.event), label: 'Tournaments'),
+        BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
       ];
     } else {
       // fallback
       items = const [
-        BottomNavigationBarItem(
-          icon: Icon(Icons.home),
-          label: 'Home',
-        ),
+        BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
         BottomNavigationBarItem(
           icon: Icon(Icons.calendar_today),
           label: 'Time Table',
@@ -55,10 +42,7 @@ class BottomNavBar extends StatelessWidget {
           icon: Icon(Icons.location_on),
           label: 'Tournaments',
         ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.person),
-          label: 'Profile',
-        ),
+        BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
       ];
     }
 

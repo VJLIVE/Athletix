@@ -50,6 +50,9 @@ dependencies:
   google_fonts: ^6.1.0
   fluttertoast: ^8.2.12
   provider: ^6.1.2
+  image_picker: ^1.1.2
+  cloudinary_public: ^0.23.1
+  permission_handler: ^12.0.1
 
 dev_dependencies:
   flutter_test:
