@@ -25,9 +25,11 @@ class AuthViewModel extends ChangeNotifier {
   String _selectedRole = 'Athlete';
   Timer? _emailVerificationTimer;
   Timer? _debounce;
+  String? _passwordResetSuccessEmail;
 
   // Getters
   AuthState get authState => _authState;
+  String? get passwordResetSuccessEmail => _passwordResetSuccessEmail;
   FormValidation get formValidation => _formValidation;
   bool get isLogin => _isLogin;
   DateTime? get dob => _dob;
@@ -625,5 +627,95 @@ class AuthViewModel extends ChangeNotifier {
   void goBackFromVerification() {
     _emailVerificationTimer?.cancel();
     setAuthState(const AuthState(status: AuthStatus.initial));
+  }
+
+  /// Handles password reset functionality for forgot password.
+  Future<void> handleForgotPassword() async {
+    final email = emailController.text.trim();
+    
+    if (email.isEmpty) {
+      setAuthState(
+        const AuthState(
+          status: AuthStatus.error,
+          errorMessage: 'Please enter your email address first',
+        ),
+      );
+      return;
+    }
+
+    // Validate email format using the validation service
+    final emailError = ValidationService.validateEmail(email, forceValidate: true);
+    if (emailError != null) {
+      setAuthState(
+        AuthState(
+          status: AuthStatus.error,
+          errorMessage: emailError,
+        ),
+      );
+      return;
+    }
+
+    setAuthState(const AuthState(status: AuthStatus.loading));
+
+    try {
+      // Check if user exists in Firestore first using email
+      final userData = await _authService.getUserDataByEmail(email);
+      print(email);
+      print("***********");
+      print(userData);
+      if (userData == null) {
+        setAuthState(
+          const AuthState(
+            status: AuthStatus.error,
+            errorMessage: 'No account found with this email address',
+          ),
+        );
+        return;
+      }
+
+      // Send password reset email
+      await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+      
+      // Set success email for UI to display
+      _passwordResetSuccessEmail = email;
+      
+      // Reset to initial state - the UI will handle showing success message
+      setAuthState(const AuthState(status: AuthStatus.initial));
+      
+      notifyListeners(); // Notify UI about the success
+
+    } on FirebaseAuthException catch (e) {
+      String errorMessage;
+      
+      switch (e.code) {
+        case 'user-not-found':
+          errorMessage = 'No account found with this email address';
+          break;
+        case 'invalid-email':
+          errorMessage = 'Invalid email address';
+          break;
+        case 'too-many-requests':
+          errorMessage = 'Too many requests. Please try again later';
+          break;
+        default:
+          errorMessage = 'Error sending reset email. Please try again';
+      }
+
+      setAuthState(
+        AuthState(status: AuthStatus.error, errorMessage: errorMessage),
+      );
+    } catch (e) {
+      setAuthState(
+        AuthState(
+          status: AuthStatus.error,
+          errorMessage: 'Error: ${e.toString()}',
+        ),
+      );
+    }
+  }
+
+  void clearPasswordResetSuccess() {
+    _passwordResetSuccessEmail = null;
+    notifyListeners();
   }
 }
